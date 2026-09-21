@@ -83,7 +83,7 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
 `, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (diagnostic ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
 let document = inc('document');
 if (paneNavigation) {
-    document = document.replace('!cnHost.dragging && !cnHost.restoring', '!cnHost.dragging && !cnHost.restoring && (!cnPaired || !cnHost.inputGeometryPending)')
+    document = document.replace('!cnHost.dragging && !cnHost.restoring', '!cnHost.dragging && !cnHost.restoring && (!cnHost.secondary || !cnHost.inputGeometryPending)')
         .replace('cnHost.inkQualified && cnSelected && cnPaired', 'cnHost.inkQualified && cnPaired')
         + `
 function cnUpdateInputGeometry() { return sceneView.cnUpdateInputGeometry() }

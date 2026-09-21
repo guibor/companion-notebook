@@ -131,6 +131,19 @@ Item {
             tryVerify(function(){return fixture.host.error.length>0})
             verify(fixture.host.inputGeometryPending)
         }
+        function test_tuck_refreshes_only_primary_before_restoring_ordinary_writing() {
+            open();tryCompare(fixture.host,"inputGeometryPending",false)
+            var count=fixture.bridge.geometryCount
+            verify(fixture.host.tuck())
+            verify(fixture.host.inputGeometryPending);verify(!fixture.primary.cnInkAllowed)
+            tryCompare(fixture.host,"inputGeometryPending",false)
+            compare(fixture.bridge.geometryCount,count+1)
+            verify(fixture.primary.cnInkAllowed);compare(fixture.host.error,"")
+            verify(fixture.host.openSecondary())
+            tryCompare(fixture.host,"inputGeometryPending",false)
+            compare(fixture.bridge.geometryCount,count+3)
+            compare(fixture.host.error,"")
+        }
         function test_geometry_refresh_waits_for_pen_up() {
             open();tryCompare(fixture.host,"inputGeometryPending",false)
             fixture.pen.penDownChanged(true)

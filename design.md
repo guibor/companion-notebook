@@ -305,3 +305,9 @@ The readiness delta at `3a7bf6d` has independent one-run geometry clearance.
 Staging pins its replacement QMD/host and unchanged pair store/controller; the
 prior clearance is consumed. Local suite: 41 Qt tests, full three-order normal
 and geometry composition. Native writing lifetime holds remain separate.
+
+Normal tuck handling now holds the primary's pen gate closed while a retained
+companion exists and geometry is pending, even when `paired` just became false.
+Only the primary is refreshed while tucked; the companion waits for reveal.
+The Qt fixture now models that gate and catches the former premature reopen.
+These source changes are not substituted into an already frozen tablet stage.

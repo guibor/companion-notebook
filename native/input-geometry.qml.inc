@@ -19,7 +19,9 @@ function tryInputGeometry() {
     if (penDown || dragging || restoring) return
     if (!secondary) { inputGeometryPending = false; return }
     try {
-        var views = [bridge.primary, secondary]
+        // A retained, tucked companion is invisible and may not have ready tiles.
+        // Refresh it on reveal; only the full-height primary is needed while tucked.
+        var views = paired ? [bridge.primary, secondary] : [bridge.primary]
         for (var i = 0; i < views.length; ++i) {
             if (!views[i] || !views[i].document) throw new Error("missing-document")
             var reason = views[i].cnInputGeometryReadiness()

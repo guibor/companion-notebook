@@ -6,14 +6,11 @@ profile currently enables ink, and the geometry review does not permit doing so.
 
 ## Remaining implementation issues identified locally
 
-- Tucking retains `secondary` but makes `cnPaired` false. The normal input gate
-  currently ignores `inputGeometryPending` in that state, so the primary can
-  become eligible before the refresh helper runs and then refuse that helper.
-  The next normal-build change must gate while a retained secondary exists and
-  refresh only the primary when tucked. The hidden companion needs its mapping
-  refreshed on the next reveal, not while invisible. Diagnostic constant-false
-  ink gates are unaffected. Add a mock that implements the actual eligibility
-  expression rather than always returning a successful refresh.
+- Tuck-transition gate fixed locally: a retained `secondary` keeps the primary
+  gated until geometry refresh completes even when `cnPaired` becomes false.
+  Only the primary refreshes while tucked; the hidden companion refreshes on
+  reveal. A Qt mock implements the actual eligibility expression and verifies
+  primary writing reopens without a tap. Not yet a native writing qualification.
 - Global pen-up alone is not proof that the native worker has completed the
   stroke. Native `onStrokeCompleted` in DeviceSceneView dispatches the finished
   stroke to the document controller; its `completedStroke` signal is emitted

@@ -17,12 +17,17 @@ Item {
         property var document: ({id: "11111111-1111-4111-8111-111111111111"})
         property bool cnGestureBusy: false
         property bool cnSelected: !fixture.host || !fixture.host.secondarySelected
-        property bool cnInkAllowed: fixture.host && !fixture.host.renderProbeOnly && !fixture.host.paired
+        property bool cnInkAllowed: fixture.host && !fixture.host.renderProbeOnly && !fixture.host.modalOpen
+            && !fixture.host.dragging && !fixture.host.restoring
+            && (!fixture.host.secondary || !fixture.host.inputGeometryPending) && !fixture.host.paired
         readonly property var cnProbeViewport: primaryView
         readonly property var cnProbeScene: primaryView
         function cnCloseFoldout() {}
         function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
-        function cnInputGeometryReadiness() { return mockBridge.geometryLoading ? "loading" : "ready" }
+        function cnInputGeometryReadiness() {
+            if (cnInkAllowed) return "pen-gate-open"
+            return mockBridge.geometryLoading ? "loading" : "ready"
+        }
     }
     Component {
         id: secondaryFactory

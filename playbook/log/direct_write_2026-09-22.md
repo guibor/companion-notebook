@@ -75,3 +75,11 @@ correctness repair, not a newly discovered firmware/pen safety barrier. Payload
 must be rehashed and independently rechecked before one-run clearance.
 The same review requires restored native focal center/scale readback; the new
 diagnostic rejects setter-only success or nonfinite/drifted restored values.
+
+Narrow independent delta review passed at `8543258`. One pen-disabled, no-capture,
+always-reverting geometry run is cleared subject to fresh identity/base/settings,
+verified backup and unchanged watchdog. Final QMD is
+`6285d93870683052bf0a7066edd43ba3147feb05ba4af863740eff81ec0a8b29`;
+the other three hashes above are unchanged. Staging now pins this exact set.
+104 Node tests and the final three-order, 30-resource composition passed before
+adding the staging regressions. No ink, visual, durability or release clearance.

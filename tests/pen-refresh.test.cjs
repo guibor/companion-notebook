@@ -32,8 +32,3 @@ test('native transform failure detaches handler and retains closed ink eligibili
     assert.equal(f.root.cnGeometryAttached,false);assert.equal(f.root.cnInkAllowed,false);
     assert.deepEqual(f.calls,[['regions',true,false],['regions',true,false],['regions',false,false]]);
 });
-test('geometry profile cannot be staged without its own review',()=>{
-    const {spawnSync}=require('node:child_process');
-    const result=spawnSync(process.execPath,['ops/stage-probe.mjs','20990101T000000Z-111','geometry'],{encoding:'utf8'});
-    assert.notEqual(result.status,0);
-});

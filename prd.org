@@ -87,9 +87,10 @@ Read and write without losing context or compromising native handwriting.
    pane: the fixed full-height native viewport's paper bounds may otherwise hide
    lower content. Native gesture ownership alone is not this acceptance test.
 5. Exposed-pane navigation and retained-manager input refresh are implemented
-   locally. A separate pen-disabled geometry profile (101 Node / 39 Qt tests,
-   three-order composition) awaits independent one-run review. Normal base
-   remains active; no new device deployment is implied.
+   locally. A separate pen-disabled geometry profile now has independent
+   one-run clearance at 8543258 (108 Node / 39 Qt tests, three-order composition).
+   Execute only its exact four pinned artifacts with fresh backup and automatic
+   base recovery. This does not qualify ink, visuals, save durability or release.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

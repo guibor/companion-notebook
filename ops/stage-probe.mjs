@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const id = process.argv[2];
 const profile = process.argv[3] || 'load';
-assert(['load','render','structural'].includes(profile));
+assert(['load','render','structural','geometry'].includes(profile));
 // Trial 20260921T205838Z-1 crashed the native e-ink renderer during grabToImage.
 // Keep offline builds/tests available, but do not package another hardware trial
 // until a replacement diagnostic has its own independent safety review.
@@ -27,6 +27,18 @@ if (profile === 'structural') {
     };
     for (const [name, sha] of Object.entries(reviewed))
         assert.equal(hash(`${payload}/${name}`), sha, 'Structural review drift: '+name);
+}
+if (profile === 'geometry') {
+    // Independent narrow review of HEAD 8543258, 2026-09-22: ONE
+    // pen-disabled, no-capture, always-reverting geometry diagnostic only.
+    const reviewed = {
+        'companion-notebook.qmd': '6285d93870683052bf0a7066edd43ba3147feb05ba4af863740eff81ec0a8b29',
+        'NativeHost.qml': '6ebf4508f52d7381b31e870ef4746aee09a9136273bee6f5977cacace6b914c8',
+        'PairStore.js': '44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19',
+        'probe.sh': '47326d9285f4f8cd505e0d9cee454fe762a1110b6a2ec9c6e62d372311e6782a'
+    };
+    for (const [name, sha] of Object.entries(reviewed))
+        assert.equal(hash(`${payload}/${name}`), sha, 'Geometry review drift: '+name);
 }
 const base = '/Users/mdf/code/.worktrees/smart-remarkable-pro-3290148/ops/pro-3.29-qmd.sha256';
 assert.equal(hash(base), '5fe7e2ec3291efa692c90df769ea521d9e399d3da6e7448f9a9071caca71652d');

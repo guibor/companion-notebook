@@ -280,3 +280,9 @@ read-only root; user scrolling acceptance was confirmed after the earlier trial,
 not requested again during this overnight structural run.
 Consult the dated receipts
 and revalidate live identity/base state before each new trial, not these old PIDs.
+
+The geometry diagnostic now has independent one-run review at source `8543258`.
+`ops/stage-probe.mjs` admits only its four exact reviewed artifact hashes, plus
+matching full-stack composition and accepted base manifest. It still refuses the
+crashing render profile, byte drift and reused transaction IDs. This clearance is
+pen-disabled and always-reverting, not an ink or release qualification.

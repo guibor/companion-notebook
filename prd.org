@@ -44,7 +44,9 @@ Read and write without losing context or compromising native handwriting.
    blocks all pen input throughout its lifetime, limits UI memory, captures only
    disposable views, and restores the prior view before automatic base recovery.
    Local review passed (45 Node / 29 Qt tests; both composition profiles pass).
-   Execution awaits Pro reachability, fresh identity/base checks and backup.
+   First trial timed out at readiness and recovered base UI28522 / Dates14463.
+   The empty-library-view readiness correction passes 53 Node / 29 Qt tests;
+   independent review passed; use a fresh guarded transaction and backup.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
 

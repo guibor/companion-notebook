@@ -1,11 +1,21 @@
-readonly property bool probeMayStart: root.visible && !root.passcodeHandler.userLocked
-    && !BatteryManager.displaySleeping && Library.isReady && portrait
-    && !sharingActive && (!primary || !primary.isLoading)
+readonly property bool probeMayStart: probeReadiness() === "ready"
+readonly property string probeReadinessReason: probeReadiness()
 property var probeOriginal: null
 property var probeIds: []
 property bool probeCaptureDone: false
 property bool probeCaptureSaved: false
 property int probeGeneration: 0
+function probeReadiness() {
+    if (!root.visible) return "hidden"
+    if (root.passcodeHandler.userLocked) return "locked"
+    if (BatteryManager.displaySleeping) return "asleep"
+    if (!Library.isReady) return "library-busy"
+    if (!portrait) return "landscape"
+    if (sharingActive) return "sharing"
+    // The library can retain an empty DocumentView whose SceneView is inactive.
+    if (primary && primary.document && primary.isLoading) return "document-loading"
+    return "ready"
+}
 function probeInvalidate() { probeGeneration++ }
 function probeCreate() {
     if (!probeMayStart || Values.cnProbeStarted) throw new Error("Probe is unavailable or already claimed")

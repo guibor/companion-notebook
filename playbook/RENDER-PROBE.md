@@ -1,7 +1,10 @@
-# Two-native-document diagnostic (not yet deployed)
+# Two-native-document diagnostic (not a qualified release)
 
 The accepted load-only trial established host startup and automatic return to
 base, not dual rendering. This is a separately generated and reviewed profile.
+Its first hardware attempt timed out at readiness and recovered the accepted base;
+see the [trial receipt](log/render_probe_2026-09-21.md). The independently reviewed
+readiness correction is approved only for a fresh bounded diagnostic, not ink.
 
 Build the ordinary profile for the desktop/mock suite, then use
 `CN_PROBE=render node build-native.mjs` and
@@ -15,6 +18,9 @@ receipts. Do not reuse a stage ID, the old load-only artifact or its review.
 ## Native sequence and boundaries
 
 - Wait for an unlocked, awake, portrait, library-ready interface and no sharing.
+  A retained DocumentView with no document is a library placeholder, not a loading
+  notebook; real loading documents still block. Reason-only logging identifies
+  the actual waiting gate without exposing document content or personal metadata.
 - This profile compiles MainView interaction, document shortcuts, native gestures
   and pen input off independently of external-host loading; its picker is locked.
 - Claim a process-wide singleton flag before any creation. Never retry creation

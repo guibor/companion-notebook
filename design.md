@@ -6,9 +6,10 @@ device-local pairing settings and a composable QMD. Native writing remains
 disabled. The load-only probe has passed on the Pro
 and automatically returned to the accepted base; no Companion remains active.
 No qualified installer or release exists yet.
-The separately generated two-document diagnostic passed independent local review;
-its frozen hashes and current connectivity blocker are recorded in
-[the review receipt](playbook/log/render_review_2026-09-21.md).
+The separately generated two-document diagnostic passed independent local review,
+then timed out waiting for readiness and automatically restored the accepted base.
+Its [trial receipt](playbook/log/render_probe_2026-09-21.md) separates failed native
+rendering qualification from successful recovery; no ink has been enabled.
 
 ## Layout
 
@@ -57,6 +58,10 @@ for native integration, not proof that the e-ink compositor supports it.
   viewport subtrees. Each delayed callback revalidates generation, safe state,
   document IDs, view objects and viewport objects. `probeInvalidate()` cancels
   outstanding callbacks before failure/restore; no whole-MainView capture occurs.
+  `probeReadiness()` permits the library's empty DocumentView placeholder even
+  when its inactive SceneView reports loading, but still blocks a real loading
+  document and all locked/asleep/landscape/sharing/library-busy states. Diagnostic
+  logging emits only readiness reason labels when they change, never document data.
   Exceptions stop the diagnostic; no custom notebook serialization or deletion.
 - `ops/build-render-controller.mjs`: generates a narrowly transformed derivative
   of the hash-pinned reviewed load controller. It requires its own review and

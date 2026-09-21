@@ -48,6 +48,7 @@ Item {
         property int closeCount: 0
         property string lastAction: ""
         property bool probeMayStart: true
+        property string probeReadinessReason: probeMayStart ? "ready" : "locked"
         property bool probeCaptureDone: false
         property bool probeCaptureSaved: false
         property int probeCreateCount: 0

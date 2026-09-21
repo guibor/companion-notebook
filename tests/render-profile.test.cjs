@@ -21,18 +21,19 @@ test('rendering controller preserves the reviewed recovery implementation',()=>{
 });
 
 const bridge=fs.readFileSync('native/probe-bridge.qml.inc','utf8');
-const functions=bridge.slice(bridge.indexOf('function probeInvalidate()'));
+const functions=bridge.slice(bridge.indexOf('function probeReadiness()'));
 const a='55555555-5555-4555-8555-555555555555',b='22222222-2222-4222-8222-222222222222';
 function context() {
     const entries={[a]:{id:a,lastOpenedPage:0},[b]:{id:b,lastOpenedPage:0}};
     const calls=[];
     return {
         calls,probeMayStart:true,probeIds:[],probeOriginal:null,primary:null,probeGeneration:0,
+        portrait:true,sharingActive:false,BatteryManager:{displaySleeping:false},
         Values:{cnProbeStarted:false}, Qt:{Vertical:2}, DeviceScreenInfo:{paperSize:{width:1,height:1}},
-        Library:{entryForId:id=>entries[id]},
+        Library:{isReady:true,entryForId:id=>entries[id]},
         LibraryController:{createDocument:(folder,title)=>{calls.push(['create',folder,title]);return calls.filter(c=>c[0]==='create').length===1?a:b;},setOrientation:()=>{}},
         DocumentController:{setTemplateForPage:(...args)=>calls.push(['template',...args])},
-        root:{explorer:{rootId:()=> 'root'},openDocument_helper:(entry,cb)=>cb(),content:{grabToImage:()=>{calls.push(['capture']);return true;}}},
+        root:{visible:true,passcodeHandler:{userLocked:false},explorer:{rootId:()=> 'root'},openDocument_helper:(entry,cb)=>cb(),content:{grabToImage:()=>{calls.push(['capture']);return true;}}},
         documentView:{item:{openDocumentOnPage:(entry,page)=>calls.push(['open',entry.id,page])}},
         host:{closeSecondary:()=>calls.push(['close-secondary'])},
         console:{log:()=>{},warn:()=>{}},viewReady:()=>true
@@ -98,5 +99,28 @@ test('original document on wrong page is reopened and cannot pass restoration ea
     assert.deepEqual(c.calls,[['close-secondary'],['open',a,3]]);
     assert.equal(vm.runInNewContext('probeRestored()',c),false);
     c.primary.currentPage=3;
+    assert.equal(vm.runInNewContext('probeRestored()',c),true);
+});
+test('readiness permits an absent or empty library view but blocks a loading document',()=>{
+    const c=context(); vm.runInNewContext(functions,c);
+    assert.equal(vm.runInNewContext('probeReadiness()',c),'ready');
+    c.primary={document:null,isLoading:true};
+    assert.equal(vm.runInNewContext('probeReadiness()',c),'ready');
+    c.primary.document={id:a};
+    assert.equal(vm.runInNewContext('probeReadiness()',c),'document-loading');
+});
+for (const [reason,change] of [
+    ['hidden',c=>{c.root.visible=false;}],['locked',c=>{c.root.passcodeHandler.userLocked=true;}],
+    ['asleep',c=>{c.BatteryManager.displaySleeping=true;}],['library-busy',c=>{c.Library.isReady=false;}],
+    ['landscape',c=>{c.portrait=false;}],['sharing',c=>{c.sharingActive=true;}]
+]) test('library placeholder does not bypass '+reason+' readiness guard',()=>{
+    const c=context(); c.primary={document:null,isLoading:true}; change(c);
+    assert.equal(vm.runInNewContext(functions+'; probeReadiness()',c),reason);
+});
+test('native return to library closes only the test primary and accepts an empty placeholder',()=>{
+    const c=context(); c.Values.cnProbeStarted=true;
+    c.primary={document:{id:a},isLoading:false,close:()=>{c.calls.push(['close-primary']); c.primary.document=null; c.primary.isLoading=true;}};
+    vm.runInNewContext(functions+'; probeRestore(host);',c);
+    assert.deepEqual(c.calls,[['close-secondary'],['close-primary']]);
     assert.equal(vm.runInNewContext('probeRestored()',c),true);
 });

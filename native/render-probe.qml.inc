@@ -9,6 +9,7 @@ property real probeMainWidth: 0
 property real probeMainHeight: 0
 property real probeSecondHeight: 0
 property int probeDragStep: 0
+property string probeLastReadiness: ""
 function probeFail(message) {
     probeFailure = message
     probeTimer.stop()
@@ -30,6 +31,10 @@ Timer {
             if (host.error) throw new Error("Native host reported an error")
             switch (host.probePhase) {
             case 0:
+                if (host.probeLastReadiness !== bridge.probeReadinessReason) {
+                    host.probeLastReadiness = bridge.probeReadinessReason
+                    console.log("Companion probe: readiness=" + host.probeLastReadiness)
+                }
                 if (!bridge.probeMayStart) return
                 host.probeDocuments = bridge.probeCreate()
                 host.probePhase = 1

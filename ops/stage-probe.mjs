@@ -4,14 +4,15 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const id = process.argv[2];
 const profile = process.argv[3] || 'load';
-assert(['load','render'].includes(profile));
+assert(['load','render','structural'].includes(profile));
 // Trial 20260921T205838Z-1 crashed the native e-ink renderer during grabToImage.
 // Keep offline builds/tests available, but do not package another hardware trial
 // until a replacement diagnostic has its own independent safety review.
 assert.notEqual(profile, 'render',
     'Rendering probes suspended after native SIGSEGV; see playbook/RENDER-PROBE.md');
-const payload = profile === 'render' ? 'build/render-native' : 'build/native';
-const controller = profile === 'render' ? payload+'/probe.sh' : 'ops/probe-pro329.sh';
+assert.notEqual(profile, 'structural', 'Structural probe awaits independent review');
+const payload = profile === 'load' ? 'build/native' : `build/${profile}-native`;
+const controller = profile === 'load' ? 'ops/probe-pro329.sh' : payload+'/probe.sh';
 assert.match(id || '', /^\d{8}T\d{6}Z-\d+$/);
 const dir = `build/probe-${id}`;
 assert(!fs.existsSync(dir), 'Never reuse a probe stage');

@@ -23,7 +23,8 @@ Independent binary review found the custom EPContext returns a non-null EPLayer;
 the exact crash instruction is unknown, and a null-layer diagnosis is unsupported.
 The proposed replacement diagnostic avoids all offscreen-layer APIs and separates
 machine state checks (capture not attempted) from user visual acceptance on
-disposable pages. It is not implemented or approved for hardware. Moving capture
+disposable pages. The new structural profile is implemented locally but not yet
+approved for hardware. Moving capture
 to a parent/root or starting whole-screen RMStream is not an accepted workaround.
 
 ## Layout
@@ -36,6 +37,22 @@ for native integration, not proof that the e-ink compositor supports it.
 
 ## Modules and principal functions
 
+- `native/structural-probe.qml.inc`: no-capture diagnostic state machine.
+  `probeAssertStructure()` verifies saved DocumentView/current-scene/viewport
+  identities and dimensions, disposable IDs/controller separation and pen gates
+  on every paired tick. The driver opens two test notes, translates, selects,
+  observes for 40 half-second ticks, tucks/reopens and restores the exact prior
+  view before a distinctly nonvisual success marker. It aborts on unsafe screen
+  state, pen activity, identity/geometry drift, native errors or timeout.
+  `CN_PROBE=structural` emits a separate payload, removes the entire capture
+  function from the shared bridge at asserted boundaries and exposes only scene
+  and viewport references. Generated and decoded composition checks reject
+  offscreen capture/layer APIs. This is not a scrolling or pen test.
+  The controller uses `structural-machine-passed`, unchanged recovery, and no
+  PNG success requirements; staging is blocked pending independent review.
+  Local verification passed 81 Node / 34 Qt tests plus all three composition
+  profiles. The Pro was not discoverable in this run, so there is no new native
+  receipt; see the 2026-09-22 structural log.
 - `native/NativeHost.qml`: actual native-view container, picker, translated sheet,
   compact companion toolbar and focus state. `openSecondary()` creates a distinct
   native view and waits for readiness; `selectPane()` owns writing focus;

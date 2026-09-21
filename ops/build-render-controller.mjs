@@ -3,6 +3,8 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+const structural = process.env.CN_PROBE === 'structural';
+assert(!process.env.CN_PROBE || structural || process.env.CN_PROBE === 'render');
 const source=fs.readFileSync('ops/probe-pro329.sh','utf8');
 assert.equal(createHash('sha256').update(source).digest('hex'),'e219d071e62a5170f2799ba6b406a086495bc995e4976b7371265f9cf14116fb');
 let result=source;
@@ -47,6 +49,25 @@ const strictErrors="'Failed to load file|ReferenceError|TypeError|is not a type|
 replace(`! grep -Eiq ${strictErrors} "$B/probe.log"`,
     `if grep -Eiq ${strictErrors} "$B/probe.log"; then exit 1; else [ "$?" -eq 1 ]; fi`);
 replace('mark load-only-passed "$probe_pid"','systemctl is-active --quiet "$WATCH"\nmark rendering-machine-passed "$probe_pid"');
-fs.mkdirSync('build/render-native',{recursive:true});
-fs.writeFileSync('build/render-native/probe.sh',result,{mode:0o700});
-console.log('Rendering controller (not approved by load-only review): '+createHash('sha256').update(result).digest('hex'));
+if (structural) {
+    replace('# A bounded two-disposable-document rendering trial from accepted r1 base.',
+        '# A bounded no-capture structural trial from accepted r1 base; not visual acceptance.');
+    const oldMarker='Companion probe: two native views and return completed; ink=false; capture=true';
+    assert.equal(result.split(oldMarker).length,3);
+    result=result.replaceAll(oldMarker,'Companion probe: structural sequence and return completed; ink=false; capture=not-attempted; visual=unverified');
+    replace('[ -s "$D/render-primary.png" ]\n[ -s "$D/render-secondary.png" ]',
+        '[ ! -e "$D/render-primary.png" ]\n[ ! -e "$D/render-secondary.png" ]');
+    replace('mark rendering-machine-passed "$probe_pid"','mark structural-machine-passed "$probe_pid"');
+    replace("    grep -Fq 'property bool renderProbeOnly: true' \"$S/NativeHost.qml\"",
+        `    grep -Fq 'property bool renderProbeOnly: true' "$S/NativeHost.qml" || return 1
+    grep -Fq 'capture=not-attempted; visual=unverified' "$S/NativeHost.qml" || return 1
+    if grep -Eq 'grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer[[:space:]]*\\.' "$S/NativeHost.qml" "$S/companion-notebook.qmd"; then
+        return 1
+    else
+        [ "$?" -eq 1 ] || return 1
+    fi`);
+}
+const output=structural ? 'build/structural-native' : 'build/render-native';
+fs.mkdirSync(output,{recursive:true});
+fs.writeFileSync(output+'/probe.sh',result,{mode:0o700});
+console.log((structural?'Structural':'Rendering')+' controller (requires independent review): '+createHash('sha256').update(result).digest('hex'));

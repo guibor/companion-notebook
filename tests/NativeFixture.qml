@@ -18,11 +18,14 @@ Item {
         property bool cnGestureBusy: false
         property bool cnSelected: !fixture.host || !fixture.host.secondarySelected
         property bool cnInkAllowed: fixture.host && !fixture.host.renderProbeOnly && !fixture.host.paired
+        readonly property var cnProbeViewport: primaryView
+        readonly property var cnProbeScene: primaryView
         function cnCloseFoldout() {}
     }
     Component {
         id: secondaryFactory
         Item {
+            id: secondaryView
             anchors.fill: parent
             property var cnHost
             property var document: null
@@ -30,6 +33,8 @@ Item {
             property bool cnGestureBusy: false
             property bool cnSelected: !!cnHost && cnHost.secondarySelected && cnHost.paired
             property bool cnInkAllowed: false
+            readonly property var cnProbeViewport: secondaryView
+            readonly property var cnProbeScene: secondaryView
             property bool closed: false
             function cnCloseFoldout() {}
             function cnNativeClose() { closed = true; mockBridge.closeCount++ }

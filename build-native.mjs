@@ -6,8 +6,10 @@ import {execFileSync} from 'node:child_process';
 const firmware = process.env.RM_FIRMWARE || '/Users/mdf/code/remarkable-beta-os/.cache/firmware/3.29.0.148';
 const tool = process.env.QMLDIFF_BIN || '/Users/mdf/code/remarkable-beta-os/.cache/tools/qmldiff-25681c3-bin';
 const renderProbe = process.env.CN_PROBE === 'render';
-assert(!process.env.CN_PROBE || renderProbe, 'Unknown probe profile');
-const output = renderProbe ? 'build/render-native' : 'build/native';
+const structuralProbe = process.env.CN_PROBE === 'structural';
+const diagnostic = renderProbe || structuralProbe;
+assert(!process.env.CN_PROBE || diagnostic, 'Unknown probe profile');
+const output = diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
@@ -18,13 +20,24 @@ const affect = (file, root, body, imports='') => `AFFECT /${file}\n${imports}\n 
 const insert = text => ` LOCATE BEFORE ALL\n INSERT {\n${text}\n }\n`;
 const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL\n REPLACE { ${before} } WITH { ${after} }\n END REBUILD\n`;
 let q = 'VERSION 3.29.0.148\n';
-q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (renderProbe ? '\nproperty bool cnProbeStarted: false' : '')));
-const main = inc('main').replace('// PROBE_BRIDGE', renderProbe ? inc('probe-bridge') : '');
-q += affect('qml/device/view/main/MainView.qml','Background#root',insert((renderProbe ? 'enabled: false\n' : '') + main) + `
+q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (diagnostic ? '\nproperty bool cnProbeStarted: false' : '')));
+let probeBridge = diagnostic ? inc('probe-bridge') : '';
+if (structuralProbe) {
+    const start = probeBridge.indexOf('function probeCapture(host) {');
+    const end = probeBridge.indexOf('function probeRestore(host) {');
+    assert(start > 0 && end > start, 'Capture removal anchors drifted');
+    probeBridge = (probeBridge.slice(0, start) + probeBridge.slice(end))
+        .replace('property bool probeCaptureDone: false\n', '')
+        .replace('property bool probeCaptureSaved: false\n', '')
+        .replaceAll('cnProbeCaptureItem', 'cnProbeScene');
+    assert(!/probeCapture|grabToImage|saveToFile/.test(probeBridge));
+}
+const main = inc('main').replace('// PROBE_BRIDGE', probeBridge);
+q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagnostic ? 'enabled: false\n' : '') + main) + `
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  LOCATE AFTER Loader#documentView
  INSERT {
-   ${renderProbe ? `Rectangle {
+   ${diagnostic ? `Rectangle {
      id: cnProbeNotice
      z: 9001
      anchors.left: parent.left
@@ -62,22 +75,26 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((render
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot > Component#documentViewComponent > DocumentView#documentViewItem
  ${insert('cnHost: root.cnHost')}
  END TRAVERSE
-`, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (renderProbe ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
+`, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (diagnostic ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
 let document = inc('document');
-if (renderProbe) document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, 'readonly property bool cnInkAllowed: false')
-    + '\nreadonly property var cnProbeViewport: sceneView.viewport\nreadonly property var cnProbeCaptureItem: sceneView.sceneView\nfunction cnProbeCaptureViewport(callback) { return !!cnProbeViewport && !!cnProbeCaptureItem && cnProbeCaptureItem.grabToImage(callback) }\n';
+if (diagnostic) {
+    document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, 'readonly property bool cnInkAllowed: false')
+        + '\nreadonly property var cnProbeViewport: sceneView.viewport\n';
+    document += structuralProbe ? 'readonly property var cnProbeScene: sceneView.sceneView\n'
+        : 'readonly property var cnProbeCaptureItem: sceneView.sceneView\nfunction cnProbeCaptureViewport(callback) { return !!cnProbeViewport && !!cnProbeCaptureItem && cnProbeCaptureItem.grabToImage(callback) }\n';
+}
 q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  RENAME close TO cnStockClose
  ${insert(document)}
  ${replace('cnStockClose','Settings.lastOpen = "";','if (!cnSecondary) Settings.lastOpen = "";')}
  ${replace('_open_helper','Settings.lastOpen = "";','if (!cnSecondary) Settings.lastOpen = "";')}
  ${replace('_open_helper','Settings.lastOpen = document.id;','if (!cnSecondary) Settings.lastOpen = document.id;')}
- ${replace('shortcutsEnabled','visible &&',renderProbe ? 'false && visible &&' : 'cnSelected && visible &&')}
+ ${replace('shortcutsEnabled','visible &&',diagnostic ? 'false && visible &&' : 'cnSelected && visible &&')}
  TRAVERSE Binding
  ${insert('when: root.cnOwnsGlobals; restoreMode: Binding.RestoreNone')}
  END TRAVERSE
  TRAVERSE DeviceSceneView#sceneView
- ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (renderProbe ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen)'))}
+ ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (diagnostic ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen)'))}
  END TRAVERSE
  TRAVERSE DocumentToolSettings#documentViewTools
  ${replace('onDocumentAboutToChange','Settings.setLastWritingTool(toolSettings());','if (root.cnOwnsGlobals) Settings.setLastWritingTool(toolSettings());')}
@@ -150,8 +167,12 @@ fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
 fs.writeFileSync(output+'/companion-notebook.qmd',q);
 let host=fs.readFileSync('native/NativeHost.qml','utf8');
-if (renderProbe) host=host.replace('property bool renderProbeOnly: false','property bool renderProbeOnly: true')
-    .replace(/}\s*$/, inc('render-probe')+'\n}\n');
+if (diagnostic) host=host.replace('property bool renderProbeOnly: false','property bool renderProbeOnly: true')
+    .replace(/}\s*$/, inc(structuralProbe ? 'structural-probe' : 'render-probe')+'\n}\n');
+if (structuralProbe) {
+    for (const content of [q, host])
+        assert(!/grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer\s*\./.test(content), 'Forbidden offscreen capture in structural profile');
+}
 fs.writeFileSync(output+'/NativeHost.qml',host);
 fs.copyFileSync('src/PairStore.js',output+'/PairStore.js');
 execFileSync(tool,['hash-diffs',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{stdio:'inherit'});

@@ -15,7 +15,9 @@ const peerFiles = fs.readdirSync(peers).filter(x=>x.endsWith('.qmd')).map(x=>pat
 assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await a new accepted inventory');
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
-const payload=process.env.CN_PROBE==='render'?'build/render-native':'build/native';
+const profile=process.env.CN_PROBE||'load';
+assert(['load','render','structural'].includes(profile));
+const payload=profile==='load'?'build/native':`build/${profile}-native`;
 const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
 fs.cpSync(path.join(fw,'resources'),input,{recursive:true});
@@ -46,15 +48,24 @@ for(const [name,patches] of variants) {
   const main=read('qml/device/view/main/MainView.qml');
   assert.match(main,/cnSecondary: true/); assert.match(main,/id: rmstreamShortcutLoader/);
   assert.match(main,/id: dispatchDocumentMenuLoader/);
-  if (process.env.CN_PROBE==='render') {
+  if (profile !== 'load') {
     assert.match(doc,/readonly property\s+bool cnInkAllowed: false/);
     assert.match(doc,/shortcutsEnabled: false && visible/);
     assert.match(doc,/cnLayoutBusy: true/);
-    assert.match(doc,/function cnProbeCaptureViewport/);
     assert.match(doc,/readonly property\s+var cnProbeViewport: sceneView.viewport/);
-    assert.match(doc,/readonly property\s+var cnProbeCaptureItem: sceneView.sceneView/);
-    assert.match(doc,/cnProbeCaptureItem.grabToImage\(callback\)/);
-    assert.doesNotMatch(doc,/cnProbeViewport.grabToImage/);
+    if (profile === 'render') {
+      assert.match(doc,/function cnProbeCaptureViewport/);
+      assert.match(doc,/readonly property\s+var cnProbeCaptureItem: sceneView.sceneView/);
+      assert.match(doc,/cnProbeCaptureItem.grabToImage\(callback\)/);
+      assert.doesNotMatch(doc,/cnProbeViewport.grabToImage/);
+    } else {
+      assert.match(doc,/readonly property\s+var cnProbeScene: sceneView.sceneView/);
+      assert.match(main,/primary.cnProbeScene/);
+      assert.match(main,/String\(first.document.id\) === probeIds\[0\]/);
+      assert.match(main,/primary.sceneController !== host.secondary.sceneController/);
+      for (const source of [doc,main,fs.readFileSync(candidate,'utf8'),fs.readFileSync(payload+'/NativeHost.qml','utf8')])
+        assert.doesNotMatch(source,/grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer\s*\./);
+    }
     assert.match(main,/enabled: false/);
     assert.match(main,/id: cnProbeNotice/);
     assert.match(main,/Temporary test — writing and scrolling paused/);

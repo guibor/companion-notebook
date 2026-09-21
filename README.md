@@ -10,15 +10,19 @@ hardware target is Paper Pro 3.29.0.148; Move and landscape are deferred.
 The native candidate keeps writing disabled. A guarded load-only trial passed on
 the Pro and automatically restored its accepted base. No Companion remains active;
 two-document rendering, native ink and physical UX still require qualification.
+The historical capture diagnostic crashed the native e-ink rendering path and
+is blocked from staging. Its no-capture replacement is locally implemented;
+see [structural diagnostic](playbook/STRUCTURAL-PROBE.md) for current limits.
 
 ## Run locally
 
 With Node and Qt Quick/Qt Test installed:
 
 ```sh
-npm test
 node build-native.mjs
 CN_PROBE=render node build-native.mjs # local diagnostic-driver tests only
+CN_PROBE=structural node build-native.mjs
+npm test
 QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner -input tests
 QT_QUICK_CONTROLS_STYLE=Basic qml ui/Main.qml
 ```
@@ -49,11 +53,14 @@ base-plugin inventory in three orders. Paths and hashes are deliberately pinned
 to this qualification session, not a generic installation promise. A future
 firmware requires a new review, not merely changing a version string.
 
-`CN_PROBE=render` builds a separate, auto-running diagnostic profile under
+`CN_PROBE=render` builds the blocked historical diagnostic profile under
 `build/render-native`, not the normal host. It creates two labeled test notebooks
 through native APIs, never draws ink, and attempts to restore the prior view. It
-must only run under its separately reviewed bounded controller; never install it
-as an ordinary app. The normal build has no automatic notebook-creation code.
+must not be deployed again; it is retained only for local regression tests.
+`CN_PROBE=structural` emits `build/structural-native`, with capture removed and a
+distinct structural-only completion result. It requires its own reviewed bounded
+controller, never ordinary app installation. The normal build has no automatic
+notebook-creation code. Neither diagnostic proves visual or pen correctness.
 
 The native host keeps primary-document scale unchanged, uses a distinct native
 DocumentView for a recent local companion, and persists only pairing metadata

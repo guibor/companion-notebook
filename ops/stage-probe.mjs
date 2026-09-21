@@ -10,13 +10,24 @@ assert(['load','render','structural'].includes(profile));
 // until a replacement diagnostic has its own independent safety review.
 assert.notEqual(profile, 'render',
     'Rendering probes suspended after native SIGSEGV; see playbook/RENDER-PROBE.md');
-assert.notEqual(profile, 'structural', 'Structural probe awaits independent review');
 const payload = profile === 'load' ? 'build/native' : `build/${profile}-native`;
 const controller = profile === 'load' ? 'ops/probe-pro329.sh' : payload+'/probe.sh';
 assert.match(id || '', /^\d{8}T\d{6}Z-\d+$/);
 const dir = `build/probe-${id}`;
 assert(!fs.existsSync(dir), 'Never reuse a probe stage');
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+if (profile === 'structural') {
+    // Independent local review, 2026-09-22. Only these frozen bytes are cleared
+    // for preparation of one bounded always-revert trial, never a release.
+    const reviewed = {
+        'companion-notebook.qmd': 'bffff7eb404b251075471b0f37b047a6e470b48ac6b2319429498e76f6631614',
+        'NativeHost.qml': 'dbb8aa5ce089e83f345bc72a84ff94e70639caae4954187e726cd99e5c87777a',
+        'PairStore.js': '44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19',
+        'probe.sh': '99980076ef07dbda84bddafbbf77f4bedb365d372f41fdbfb9a95ee8c8335bd0'
+    };
+    for (const [name, sha] of Object.entries(reviewed))
+        assert.equal(hash(`${payload}/${name}`), sha, 'Structural review drift: '+name);
+}
 const base = '/Users/mdf/code/.worktrees/smart-remarkable-pro-3290148/ops/pro-3.29-qmd.sha256';
 assert.equal(hash(base), '5fe7e2ec3291efa692c90df769ea521d9e399d3da6e7448f9a9071caca71652d');
 const receipt = JSON.parse(fs.readFileSync(payload+'/composition.json'));

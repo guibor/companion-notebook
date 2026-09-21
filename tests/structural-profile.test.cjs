@@ -2,7 +2,9 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const {execFileSync}=require('node:child_process');
+const {execFileSync,spawnSync}=require('node:child_process');
+const os=require('node:os');
+const path=require('node:path');
 const driver=fs.readFileSync('native/structural-probe.qml.inc','utf8');
 function body(source,anchor) {
     const start=source.indexOf(anchor); assert(start>=0,anchor);
@@ -85,4 +87,35 @@ test('structural driver cannot report success before exact native return',()=>{
     const f=fixture();f.until(8);f.bridge.probeRestored=()=>false;
     for(let n=0;n<170&&f.c.running;n++)f.tick();
     assert.match(f.host.probeFailure,/timed out/);assert(!f.host.probeSucceeded);
+});
+
+test('actual staging accepts frozen structural bytes and refuses ID reuse',()=>{
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'companion-stage-pinned-'));
+    try {
+        const payload=path.join(root,'build/structural-native');
+        fs.mkdirSync(payload,{recursive:true});
+        for(const file of ['NativeHost.qml','PairStore.js','companion-notebook.qmd','probe.sh','composition.json'])
+            fs.copyFileSync('build/structural-native/'+file,path.join(payload,file));
+        const stage=path.resolve('ops/stage-probe.mjs');
+        const args=[stage,'20990101T000000Z-1','structural'];
+        const run=()=>spawnSync(process.execPath,args,{cwd:root,encoding:'utf8'});
+        const result=run();assert.equal(result.status,0,result.stderr);
+        assert.equal(fs.readdirSync(path.join(root,'build/probe-20990101T000000Z-1')).length,6);
+        assert.notEqual(run().status,0);
+    } finally {fs.rmSync(root,{recursive:true,force:true});}
+});
+for(const changed of ['NativeHost.qml','PairStore.js','companion-notebook.qmd','probe.sh'])
+test('actual staging rejects any drift of reviewed '+changed,()=>{
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'companion-stage-drift-'));
+    try {
+        const payload=path.join(root,'build/structural-native');
+        fs.mkdirSync(payload,{recursive:true});
+        for(const file of ['NativeHost.qml','PairStore.js','companion-notebook.qmd','probe.sh'])
+            fs.copyFileSync('build/structural-native/'+file,path.join(payload,file));
+        fs.appendFileSync(path.join(payload,changed),'\n');
+        const result=spawnSync(process.execPath,[path.resolve('ops/stage-probe.mjs'),'20990101T000000Z-1','structural'],{cwd:root,encoding:'utf8'});
+        assert.notEqual(result.status,0);
+        assert.match(result.stderr,/Structural review drift/);
+        assert(!fs.existsSync(path.join(root,'build/probe-20990101T000000Z-1')));
+    } finally {fs.rmSync(root,{recursive:true,force:true});}
 });

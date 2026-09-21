@@ -30,3 +30,25 @@ found only 10.100.102.2, whose public Ed25519 fingerprint was not Ferrari's; no
 authentication was attempted. No device writes, staging or restarts this run.
 Sleep or disconnection is possible, but not proven. Do not treat the historical
 restored PID as freshly observed or weaken authentication to reach another host.
+
+## Independent review passed; no device trial
+
+ReManager independently passed the four frozen artifact hashes above. It executed
+the decoded native separation function against foreign inner document IDs, shared
+controllers, unloaded documents and destroyed scenes; reviewed capture absence
+and compiled input locks; and tested the actual controller success tail against
+old render markers, PNG presence, failure/error/missing logs and stopped watchdog.
+No source edits or tablet contact occurred in that review.
+
+Scope is preparation of ONE bounded always-revert structural trial, not ink,
+visual, scrolling or release acceptance. Structural staging now pins each of the
+four reviewed hashes. Executable staging tests require success for exact bytes,
+refusal of ID reuse and refusal before output for drift in each of the four files.
+Historical render staging remains hard-blocked. The Pro is still unavailable;
+no new device receipt exists and no existing installed state was changed.
+
+Final local tests after the pinned-staging transition: 86 Node tests pass.
+Qt remains 34 passing tests and all three composition profiles pass; staging
+changes do not modify the frozen tablet payload/controller. Independent review
+used decoded/static and targeted executable checks, not an independent full Qt
+run (its Qt attempt was sandbox-blocked). The full Qt result is this task's run.

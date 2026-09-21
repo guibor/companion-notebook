@@ -1,9 +1,10 @@
 # No-capture structural diagnostic — not a release
 
 This new `CN_PROBE=structural` profile replaces neither the blocked rendering
-profile nor any visual/ink acceptance gate. It is locally implemented and awaits
-independent review. The render profile stays blocked. No hardware clearance is
-implied by a successful build or this document.
+profile nor any visual/ink acceptance gate. Independent local review passed for
+the four frozen hashes in the dated structural log, supporting preparation of one
+bounded always-revert trial. The render profile stays blocked. Fresh device,
+base-state and backup checks remain prerequisites, and there is no release clearance.
 
 ## Scope
 
@@ -45,8 +46,10 @@ Never infer that observation from state-machine success.
    it rejects capture identifiers and requires the nonvisual completion marker.
 3. Run Node and Qt tests, then all three composition profiles sequentially (they
    share ignored output directories). Freeze all payload/controller hashes.
-4. Obtain independent review of this profile, including its different success
-   semantics. Staging remains blocked pending that review.
+4. Independent review of this profile, including its different success semantics,
+   has passed. `node ops/stage-probe.mjs ID structural` now requires the four exact
+   reviewed payload/controller hashes in addition to composition receipts. Byte
+   drift is a refusal before stage creation, not implicit approval of a rebuild.
 5. Only after review and user authorization, perform fresh strict-key/device/base
    inventory and independently verified Mac backup as in LOAD-PROBE.md. A fresh
    transaction is mandatory; never modify or rerun an older stage.

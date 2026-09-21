@@ -64,8 +64,10 @@ Read and write without losing context or compromising native handwriting.
    grab or whole-screen stream. A separate structural profile is now implemented
    locally: same input locks and recovery, no capture APIs, repeated object/ID/
    geometry guards, bounded observation, exact return and nonvisual-only receipt.
-   It needs fresh review and authorization; staging remains suspended meanwhile.
-   Local suite passes (81 Node / 34 Qt; three profiles x three orders x 29 QML
+   Independent review passed for its exact four files. Structural staging is
+   pinned to those bytes for one bounded always-revert trial; historical render
+   stays blocked. Fresh device/base/backup gates remain mandatory.
+   Local suite passes (86 Node / 34 Qt; three profiles x three orders x 29 QML
    resources). No device run: Pro did not respond and no matching host key was
    found on the current subnet. Keep normal tablet state untouched.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin

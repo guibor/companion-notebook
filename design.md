@@ -23,8 +23,9 @@ Independent binary review found the custom EPContext returns a non-null EPLayer;
 the exact crash instruction is unknown, and a null-layer diagnosis is unsupported.
 The proposed replacement diagnostic avoids all offscreen-layer APIs and separates
 machine state checks (capture not attempted) from user visual acceptance on
-disposable pages. The new structural profile is implemented locally but not yet
-approved for hardware. Moving capture
+disposable pages. The new structural profile is implemented locally and
+cleared only for preparation of one bounded structural trial using exact reviewed
+bytes and fresh device/base/backup checks. No hardware trial has run. Moving capture
 to a parent/root or starting whole-screen RMStream is not an accepted workaround.
 
 ## Layout
@@ -49,8 +50,10 @@ for native integration, not proof that the e-ink compositor supports it.
   and viewport references. Generated and decoded composition checks reject
   offscreen capture/layer APIs. This is not a scrolling or pen test.
   The controller uses `structural-machine-passed`, unchanged recovery, and no
-  PNG success requirements; staging is blocked pending independent review.
-  Local verification passed 81 Node / 34 Qt tests plus all three composition
+  PNG success requirements. Independent review passed; staging accepts only the
+  four frozen hashes, rejecting byte drift before writing a stage. Historical
+  render staging remains blocked.
+  Local verification passed 86 Node / 34 Qt tests plus all three composition
   profiles. The Pro was not discoverable in this run, so there is no new native
   receipt; see the 2026-09-22 structural log.
 - `native/NativeHost.qml`: actual native-view container, picker, translated sheet,
@@ -149,10 +152,11 @@ for native integration, not proof that the e-ink compositor supports it.
   its own new host/settings files. No commit or persistent activation action.
 - `ops/stage-probe.mjs`: emits a new private, hash-manifested five-file stage
   after composition and controller syntax checks. It never connects to a device.
-  It now rejects every render-profile staging request before artifact reads or
-  writes, following the native capture crash. There is no command-line bypass;
-  lifting this suspension requires a reviewed source change. Offline diagnostic
-  compilation remains available, and the existing load-only behavior is unchanged.
+  It rejects every historical render-profile staging request before artifact
+  reads or writes, following the native capture crash. There is no command-line
+  bypass. Structural staging requires the four independently reviewed hashes;
+  future candidates need new review. Offline diagnostic compilation remains
+  available, and existing load-only behavior is unchanged.
   `playbook/LOAD-PROBE.md` documents the strict-key, backup-acknowledged operator
   sequence and separates automatic recovery from feature acceptance.
 - `tests/probe-policy.test.cjs`: executes the actual recovery function in a

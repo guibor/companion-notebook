@@ -3,7 +3,9 @@
 Implemented locally: a portrait interaction prototype and an exact-firmware
 native rendering candidate. The candidate contains native document adapters,
 device-local pairing settings and a composable QMD. It has **not been deployed**;
-native writing remains disabled. No qualified installer or release exists yet.
+native writing remains disabled. The load-only probe has since passed on the Pro
+and automatically returned to the accepted base; no Companion remains active.
+No qualified installer or release exists yet.
 
 ## Layout
 

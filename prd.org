@@ -35,8 +35,8 @@ Read and write without losing context or compromising native handwriting.
 
 * Next steps
 1. ReManager handover and fresh strict-key identity/inventory verification passed.
-2. Run the load-only, automatically reverting native-host trial against that
-   accepted r1 inventory; confirm the new watchdog restores the base.
+2. Load-only trial passed and automatically restored the accepted r1 base at
+   UI22703 / Dates14463. Native writing remains disabled; no active Companion.
 3. Then prepare a bounded, independently recoverable rendering trial with two
    disposable documents. Candidate already disables direct framebuffer paths
    while paired and clips native input; actual behavior must be verified.

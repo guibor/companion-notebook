@@ -19,7 +19,8 @@ function fixture() {
 test('geometry diagnostic restores exact focal point and gesture lock on success',()=>{
     const f=fixture();assert.equal(f.c.cnProbePaneGeometry(),true);
     assert.equal(f.nav.cnLayoutBusy,true);
-    assert.deepEqual(f.calls.slice(-2),[['restore',{x:0,y:1080},1],['refresh']]);
+    assert.deepEqual(f.calls.at(-1),['restore',{x:0,y:1080},1]);
+    assert(!f.calls.some(c=>c[0]==='refresh'));
 });
 test('geometry diagnostic rejects stock-clamped bottom and restores state',()=>{
     const f=fixture();f.nav.cnJump=()=>true;

@@ -40,5 +40,7 @@ function cnProbePaneGeometry() {
         || Math.abs(restored.y - initialCenter.y) > 0.0001
         || Math.abs(tm.scale - initialScale) > 0.00001)
         throw new Error("Native focal point did not restore")
-    return cnUpdateInputGeometry()
+    // Tile requests triggered above can still be pending. Refresh the pen mapping
+    // in a later timer tick, after native loading settles, never in this call.
+    return true
 }

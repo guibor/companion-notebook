@@ -83,3 +83,21 @@ verified backup and unchanged watchdog. Final QMD is
 the other three hashes above are unchanged. Staging now pins this exact set.
 104 Node tests and the final three-order, 30-resource composition passed before
 adding the staging regressions. No ink, visual, durability or release clearance.
+
+## Geometry run 20260921T223851Z-1
+
+Verified backup SHA `a254100e830ac9110513293d232ef2b79f987e6220da5772fb1c54d2e8df4153`.
+Manifest `71f0c92231ac9759ed7fda775fe989e913a023a386077c59563fd771877aec38`.
+At 22:40:11 UTC, primary exposed-pane scrolling passed (height1080, scale1), then
+phase5 failed its combined geometry condition. That generic marker does not tell
+whether primary refresh or secondary preconditions refused. No ink or capture.
+Automatic recovery `base:49237`, unchanged Dates14463, zero restarts, MemoryMax
+infinity, all11QMDs/10settings/3policies exact, rootro, host/data/drop/lock absent.
+Clearance consumed. Two empty labelled test notebooks retained (no deletion):
+`e0b81795-bebb-4ab6-9a40-9256be17e168`, `080b54f1-676d-4f73-b586-a5b46d504381`.
+
+Code inspection identified a timing bug: immediate pen-refresh after synchronous
+scroll/restoration may encounter pending tiles (`isLoading`). Refresh now waits
+in a separate bounded phase; the normal host also retries only that transient
+state. Exact refusal reasons remain fail-closed. This is an inferred explanation,
+not proof of which boolean stopped the first run. Changed payload needs review.

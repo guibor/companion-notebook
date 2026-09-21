@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('native/pen-refresh.qml.inc','utf8');
-const fn=source.slice(source.indexOf('function cnUpdateInputGeometry'));
+const fn=source.slice(source.indexOf('function cnInputGeometryReadiness'));
 function fixture() {
     const calls=[], strokeHandler={};
     const root={tileManager:{},sceneView:{},isLoading:false,adjustViewActive:false,

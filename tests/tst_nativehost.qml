@@ -112,6 +112,25 @@ Item {
             tryVerify(function(){return fixture.host.error.length>0})
             verify(fixture.host.inputGeometryPending)
         }
+        function test_loading_waits_before_refresh_without_error_or_ungating() {
+            open();tryCompare(fixture.host,"inputGeometryPending",false)
+            fixture.bridge.geometryLoading=true
+            var count=fixture.bridge.geometryCount
+            fixture.host.scheduleInputGeometry();wait(250)
+            compare(fixture.bridge.geometryCount,count)
+            verify(fixture.host.inputGeometryPending);compare(fixture.host.error,"")
+            fixture.bridge.geometryLoading=false
+            tryCompare(fixture.host,"inputGeometryPending",false)
+            compare(fixture.bridge.geometryCount,count+2)
+        }
+        function test_loading_timeout_keeps_pen_gate_closed() {
+            open();tryCompare(fixture.host,"inputGeometryPending",false)
+            fixture.bridge.geometryLoading=true
+            fixture.host.scheduleInputGeometry();wait(20)
+            fixture.host.inputGeometryRetries=120
+            tryVerify(function(){return fixture.host.error.length>0})
+            verify(fixture.host.inputGeometryPending)
+        }
         function test_geometry_refresh_waits_for_pen_up() {
             open();tryCompare(fixture.host,"inputGeometryPending",false)
             fixture.pen.penDownChanged(true)

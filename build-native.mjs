@@ -87,6 +87,7 @@ if (paneNavigation) {
         .replace('cnHost.inkQualified && cnSelected && cnPaired', 'cnHost.inkQualified && cnPaired')
         + `
 function cnUpdateInputGeometry() { return sceneView.cnUpdateInputGeometry() }
+function cnInputGeometryReadiness() { return sceneView.cnInputGeometryReadiness() }
 Connections {
     target: root.penHandler
     function onStrokeCompleted() { if (root.cnHost) root.cnHost.noteToolbarOwner(root) }
@@ -211,9 +212,24 @@ if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
 if (diagnostic) {
     let driver=inc(noCaptureProbe ? 'structural-probe' : 'render-probe');
     if (geometryProbe) driver=driver
+        .replace('property int probePhase: 0', 'property int probePhase: 0\nproperty bool probeInputRefreshed: false')
+        .replace('case 5:', 'case 5:\n                if (!bridge.viewReady(bridge.primary) || !bridge.viewReady(host.secondary)) return')
         .replace('console.log("Companion probe: observation window;', `if (!bridge.primary.cnProbePaneGeometry() || !host.secondary.cnProbePaneGeometry())
                     throw new Error("Native exposed-pane geometry failed")
                 console.log("Companion probe: observation window;`)
+        .replace('case 6:', `case 6:
+                if (!host.probeInputRefreshed) {
+                    if (!bridge.viewReady(bridge.primary) || !bridge.viewReady(host.secondary) || host.inputGeometryPending) return
+                    var views = [bridge.primary, host.secondary]
+                    for (var k = 0; k < views.length; ++k) {
+                        var reason = views[k].cnInputGeometryReadiness()
+                        if (reason === "loading") return
+                        if (reason !== "ready" || !views[k].cnUpdateInputGeometry())
+                            throw new Error("Input refresh refused pane=" + k + "; reason=" + reason)
+                    }
+                    host.probeInputRefreshed = true
+                    console.log("Companion probe: both native input transforms refreshed after loading")
+                }`)
         .replace('structural sequence and return completed', 'geometry sequence and return completed');
     host=host.replace('property bool renderProbeOnly: false','property bool renderProbeOnly: true')
         .replace(/}\s*$/, driver+'\n}\n');

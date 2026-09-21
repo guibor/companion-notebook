@@ -286,3 +286,13 @@ The geometry diagnostic now has independent one-run review at source `8543258`.
 matching full-stack composition and accepted base manifest. It still refuses the
 crashing render profile, byte drift and reused transaction IDs. This clearance is
 pen-disabled and always-reverting, not an ink or release qualification.
+
+That one run restored base UI49237 after a refused geometry check, following a
+successful upper-pane scroll test. A synchronous scroll can leave native tiles
+loading, so input refresh is now separate: `cnInputGeometryReadiness()` exposes
+specific refusal reasons; `tryInputGeometry()` keeps the pen gate shut and retries
+only transient loading (100 ms, 120 attempts maximum). Pen/drag/restore activity
+pauses attempts until its completion schedules a fresh refresh. The diagnostic
+checks both panes' scroll/focal restoration first, then waits on a later timer tick
+for native loading to settle before verifying both pen transforms. The original
+run does not clear this changed payload; fresh review is required.

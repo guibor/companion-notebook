@@ -22,6 +22,7 @@ Item {
         readonly property var cnProbeScene: primaryView
         function cnCloseFoldout() {}
         function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
+        function cnInputGeometryReadiness() { return mockBridge.geometryLoading ? "loading" : "ready" }
     }
     Component {
         id: secondaryFactory
@@ -39,6 +40,7 @@ Item {
             property bool closed: false
             function cnCloseFoldout() {}
             function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
+            function cnInputGeometryReadiness() { return mockBridge.geometryLoading ? "loading" : "ready" }
             function cnNativeClose() { closed = true; mockBridge.closeCount++ }
             function cnAction(name) { mockBridge.lastAction = name }
         }
@@ -52,6 +54,7 @@ Item {
         property bool sharingActive: false
         property bool failCreate: false
         property bool failGeometry: false
+        property bool geometryLoading: false
         property int geometryCount: 0
         property bool ready: true
         property int closeCount: 0

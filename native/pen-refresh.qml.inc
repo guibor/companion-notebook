@@ -1,10 +1,17 @@
 property bool cnGeometryHidden: false
 property bool cnGeometryAttached: false
+function cnInputGeometryReadiness() {
+    if (!root.tileManager || !root.sceneView) return "missing-native-view"
+    if (root.cnInkAllowed || !root.cnLayoutBusy) return "pen-gate-open"
+    if (root.adjustViewActive) return "adjust-view-active"
+    if (!root.penInput.surfaceManager) return "missing-surface-manager"
+    if (root.isLoading) return "loading"
+    return "ready"
+}
 function cnUpdateInputGeometry() {
-    if (!root.tileManager || !root.sceneView || root.isLoading || root.adjustViewActive
-        || root.cnInkAllowed || !root.cnLayoutBusy) return false
+    var reason = cnInputGeometryReadiness()
+    if (reason !== "ready") return false
     var manager = root.penInput.surfaceManager
-    if (!manager) return false
     // Keep manager assigned: native setTransform needs it to include item->screen.
     // Remove the surface from native hit regions before attaching any handler.
     root.cnGeometryHidden = true

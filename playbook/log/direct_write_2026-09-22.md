@@ -101,3 +101,12 @@ scroll/restoration may encounter pending tiles (`isLoading`). Refresh now waits
 in a separate bounded phase; the normal host also retries only that transient
 state. Exact refusal reasons remain fail-closed. This is an inferred explanation,
 not proof of which boolean stopped the first run. Changed payload needs review.
+
+Independent review passed the readiness delta at `3a7bf6d` for one new pen-disabled
+run. Receipt is retained locally at `build/review-3a7bf6d.txt`; no reviewer tablet
+access occurred. QMD `8b101631f8a5a55d1e93c874a4a8e6d2fe670f97e62341f2b8810334de20a081`,
+host `9a78b1c45130bbbf8b2be34d2ed6ce99d60ce357075930950514fd99508e9974`;
+pair store and controller unchanged. Staging pins replaced only after review.
+Future ink holds include stock open-helper bypassing the close wrapper, live
+visibility/size changes during strokes, and no established native worker-drain
+or durable-save barrier. These do not block the pen-disabled geometry run.

@@ -29,11 +29,11 @@ if (profile === 'structural') {
         assert.equal(hash(`${payload}/${name}`), sha, 'Structural review drift: '+name);
 }
 if (profile === 'geometry') {
-    // Independent narrow review of HEAD 8543258, 2026-09-22: ONE
+    // Independent narrow review of HEAD 3a7bf6d, 2026-09-22: ONE
     // pen-disabled, no-capture, always-reverting geometry diagnostic only.
     const reviewed = {
-        'companion-notebook.qmd': '6285d93870683052bf0a7066edd43ba3147feb05ba4af863740eff81ec0a8b29',
-        'NativeHost.qml': '6ebf4508f52d7381b31e870ef4746aee09a9136273bee6f5977cacace6b914c8',
+        'companion-notebook.qmd': '8b101631f8a5a55d1e93c874a4a8e6d2fe670f97e62341f2b8810334de20a081',
+        'NativeHost.qml': '9a78b1c45130bbbf8b2be34d2ed6ce99d60ce357075930950514fd99508e9974',
         'PairStore.js': '44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19',
         'probe.sh': '47326d9285f4f8cd505e0d9cee454fe762a1110b6a2ec9c6e62d372311e6782a'
     };

@@ -300,3 +300,8 @@ run does not clear this changed payload; fresh review is required.
 `playbook/INK-QUALIFICATION.md` records the remaining direct-write lifetime and
 tuck-transition issues and a possible disposable-only automated native-pen test.
 It is a design constraint document, not an enabled profile or test clearance.
+
+The readiness delta at `3a7bf6d` has independent one-run geometry clearance.
+Staging pins its replacement QMD/host and unchanged pair store/controller; the
+prior clearance is consumed. Local suite: 41 Qt tests, full three-order normal
+and geometry composition. Native writing lifetime holds remain separate.

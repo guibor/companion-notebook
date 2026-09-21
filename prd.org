@@ -88,9 +88,12 @@ Read and write without losing context or compromising native handwriting.
    lower content. Native gesture ownership alone is not this acceptance test.
 5. Exposed-pane navigation and retained-manager input refresh are implemented
    locally. A separate pen-disabled geometry profile now has independent
-   one-run clearance at 8543258 (108 Node / 39 Qt tests, three-order composition).
-   Execute only its exact four pinned artifacts with fresh backup and automatic
-   base recovery. This does not qualify ink, visuals, save durability or release.
+   First geometry run passed upper-pane scrolling, then refused a later check
+   and automatically restored base UI49237 / Dates14463. That clearance is spent.
+   Loading/readiness delta at 3a7bf6d has new one-run independent clearance (41 Qt,
+   three-order normal and geometry composition). Execute only its exact four
+   pinned artifacts with fresh backup and automatic base recovery. This does not
+   qualify ink, visuals, save durability or release.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

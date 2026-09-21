@@ -1,0 +1,32 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Node
+node_modules/
+.npm/
+.pnpm-store/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Agent / MCP local state
+.agent-shell/
+.mcp-auth
+.mcp.json
+artifacts/

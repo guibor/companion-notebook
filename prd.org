@@ -1,0 +1,52 @@
+#+title: Companion Notebook
+
+* Objective
+Read and write without losing context or compromising native handwriting.
+
+* Accepted requirements (2026-09-21)
+- Portrait-first bottom pull-out writable margin overlays the main document.
+- Main viewport and page scale do not shrink as the margin is pulled.
+- Dragging updates the actual margin continuously, with no settle-on-release substitute.
+- Two independently scrollable documents; finger tap selects the writing pane.
+- A pen tap on an inactive pane selects it but does not ink; subsequent strokes write.
+- Active pane has a visible writing indicator. Scrolling does not change focus.
+- Pairings belong to the primary notebook or PDF; no same-document pair in v1.
+- Tucking preserves positions and pairing; detaching never deletes documents.
+- No layout/focus/document changes during a stroke; gestures keep their owner.
+- Prototype is local/offline. Native ink must use native controllers and saves.
+- Pro only initially; no changes to Move or shared servers.
+
+* Requirements changed
+- Earlier proposal displaced/resized the main viewport: replaced by slide-over.
+- Automatic focus on first stroke: replaced by explicit tap-to-select.
+- Same-notebook different locations: excluded from v1.
+- Landscape in v1: deferred. Later landscape should fit scaled documents to equal halves.
+- Divider-only preview fallback: rejected; live fluid movement is a hard gate.
+- Design-only phase: user authorized implementation, with original device safety constraints.
+
+* Validation and release decision
+- Desktop controller and QML tests must pass, including pointer drag before release.
+- Hardware must prove independent rendering, clipping, pen ownership and native durability.
+- Base 3.29 XOVI/QRR qualification precedes any native probe.
+- Any lost, duplicate or wrong-document ink blocks release.
+- Measure high-speed-video drag latency and visual artifacts on the Pro; compare
+  with stock touch response and obtain actual user acceptance of fluidity.
+- No claim of native support or inclusion in reinstalls before these gates pass.
+
+* Next steps
+1. ReManager handover and fresh strict-key identity/inventory verification passed.
+2. Run the load-only, automatically reverting native-host trial against that
+   accepted r1 inventory; confirm the new watchdog restores the base.
+3. Then prepare a bounded, independently recoverable rendering trial with two
+   disposable documents. Candidate already disables direct framebuffer paths
+   while paired and clips native input; actual behavior must be verified.
+4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
+   ownership and fluidity before enabling writing or declaring a personal pilot.
+
+* Implementation evidence
+- Local native adapter, pairing store, picker and exact-version QMD exist.
+- Offline three-order full-stack composition passes; no tablet deployment yet.
+- Native candidate writing remains disabled. Qt mocks do not qualify native ink.
+- ReManager explicitly handed over after restoration. Read-only checks matched
+  the accepted runtime. Companion remains unqualified and separate from its
+  installed 11-plugin base; all trials need their own inventory and controller.

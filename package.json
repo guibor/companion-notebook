@@ -1,0 +1,10 @@
+{
+  "name": "companion-notebook",
+  "version": "0.1.0-prototype",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "build:native": "node build-native.mjs",
+    "test:composition": "node tests/native-composition.mjs"
+  }
+}

@@ -1,0 +1,124 @@
+# Architecture and implementation status
+
+Implemented locally: a portrait interaction prototype and an exact-firmware
+native rendering candidate. The candidate contains native document adapters,
+device-local pairing settings and a composable QMD. It has **not been deployed**;
+native writing remains disabled. No qualified installer or release exists yet.
+
+## Layout
+
+Main viewport stays full-sized. The companion is a second fixed-size viewport
+translated to `height - reveal`, clipped by the workspace. Only its visible
+portion appears. Dragging updates translation directly, with no animation,
+debounce, page reflow or release-only commit. This is an optimization hypothesis
+for native integration, not proof that the e-ink compositor supports it.
+
+## Modules and principal functions
+
+- `native/NativeHost.qml`: actual native-view container, picker, translated sheet,
+  compact companion toolbar and focus state. `openSecondary()` creates a distinct
+  native view and waits for readiness; `selectPane()` owns writing focus;
+  `beginDrag()/moveDrag()/finishDrag()` translate the live sheet;
+  `beginPull()/finishPull()` support dragging an already-loaded tucked view.
+  Cold views must load before dragging. `checkpoint()/persist()` save only pair
+  metadata through QtCore.Settings; `closeSecondary()` invokes native close first.
+- `native/main.qml.inc`: exact-3.29 MainView bridge. `canOpen()` excludes the
+  primary, archived/password-protected/unavailable/landscape/empty notebooks;
+  `refreshDocuments()` lists up to 12 recent eligible companions;
+  `createView()/openView()` use a second native DocumentView and native page IDs.
+  Each secondary owns its native PageSelection. Only the selected view publishes
+  the shared listener/orientation state. Screen sharing blocks a new disclosure.
+- `native/document.qml.inc`: per-view focus, input and global-publication gates;
+  `cnNativeClose()` retains stock close/save behavior without changing primary
+  recovery state. `cnAction()` uses native pen, eraser, undo, next-page and add-page
+  methods. `cnIsolateCompanionUi()` suppresses only the secondary Dates panel,
+  after children are initialized, independent of QMD order. Dates' add-page wrapper
+  is retained. `cnRefresh()` requests native viewport repaint after dragging.
+- `src/PairStore.js`: strict schema/UUID/size validation, immutable pair updates
+  and removal. No notebook content or credentials are serialized.
+- `build-native.mjs`: verifies exact stock ELF, symbol table and QMLDiff hashes,
+  injects native adapters, hashes the QMD and emits a three-file candidate manifest.
+  Native pen surfaces and gestures are clipped to exposed pane heights. Direct
+  framebuffer and minimal text update paths are disabled while paired so Qt can
+  composite the overlay; this behavior is not yet hardware-qualified.
+- `tests/native-composition.mjs`: verifies the coordinated base candidate hash set,
+  applies all extensions in three orders, parses every generated QML resource,
+  checks critical hooks and rejects a wrong firmware. It does not activate anything.
+- `tests/tst_nativehost.qml`: Qt boundary mocks for lifecycle, persisted pairing,
+  failure handling, focus/gesture locks and real pointer dragging. These mocks
+  cannot qualify native rendering or pen correctness.
+- `tests/native-isolation.test.cjs`: executes the injected secondary-panel
+  isolation function against mock children, including primary/no-panel cases.
+- `ops/probe-pro329.sh`: load-only, always-reverting trial from the accepted r1
+  runtime. `prepare` verifies identity/base and creates a private scratch XOVI
+  tree plus preimages; `run` requires a verified Mac backup, arms a separate
+  systemd watchdog, and changes only its own late `/run` drop-in. `recover()`
+  removes that drop-in, restores the accepted base, and attempts stock once only
+  if the base fails. Start-attempt markers are persisted before actions so a
+  cleanup retry cannot repeat either restart. Watchdog accounting precedes fallible
+  payload validation; explicit systemd start limits also bound failures before
+  state can be read. Per-PID policy temporaries never overwrite stale files.
+  `verify_prepared()` checks scratch QMD/table, both host files and deterministic
+  policy bytes immediately before use. It preserves Dates' PID/configuration and archives
+  its own new host/settings files. No commit or persistent activation action.
+- `ops/stage-probe.mjs`: emits a new private, hash-manifested five-file stage
+  after composition and controller syntax checks. It never connects to a device.
+  `playbook/LOAD-PROBE.md` documents the strict-key, backup-acknowledged operator
+  sequence and separates automatic recovery from feature acceptance.
+- `tests/probe-policy.test.cjs`: executes the actual recovery function in a
+  temporary filesystem with mocked services; tests base recovery, pre-restart
+  failure, durable retry budgets and refusal to remove foreign policy. Actual
+  publication code is separately exercised under conditional callers with copy,
+  hash and reload failures and foreign-temp/policy refusal.
+- `src/Workspace.js`: `create()` owns device-local in-memory state;
+  `openPrimary()` restores a document-specific pair tucked; `attach()` rejects
+  self-pairing; `reveal()/tuck()/detach()` distinguish visibility from attachment.
+  `beginDrag()/drag()/endDrag()` provide continuous bounded translation and
+  cancellation. `beginStroke()/strokePoint()/endStroke()` freeze destination and
+  origin, reject chrome/covered regions, and block layout/focus changes.
+  `beginScroll()/endScroll()` lock gesture ownership without changing editing
+  focus. `saveScroll()/scroll()` retain independent synthetic offsets per pair.
+  `resize()` rejects mid-operation changes and tucks in unsupported landscape.
+- `ui/CompanionWorkspace.qml`: renders the main viewport, overlay viewport,
+  handle and active-pane indicator. Tap handlers explicitly hit-test ownership:
+  Qt passive handlers otherwise allow the covered primary to take focus too.
+  `openPrimary()` loads saved offsets, `updateSize()` applies idle geometry;
+  wrappers trigger QML bindings through a revision counter.
+- `ui/DemoPage.qml`: original synthetic reference/ruled pages. Not stock QML.
+- `ui/Main.qml`: desktop harness; simulated mouse pen mode is explicitly marked.
+  Its canvas is ephemeral test visualization, cleared on state changes. It does
+  not save, export, or represent native ink, and must not ship on a tablet.
+- `tests/workspace.test.cjs`: controller invariants and boundary cases.
+- `tests/tst_workspace.qml`: real pointer drag, focus, wheel scroll, tuck and
+  synthetic pen-lock checks, each in a fresh component instance.
+
+## Persistence and native integration boundary
+
+Desktop-demo metadata is memory-only. The native candidate uses QtCore.Settings
+at `/home/root/.local/share/companion-notebook/pairs.ini`, category `companion`,
+with versioned JSON containing primary/companion UUIDs, a reveal ratio and stable
+companion page UUID. Settings are synced only on changes; invalid existing data
+blocks pairing changes and is never silently repaired. Actual device permissions
+and disk durability still require qualification (Qt's QML API does not expose a
+write-status result). Native controllers alone own notebook contents and scroll
+position. Pairs always resume tucked, never expanded after a restart.
+
+The native adapter gates DocumentViewListener, orientation, toolbar, modal and
+screen-mode publication; companion open/close does not reset primary
+Settings.lastOpen. It retains native locks and saving. See NATIVE-GATES.md.
+No adapter is faked with screenshots or custom serialized handwriting.
+
+## Unqualified native boundaries
+
+The native candidate's `inkQualified` is false: paired views cannot accept ink or
+editing actions. Native PenInputBlocker regions cover disabled input; inactive
+pen-to-QML tap delivery is not proven. Native stroke signals lock layout/focus,
+and unsupported orientation tucks after pen-up, but the underlying orientation
+geometry still needs live testing. No second Dates panel is allowed; other shared
+plugin/native globals require actual composition tests. Native viewport pixels,
+scrolling, save durability, occlusion and fluidity remain unmeasured on hardware.
+The first probe must use disposable documents and a bounded independent watchdog.
+ReManager explicitly handed over its accepted r1 base after final verification.
+Fresh strict-key identity/inventory checks confirmed UI14472 and Dates14463 with
+zero restarts and read-only root. The first planned probe is load-only and
+automatically returns to that base; it does not open or create test documents yet.

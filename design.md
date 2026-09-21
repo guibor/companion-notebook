@@ -8,11 +8,13 @@ and automatically returned to the accepted base; no Companion remains active.
 No qualified installer or release exists yet.
 The separately generated two-document diagnostic passed independent local review.
 Its first trial timed out at readiness; its second opened both native documents
-then failed on a native argument error. Both automatically restored the accepted base.
+then failed on a native argument error. The third passed programmed movement/focus
+but Qt rejected direct capture of its internally created viewport. All restored base.
 Its [trial receipt](playbook/log/render_probe_2026-09-21.md) separates failed native
 rendering qualification from successful recovery; no ink has been enabled.
 The user confirmed normal scrolling returned and authorized continuation. The
-refresh correction and faster failure recovery require a newly reviewed trial.
+third trial verified faster failure recovery. Capture through the QML-created
+current SceneView has passed local review but still needs its guarded hardware test.
 
 ## Layout
 
@@ -59,9 +61,15 @@ for native integration, not proof that the e-ink compositor supports it.
   while dragging, captures only those disposable views, tucks/reopens, and returns
   to the exact original document and page. The render profile compiles pen input,
   MainView interaction, gestures and shortcuts off even before the host loads;
-  the picker is locked. `probeCapture()` grabs only the two disposable native
-  viewport subtrees. Each delayed callback revalidates generation, safe state,
-  document IDs, view objects and viewport objects. `probeInvalidate()` cancels
+  the picker is locked. `probeCapture()` grabs only each disposable document's
+  current SceneView, instantiated by the stock QML component (therefore associated
+  with the QML engine), containing its native viewport. The internally C++-created
+  DeviceSceneViewport cannot directly grab because it has no QML engine. This is
+  not the entire DocumentView, shared scene cache container, or MainView. Each
+  delayed callback revalidates generation, safe state, document IDs, document-view,
+  native-viewport and current-SceneView objects. Both DocumentView and captured SceneView document IDs must match
+  their disposable IDs, including during callbacks, protecting loading/teardown
+  transitions even when only the underlying native document changes. `probeInvalidate()` cancels
   outstanding callbacks before failure/restore; no whole-MainView capture occurs.
   `probeReadiness()` permits the library's empty DocumentView placeholder even
   when its inactive SceneView reports loading, but still blocks a real loading
@@ -170,6 +178,7 @@ plugin/native globals require actual composition tests. Native viewport pixels,
 scrolling, save durability, occlusion and fluidity remain unmeasured on hardware.
 Rendering probes use disposable documents and a bounded independent watchdog.
 ReManager explicitly handed over its accepted r1 base after final verification.
-The last verified recovery returned UI34683 / Dates14463 with zero restarts and
-read-only root; the user confirmed normal scrolling. Consult the dated receipts
+The last verified recovery returned UI37973 / Dates14463 with zero restarts and
+read-only root; user scrolling acceptance was confirmed after the earlier trial.
+Consult the dated receipts
 and revalidate live identity/base state before each new trial, not these old PIDs.

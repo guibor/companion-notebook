@@ -101,3 +101,43 @@ hardware-trial clearance this turn. Frozen local QMD
 `18c47150553835d04982a3f6548ad094d68991564bfff895fafd91cf57a4714b` and host
 `0c3d3aa120ccd0f86a5ff18597d39c42775b45e10e2e6b9ec038d09865561919`;
 controller/pair store unchanged. Physical scrolling acceptance remains pending.
+
+## Trial 3: geometry/focus progressed; capture API rejected; fast recovery passed
+
+User confirmed ordinary scrolling after trial 2 and authorized continuation.
+
+- Source `05b994f`, transaction `20260921T205233Z-1`.
+- Stage manifest `8782dc35d185a89a7a39070e3359898bb73d9d69b71c6fac466273a930d78afe`.
+- Preimages SHA-256 (device and Mac):
+  `0aed8550f0683b3aad2bd88284f1bea2aa43a080e2acb28e0ef9e11dccd7d1b2`.
+- Private log SHA-256 (device and Mac):
+  `106d4ac87244d4aaeef29379b83a34a12c498859b3d5b98036566fed7e6c8e92`.
+
+UI36911 reached readiness and created two native test notebooks at20:54:03 UTC,
+then native-secondary ready at20:54:06.976. The driver progressed through fixed
+geometry translation and focus/pen-gate assertions. At20:54:09.169 Qt explicitly
+reported `DeviceSceneViewport: grabToImage: item has no QML engine`; phase5 failed
+with `Native viewport capture rejected`. No capture/completion pass was issued.
+
+The new independent watcher detected the failure promptly: `recovering=native-failure`,
+then `recovered=base:37973`. UI37973 and Dates14463 active with NRestarts0; Dates
+unchanged. Full eleven-QMD/private-settings/original-three-policy checks passed;
+MemoryMax infinity; root read-only; no host/data/lock/drop-in remained. Restored
+base's recent log had no relevant QML errors. Watchdog inactive/success. Evidence
+retained privately on device and Mac under this transaction, no captures.
+
+This qualifies faster failure detection/recovery and progress through the native
+driver, not visual rendering or physical dragging/ink. Next local correction:
+capture only the stock QML-created current SceneView, which owns the C++ viewport,
+not the shared sceneViewsRoot/cache container or whole DocumentView/MainView.
+Both outer DocumentView and captured SceneView must reference disposable IDs,
+with generation/safe-state/viewport/view/capture-item identity checked at callbacks.
+
+ReManager independently reviewed this narrower capture delta, reran 69 Node /
+29 Qt tests and both three-order composition profiles, and cleared only another
+bounded pen-disabled diagnostic. Frozen QMD
+`a645a3ea280c3057ace4392a94e07ba1f4bf260f7e51a8a511277dff92b1a7cc`;
+controller `034d4553a5c03a93426527eb3633f92bc0cb1992f63c9b92b8c1065965b4d03f`,
+host `0c3d3aa120ccd0f86a5ff18597d39c42775b45e10e2e6b9ec038d09865561919`,
+pair store `44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19`.
+No scene cache siblings are captured. Real image usefulness remains unqualified.

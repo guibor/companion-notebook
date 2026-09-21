@@ -109,7 +109,7 @@ test('capture refuses any view not matching both new disposable IDs',()=>{
 function pendingCapture() {
     const c=context(), callbacks=[], saved=[];
     c.probeIds=[a,b]; c.Values.cnProbeStarted=true;
-    const view=id=>({document:{id},documentLoaded:true,currentPage:0,sceneController:{},cnProbeViewport:{},
+    const view=id=>({document:{id},documentLoaded:true,currentPage:0,sceneController:{},cnProbeViewport:{},cnProbeCaptureItem:{document:{id}},
         cnProbeCaptureViewport:cb=>{callbacks.push(cb);return true;}});
     c.primary=view(a); c.host.secondary=view(b);
     vm.runInNewContext(functions+'; probeCapture(host);',c);
@@ -121,6 +121,9 @@ for (const [name,change] of [
     ['replaced secondary',c=>{c.host.secondary={...c.host.secondary};}],
     ['replaced viewport',c=>{c.primary.cnProbeViewport={};}],
     ['destroyed viewport',c=>{c.host.secondary.cnProbeViewport=null;}],
+    ['replaced capture item',c=>{c.primary.cnProbeCaptureItem={};}],
+    ['destroyed capture item',c=>{c.host.secondary.cnProbeCaptureItem=null;}],
+    ['foreign capture document',c=>{c.primary.cnProbeCaptureItem.document.id='11111111-1111-4111-8111-111111111111';}],
     ['cancellation',c=>vm.runInNewContext('probeInvalidate();',c)],
     ['restore',c=>vm.runInNewContext('probeRestore(host);',c)],
     ['unsafe state',c=>{c.probeMayStart=false;}]

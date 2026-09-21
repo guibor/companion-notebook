@@ -3,11 +3,13 @@
 The accepted load-only trial established host startup and automatic return to
 base, not dual rendering. This is a separately generated and reviewed profile.
 Its first hardware attempt timed out at readiness; the second opened both native
-documents but failed on an API argument error. Both recovered the accepted base;
+documents but failed on an API argument error. The third passed movement/focus
+but Qt rejected direct capture of the internally created viewport. All recovered base;
 see the [trial receipt](log/render_probe_2026-09-21.md). The independently reviewed
 readiness correction was approved only for a fresh bounded diagnostic, not ink.
-The subsequent refresh fix is local only. Do not run another trial before its
-review and a reviewed improvement to immediate failure-to-recovery responsiveness.
+The refresh correction and fast failure recovery were exercised by trial 3.
+The revised QML-created current-SceneView capture passed independent local review;
+its actual native pixels still require a new guarded trial and visual inspection.
 
 Build the ordinary profile for the desktop/mock suite, then use
 `CN_PROBE=render node build-native.mjs` and
@@ -39,9 +41,10 @@ receipts. Do not reuse a stage ID, the old load-only artifact or its review.
   native adapter. Require distinct document IDs and SceneControllers.
 - Programmatically translate the margin in ten steps, require unchanged native
   viewport dimensions, change focus, verify both pen gates remain false, and
-  capture only the two native viewport subtrees, never the whole MainView. Both
+  capture only each current QML-created native SceneView and its viewport subtree,
+  never the whole DocumentView, scene cache container or MainView. Both
   asynchronous callbacks recheck generation, safe state, document IDs, view and
-  viewport identity before saving. Failure/restore cancels pending callbacks.
+  viewport and capture-item identity before saving. Failure/restore cancels pending callbacks.
   The two images stay in the transaction's private data directory; no screen
   broadcast or server upload.
 - Tuck/reopen without recreating the native view, then close the companion and

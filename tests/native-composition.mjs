@@ -52,6 +52,9 @@ for(const [name,patches] of variants) {
     assert.match(doc,/cnLayoutBusy: true/);
     assert.match(doc,/function cnProbeCaptureViewport/);
     assert.match(doc,/readonly property\s+var cnProbeViewport: sceneView.viewport/);
+    assert.match(doc,/readonly property\s+var cnProbeCaptureItem: sceneView.sceneView/);
+    assert.match(doc,/cnProbeCaptureItem.grabToImage\(callback\)/);
+    assert.doesNotMatch(doc,/cnProbeViewport.grabToImage/);
     assert.match(main,/enabled: false/);
     assert.match(main,/id: cnProbeNotice/);
     assert.match(main,/Temporary test — writing and scrolling paused/);

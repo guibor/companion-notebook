@@ -65,7 +65,7 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((render
 `, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (renderProbe ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
 let document = inc('document');
 if (renderProbe) document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, 'readonly property bool cnInkAllowed: false')
-    + '\nreadonly property var cnProbeViewport: sceneView.viewport\nfunction cnProbeCaptureViewport(callback) { return !!cnProbeViewport && cnProbeViewport.grabToImage(callback) }\n';
+    + '\nreadonly property var cnProbeViewport: sceneView.viewport\nreadonly property var cnProbeCaptureItem: sceneView.sceneView\nfunction cnProbeCaptureViewport(callback) { return !!cnProbeViewport && !!cnProbeCaptureItem && cnProbeCaptureItem.grabToImage(callback) }\n';
 q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  RENAME close TO cnStockClose
  ${insert(document)}

@@ -44,7 +44,10 @@ function probeCreate() {
 }
 function probeSeparate(host) {
     if (probeIds.length !== 2 || !primary || !primary.document || !host.secondary || !host.secondary.document) return false
+    var first = primary.cnProbeCaptureItem, second = host.secondary.cnProbeCaptureItem
+    if (!first || !first.document || !second || !second.document) return false
     return String(primary.document.id) === probeIds[0] && String(host.secondary.document.id) === probeIds[1]
+        && String(first.document.id) === probeIds[0] && String(second.document.id) === probeIds[1]
         && primary.sceneController !== host.secondary.sceneController
         && primary.documentLoaded && host.secondary.documentLoaded
 }
@@ -54,13 +57,16 @@ function probeCapture(host) {
     var generation = probeGeneration
     var first = primary, second = host.secondary, count = 0, failed = false
     var firstViewport = first.cnProbeViewport, secondViewport = second.cnProbeViewport
-    if (!firstViewport || !secondViewport) throw new Error("Native viewport unavailable")
+    var firstCapture = first.cnProbeCaptureItem, secondCapture = second.cnProbeCaptureItem
+    if (!firstViewport || !secondViewport || !firstCapture || !secondCapture) throw new Error("Native viewport unavailable")
     function receive(result, name) {
         // Recheck after the asynchronous render. Never save a stale or foreign view.
         if (failed || generation !== probeGeneration || !probeMayStart || primary !== first
             || host.secondary !== second || !probeSeparate(host)
             || !first.cnProbeViewport || first.cnProbeViewport !== firstViewport
-            || !second.cnProbeViewport || second.cnProbeViewport !== secondViewport) {
+            || !second.cnProbeViewport || second.cnProbeViewport !== secondViewport
+            || !first.cnProbeCaptureItem || first.cnProbeCaptureItem !== firstCapture
+            || !second.cnProbeCaptureItem || second.cnProbeCaptureItem !== secondCapture) {
             failed = true; probeCaptureSaved = false; probeCaptureDone = true; return
         }
         if (!result.saveToFile("/home/root/.local/share/companion-notebook/" + name)) {

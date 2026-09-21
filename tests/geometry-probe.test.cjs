@@ -59,6 +59,14 @@ test('geometry rejects nonfinite edge mappings and refused jumps without success
         assert(!f.calls.some(c=>c[0]==='log'||c[0]==='refresh'));
     }
 });
+test('geometry success requires restored focal point readback, not just setter call',()=>{
+    for (const mutate of [tm=>tm.center={x:10,y:1080},tm=>tm.center={x:NaN,y:1080},
+        tm=>tm.center=null,tm=>tm.scale=2,tm=>tm.scale=NaN]) {
+        const f=fixture();f.tm.setFocalPoint=()=>mutate(f.tm);
+        assert.throws(()=>f.c.cnProbePaneGeometry(),/did not restore/);
+        assert.equal(f.nav.cnLayoutBusy,true);assert(!f.calls.some(c=>c[0]==='refresh'));
+    }
+});
 test('geometry controller keeps exact recovery and cannot accept structural marker',()=>{
     const {execFileSync}=require('node:child_process');
     execFileSync(process.execPath,['ops/build-render-controller.mjs'],{env:{...process.env,CN_PROBE:'geometry'}});

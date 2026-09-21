@@ -73,3 +73,5 @@ and refused native jumps could pass the diagnostic. Explicit numeric validation
 and return-value checks were added with regression coverage. This is a test
 correctness repair, not a newly discovered firmware/pen safety barrier. Payload
 must be rehashed and independently rechecked before one-run clearance.
+The same review requires restored native focal center/scale readback; the new
+diagnostic rejects setter-only success or nonfinite/drifted restored values.

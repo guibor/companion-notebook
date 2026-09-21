@@ -59,6 +59,8 @@ for native integration, not proof that the e-ink compositor supports it.
   Independent review caught nonfinite native values passing comparisons; the
   diagnostic now requires finite positive dimensions/scale, finite centers,
   native bounds and edge coordinates, and successful jump return values.
+  Restoration is read back from native center/scale after the setter, not inferred
+  merely from calling it; drift or nonfinite results reject diagnostic success.
 - `native/input-geometry.qml.inc`: normal-build-only deferred pen geometry gate.
   `scheduleInputGeometry()` blocks new pen input immediately, coalesces changes
   by generation, waits for layout/restore/pen-up, then calls stock

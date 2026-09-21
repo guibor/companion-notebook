@@ -34,5 +34,11 @@ function cnProbePaneGeometry() {
         nav.cnLayoutBusy = oldBusy
         tm.setFocalPoint(initialCenter, initialScale)
     }
+    var restored = tm.center
+    if (!restored || !finite(restored.x) || !finite(restored.y) || !positive(tm.scale)
+        || Math.abs(restored.x - initialCenter.x) > 0.0001
+        || Math.abs(restored.y - initialCenter.y) > 0.0001
+        || Math.abs(tm.scale - initialScale) > 0.00001)
+        throw new Error("Native focal point did not restore")
     return cnUpdateInputGeometry()
 }

@@ -296,3 +296,7 @@ pauses attempts until its completion schedules a fresh refresh. The diagnostic
 checks both panes' scroll/focal restoration first, then waits on a later timer tick
 for native loading to settle before verifying both pen transforms. The original
 run does not clear this changed payload; fresh review is required.
+
+`playbook/INK-QUALIFICATION.md` records the remaining direct-write lifetime and
+tuck-transition issues and a possible disposable-only automated native-pen test.
+It is a design constraint document, not an enabled profile or test clearance.

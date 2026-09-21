@@ -7,6 +7,7 @@ Item {
     required property var bridge
     // Deployment must keep this false until native input/occlusion qualification.
     property bool inkQualified: false
+    property bool renderProbeOnly: false
     property url settingsLocation: "file:///home/root/.local/share/companion-notebook/pairs.ini"
     property var pairs: Store.empty()
     property bool storeReady: false
@@ -71,7 +72,7 @@ Item {
         revealHeight = 0; secondarySelected = false; choosing = false
     }
     function choose() {
-        if (!idle || !mayShow || !primaryId || !storeReady) return
+        if (renderProbeOnly || !idle || !mayShow || !primaryId || !storeReady) return
         bridge.primary.cnCloseFoldout()
         bridge.refreshDocuments()
         choosing = true
@@ -274,11 +275,12 @@ Item {
             Text { text: host.error ? "Companion unavailable" : "Choose a companion notebook"; font.pixelSize: 48 * host.unit; font.bold: true }
             Text { width: parent.width; wrapMode: Text.Wrap; text: host.error || "Choose a local notebook. Your source remains open behind it."; font.pixelSize: 32 * host.unit }
             Repeater {
-                model: host.error ? [] : bridge.documents
+                model: host && host.choosing && !host.error ? bridge.documents : []
                 Rectangle {
                     required property var modelData
-                    width: parent.width; height: 100 * host.unit; color: "#f4f4f0"
-                    Text { x: 20 * host.unit; anchors.verticalCenter: parent.verticalCenter; width: parent.width - 40 * host.unit; elide: Text.ElideRight; text: modelData.title; font.pixelSize: 34 * host.unit }
+                    readonly property real rowUnit: host ? host.unit : 0
+                    width: parent ? parent.width : 0; height: 100 * rowUnit; color: "#f4f4f0"
+                    Text { x: parent ? 20 * parent.rowUnit : 0; anchors.verticalCenter: parent.verticalCenter; width: parent ? Math.max(0, parent.width - 40 * parent.rowUnit) : 0; elide: Text.ElideRight; text: modelData.title; font.pixelSize: parent ? Math.max(1, 34 * parent.rowUnit) : 1 }
                     MouseArea { anchors.fill: parent; onClicked: host.pick(modelData.id) }
                 }
             }

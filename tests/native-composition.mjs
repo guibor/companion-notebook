@@ -15,7 +15,8 @@ const peerFiles = fs.readdirSync(peers).filter(x=>x.endsWith('.qmd')).map(x=>pat
 assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await a new accepted inventory');
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
-const candidate=path.resolve('build/native/companion-notebook.qmd');
+const payload=process.env.CN_PROBE==='render'?'build/render-native':'build/native';
+const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
 fs.cpSync(path.join(fw,'resources'),input,{recursive:true});
 fs.cpSync(path.join(fw,'appload-0.6-resources'),input,{recursive:true});
@@ -45,12 +46,22 @@ for(const [name,patches] of variants) {
   const main=read('qml/device/view/main/MainView.qml');
   assert.match(main,/cnSecondary: true/); assert.match(main,/id: rmstreamShortcutLoader/);
   assert.match(main,/id: dispatchDocumentMenuLoader/);
+  if (process.env.CN_PROBE==='render') {
+    assert.match(doc,/readonly property\s+bool cnInkAllowed: false/);
+    assert.match(doc,/shortcutsEnabled: false && visible/);
+    assert.match(doc,/cnLayoutBusy: true/);
+    assert.match(doc,/function cnProbeCaptureViewport/);
+    assert.match(doc,/readonly property\s+var cnProbeViewport: sceneView.viewport/);
+    assert.match(main,/enabled: false/);
+    assert.doesNotMatch(main,/root\.content\.grabToImage/);
+  }
   counts[name]=files(out).length;
 }
 execFileSync(tool,['apply-diffs','--clean','--hashtab',path.join(fw,'hashtab'),'--version','3.28.0.169',input,'build/wrong-firmware',candidate],{stdio:'pipe'});
 assert.equal(files('build/wrong-firmware').length,0);
 assert.doesNotMatch(fs.readFileSync('native/NativeHost.qml','utf8'),/\bCanvas\b|addDrawingLine|\.rm\b|\.content\b/);
 assert.match(fs.readFileSync('native/NativeHost.qml','utf8'),/property bool inkQualified: false/);
-const payloadSha256=Object.fromEntries(['NativeHost.qml','PairStore.js'].map(p=>[p,sha('build/native/'+p)]));
-fs.writeFileSync('build/native/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',firmware:'3.29.0.148',penEnabled:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
+const payloadSha256=Object.fromEntries(['NativeHost.qml','PairStore.js'].map(p=>[p,sha(payload+'/'+p)]));
+execFileSync('qmlformat',['--ignore-settings',payload+'/NativeHost.qml'],{stdio:['ignore','ignore','pipe']});
+fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
 console.log(JSON.stringify(counts));

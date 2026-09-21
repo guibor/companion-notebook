@@ -3,7 +3,7 @@ property bool cnSecondary: false
 readonly property bool cnPaired: !!cnHost && cnHost.paired
 readonly property bool cnSelected: cnSecondary ? (!!cnHost && cnPaired && cnHost.activeView === root) : (!cnHost || !cnPaired || cnHost.activeView === root)
 readonly property bool cnOwnsGlobals: !cnSecondary && (!cnHost || !cnPaired) || (!!cnHost && cnPaired && cnHost.activeView === root)
-readonly property bool cnInkAllowed: (!cnHost || (!cnHost.modalOpen && !cnHost.dragging && !cnHost.restoring)) && ((!cnPaired && !cnSecondary) || (!!cnHost && cnHost.inkQualified && cnSelected && cnPaired))
+readonly property bool cnInkAllowed: (!cnHost || (!cnHost.renderProbeOnly && !cnHost.modalOpen && !cnHost.dragging && !cnHost.restoring)) && ((!cnPaired && !cnSecondary) || (!!cnHost && cnHost.inkQualified && cnSelected && cnPaired))
 readonly property bool cnGestureBusy: sceneView.gesturing || sceneView.gestureIsLocked
 readonly property real cnInputHeight: !cnHost ? height : cnSecondary ? cnHost.secondaryInputHeight : cnHost.mainInputHeight
 // Dates publishes a global open signal. Keep its native add-page wrapper, but

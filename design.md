@@ -2,10 +2,13 @@
 
 Implemented locally: a portrait interaction prototype and an exact-firmware
 native rendering candidate. The candidate contains native document adapters,
-device-local pairing settings and a composable QMD. It has **not been deployed**;
-native writing remains disabled. The load-only probe has since passed on the Pro
+device-local pairing settings and a composable QMD. Native writing remains
+disabled. The load-only probe has passed on the Pro
 and automatically returned to the accepted base; no Companion remains active.
 No qualified installer or release exists yet.
+The separately generated two-document diagnostic passed independent local review;
+its frozen hashes and current connectivity blocker are recorded in
+[the review receipt](playbook/log/render_review_2026-09-21.md).
 
 ## Layout
 
@@ -43,12 +46,38 @@ for native integration, not proof that the e-ink compositor supports it.
   Native pen surfaces and gestures are clipped to exposed pane heights. Direct
   framebuffer and minimal text update paths are disabled while paired so Qt can
   composite the overlay; this behavior is not yet hardware-qualified.
+  An explicit `CN_PROBE=render` build emits a separate `build/render-native`
+  diagnostic, never changing the normal host. It inlines `probe-bridge.qml.inc`
+  and `render-probe.qml.inc`: claims a singleton probe, creates two clearly labeled
+  native test notebooks, opens distinct native controllers, checks fixed geometry
+  while dragging, captures only those disposable views, tucks/reopens, and returns
+  to the exact original document and page. The render profile compiles pen input,
+  MainView interaction, gestures and shortcuts off even before the host loads;
+  the picker is locked. `probeCapture()` grabs only the two disposable native
+  viewport subtrees. Each delayed callback revalidates generation, safe state,
+  document IDs, view objects and viewport objects. `probeInvalidate()` cancels
+  outstanding callbacks before failure/restore; no whole-MainView capture occurs.
+  Exceptions stop the diagnostic; no custom notebook serialization or deletion.
+- `ops/build-render-controller.mjs`: generates a narrowly transformed derivative
+  of the hash-pinned reviewed load controller. It requires its own review and
+  receipt: 180-second owner window, 1-GiB temporary UI memory cap and a distinct
+  two-view/return/capture marker. Completion polling checks watchdog liveness on
+  each iteration and before marking success. The original load-only controller
+  is unchanged.
 - `tests/native-composition.mjs`: verifies the coordinated base candidate hash set,
   applies all extensions in three orders, parses every generated QML resource,
   checks critical hooks and rejects a wrong firmware. It does not activate anything.
 - `tests/tst_nativehost.qml`: Qt boundary mocks for lifecycle, persisted pairing,
   failure handling, focus/gesture locks and real pointer dragging. These mocks
   cannot qualify native rendering or pen correctness.
+- `tests/tst_renderprobe.qml`: exercises the diagnostic driver against mock native
+  bridges, including original-view restoration, unavailable-state no-op and pen
+  interruption. Build both profiles before running the Qt suite.
+- `tests/render-profile.test.cjs`: verifies the rendering derivative retains the
+  exact reviewed recovery functions, and executes the actual bridge JS to test
+  single-claim native creation, unavailable-state no-op, delayed capture rejection
+  after navigation/cancellation/restore or replaced/destroyed objects, and exact
+  original-page restoration rather than document-ID-only acceptance.
 - `tests/native-isolation.test.cjs`: executes the injected secondary-panel
   isolation function against mock children, including primary/no-panel cases.
 - `ops/probe-pro329.sh`: load-only, always-reverting trial from the accepted r1

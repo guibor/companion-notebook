@@ -71,5 +71,7 @@ UI14472, Dates14463, zero restarts, all eleven QMDs and read-only root. The nati
 candidate is not in the recurring reinstall list. A separate load-only probe
 controller now exists, with its own scratch runtime and independent always-revert
 watchdog; it must never replay the base's stock-only preparation while active.
-Its recovery functions pass isolated mock tests, but a live recovery receipt is
-still required before the later two-disposable-document trial.
+Its recovery functions pass isolated mock tests, and the live load-only trial
+also passed with automatic restoration to base UI22703 / Dates14463. The exact
+[receipt](log/load_probe_2026-09-21.md) records hashes and postchecks. This permits
+preparing a separately reviewed two-disposable-document trial, not enabling ink.

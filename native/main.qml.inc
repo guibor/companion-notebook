@@ -17,6 +17,7 @@ Item {
     readonly property bool portrait: root.orientation.isPortraitOrientation
     readonly property bool sharingActive: ScreenShareServer.active || Values.rmstreamPhase !== "off"
     property var documents: []
+    // PROBE_BRIDGE
     function canOpen(id) {
         var entry = Library.entryForId(id)
         return !!entry && String(entry.id) !== String(primary?.document?.id || "")

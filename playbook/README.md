@@ -10,6 +10,7 @@
 | [ENGINEERING.md](ENGINEERING.md) | Architecture, stack, repo map, conventions |
 | [NATIVE-GATES.md](NATIVE-GATES.md) | Ordered native qualification and release boundaries |
 | [LOAD-PROBE.md](LOAD-PROBE.md) | Always-reverting exact-3.29 load-only trial |
+| [RENDER-PROBE.md](RENDER-PROBE.md) | Separately qualified two-native-document diagnostic |
 | [log/](log/) | Decisions, research, and changelog entries |
 
 ## How to use this playbook

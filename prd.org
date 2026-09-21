@@ -37,15 +37,20 @@ Read and write without losing context or compromising native handwriting.
 1. ReManager handover and fresh strict-key identity/inventory verification passed.
 2. Load-only trial passed and automatically restored the accepted r1 base at
    UI22703 / Dates14463. Native writing remains disabled; no active Companion.
-3. Then prepare a bounded, independently recoverable rendering trial with two
+3. The bounded, independently reviewed rendering trial is prepared for two
    disposable documents. Candidate already disables direct framebuffer paths
    while paired and clips native input; actual behavior must be verified.
+   The diagnostic creates only labeled test notebooks through native APIs,
+   blocks all pen input throughout its lifetime, limits UI memory, captures only
+   disposable views, and restores the prior view before automatic base recovery.
+   Local review passed (45 Node / 29 Qt tests; both composition profiles pass).
+   Execution awaits Pro reachability, fresh identity/base checks and backup.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.
-- Offline three-order full-stack composition passes; no tablet deployment yet.
+- Offline three-order full-stack composition passes; no qualified tablet release yet.
 - Native candidate writing remains disabled. Qt mocks do not qualify native ink.
 - ReManager explicitly handed over after restoration. Read-only checks matched
   the accepted runtime. Companion remains unqualified and separate from its

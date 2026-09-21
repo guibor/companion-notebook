@@ -5,6 +5,9 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 const firmware = process.env.RM_FIRMWARE || '/Users/mdf/code/remarkable-beta-os/.cache/firmware/3.29.0.148';
 const tool = process.env.QMLDIFF_BIN || '/Users/mdf/code/remarkable-beta-os/.cache/tools/qmldiff-25681c3-bin';
+const renderProbe = process.env.CN_PROBE === 'render';
+assert(!process.env.CN_PROBE || renderProbe, 'Unknown probe profile');
+const output = renderProbe ? 'build/render-native' : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
@@ -15,8 +18,9 @@ const affect = (file, root, body, imports='') => `AFFECT /${file}\n${imports}\n 
 const insert = text => ` LOCATE BEFORE ALL\n INSERT {\n${text}\n }\n`;
 const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL\n REPLACE { ${before} } WITH { ${after} }\n END REBUILD\n`;
 let q = 'VERSION 3.29.0.148\n';
-q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()'));
-q += affect('qml/device/view/main/MainView.qml','Background#root',insert(inc('main')) + `
+q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (renderProbe ? '\nproperty bool cnProbeStarted: false' : '')));
+const main = inc('main').replace('// PROBE_BRIDGE', renderProbe ? inc('probe-bridge') : '');
+q += affect('qml/device/view/main/MainView.qml','Background#root',insert((renderProbe ? 'enabled: false\n' : '') + main) + `
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  LOCATE AFTER Loader#documentView
  INSERT {
@@ -41,19 +45,22 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert(inc('ma
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot > Component#documentViewComponent > DocumentView#documentViewItem
  ${insert('cnHost: root.cnHost')}
  END TRAVERSE
-`, ' IMPORT xofm.libs.epaper 1.0 CnEpaper');
+`, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (renderProbe ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
+let document = inc('document');
+if (renderProbe) document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, 'readonly property bool cnInkAllowed: false')
+    + '\nreadonly property var cnProbeViewport: sceneView.viewport\nfunction cnProbeCaptureViewport(callback) { return !!cnProbeViewport && cnProbeViewport.grabToImage(callback) }\n';
 q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  RENAME close TO cnStockClose
- ${insert(inc('document'))}
+ ${insert(document)}
  ${replace('cnStockClose','Settings.lastOpen = "";','if (!cnSecondary) Settings.lastOpen = "";')}
  ${replace('_open_helper','Settings.lastOpen = "";','if (!cnSecondary) Settings.lastOpen = "";')}
  ${replace('_open_helper','Settings.lastOpen = document.id;','if (!cnSecondary) Settings.lastOpen = document.id;')}
- ${replace('shortcutsEnabled','visible &&','cnSelected && visible &&')}
+ ${replace('shortcutsEnabled','visible &&',renderProbe ? 'false && visible &&' : 'cnSelected && visible &&')}
  TRAVERSE Binding
  ${insert('when: root.cnOwnsGlobals; restoreMode: Binding.RestoreNone')}
  END TRAVERSE
  TRAVERSE DeviceSceneView#sceneView
- ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: !!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen)')}
+ ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (renderProbe ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen)'))}
  END TRAVERSE
  TRAVERSE DocumentToolSettings#documentViewTools
  ${replace('onDocumentAboutToChange','Settings.setLastWritingTool(toolSettings());','if (root.cnOwnsGlobals) Settings.setLastWritingTool(toolSettings());')}
@@ -122,15 +129,17 @@ q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
  }`)}
  END TRAVERSE
 `, ' IMPORT common 1.0');
-fs.mkdirSync('build/native',{recursive:true});
+fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
-fs.writeFileSync('build/companion.source.qmd',q);
-fs.copyFileSync('build/companion.source.qmd','build/native/companion-notebook.qmd');
-fs.copyFileSync('native/NativeHost.qml','build/native/NativeHost.qml');
-fs.copyFileSync('src/PairStore.js','build/native/PairStore.js');
-execFileSync(tool,['hash-diffs',path.join(firmware,'hashtab'),'build/native/companion-notebook.qmd'],{stdio:'inherit'});
-const result = execFileSync(tool,['check-compatibility',path.join(firmware,'hashtab'),'build/native/companion-notebook.qmd'],{encoding:'utf8'});
+fs.writeFileSync(output+'/companion-notebook.qmd',q);
+let host=fs.readFileSync('native/NativeHost.qml','utf8');
+if (renderProbe) host=host.replace('property bool renderProbeOnly: false','property bool renderProbeOnly: true')
+    .replace(/}\s*$/, inc('render-probe')+'\n}\n');
+fs.writeFileSync(output+'/NativeHost.qml',host);
+fs.copyFileSync('src/PairStore.js',output+'/PairStore.js');
+execFileSync(tool,['hash-diffs',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{stdio:'inherit'});
+const result = execFileSync(tool,['check-compatibility',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{encoding:'utf8'});
 assert.match(result,/No compatibility errors found\./);
 process.stdout.write(result);
-fs.writeFileSync('build/native/SHA256SUMS', ['NativeHost.qml','PairStore.js','companion-notebook.qmd'].map(p=>hash('build/native/'+p)+'  '+p+'\n').join(''));
+fs.writeFileSync(output+'/SHA256SUMS', ['NativeHost.qml','PairStore.js','companion-notebook.qmd'].map(p=>hash(output+'/'+p)+'  '+p+'\n').join(''));
 console.log('Native rendering candidate built, pen disabled. Not deployed.');

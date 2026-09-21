@@ -94,6 +94,12 @@ Read and write without losing context or compromising native handwriting.
    three-order normal and geometry composition). Execute only its exact four
    pinned artifacts with fresh backup and automatic base recovery. This does not
    qualify ink, visuals, save durability or release.
+   The new run 20260921T224844Z-1 PASSED: both panes reach page edges at scale1,
+   both input transforms refresh after loading, tuck/reopen and exact return pass.
+   Automatic recovery restored UI53104 / Dates14463 and all settings/base hashes.
+   Its one-run clearance is consumed and further geometry staging is blocked.
+6. Resolve native stroke-lifetime/document-transition holds before any ink profile;
+   see playbook/INK-QUALIFICATION.md. Tuck-transition eligibility is fixed locally.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

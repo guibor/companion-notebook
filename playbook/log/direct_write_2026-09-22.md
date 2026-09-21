@@ -110,3 +110,24 @@ pair store and controller unchanged. Staging pins replaced only after review.
 Future ink holds include stock open-helper bypassing the close wrapper, live
 visibility/size changes during strokes, and no established native worker-drain
 or durable-save barrier. These do not block the pen-disabled geometry run.
+
+## Geometry run 20260921T224844Z-1 — passed
+
+Manifest `93918068787fe0ae45af45acd50e4992dacd8f79076e56fd11ec68941d2a3fc9`.
+Verified Mac backup `a26a559903c827c15d9b535a156ef0ff33a8661f0c49c96552a02e577fd63362`.
+Payload remained the four reviewed 3a7bf6d artifacts; later normal-tuck source
+changes were not substituted into this frozen stage.
+
+- UI51453: 22:50:56 UTC both exposed-pane scroll checks passed, heights1080/968,
+  scale1, fixed viewport dimensions and restored focal points.
+- 22:50:56.903 both native input transforms refreshed after loading.
+- 22:51:17.411 geometry sequence and exact prior-view return completed.
+- `geometry-machine-passed=51453`, automatic `recovered=base:53104`.
+- Owner/watch inactive/success; Dates14463 unchanged; UI zero restarts,
+  MemoryMaxinfinity; all11QMDs/10settings/3policies exact; rootro; Companion
+  host/data/drop/lock absent; no stock fallback or manual intervention.
+- No ink, capture, saved-stroke or physical-fluidity qualification.
+
+Two empty labelled native test notebooks retained, not deleted:
+`82a01d7e-6170-4295-bda0-dce126592231`, `53f68b2c-f5a2-443e-b1b1-ff363f1b7abd`.
+Further geometry staging is explicitly blocked because its one-run review is spent.

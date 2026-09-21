@@ -15,8 +15,10 @@ is blocked from staging. Its no-capture replacement is locally implemented;
 see [structural diagnostic](playbook/STRUCTURAL-PROBE.md) for current limits.
 The replacement completed one native structural trial and restored the normal
 Pro setup automatically. It did not qualify handwriting, scrolling or visual
-correctness. The user requested continued work; local native navigation and pen
-geometry adaptations are in progress, and the app is not installed.
+correctness. A subsequent pen-disabled geometry trial proved full-page reachability
+in both exposed panes at unchanged scale and refreshed both native input transforms.
+The accepted base was automatically restored. Actual handwriting, save durability,
+visual rendering and physical fluidity remain unqualified; the app is not installed.
 
 ## Run locally
 
@@ -26,6 +28,7 @@ With Node and Qt Quick/Qt Test installed:
 node build-native.mjs
 CN_PROBE=render node build-native.mjs # local diagnostic-driver tests only
 CN_PROBE=structural node build-native.mjs
+CN_PROBE=geometry node build-native.mjs # offline only; its one-run review is consumed
 npm test
 QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner -input tests
 QT_QUICK_CONTROLS_STYLE=Basic qml ui/Main.qml
@@ -65,6 +68,10 @@ must not be deployed again; it is retained only for local regression tests.
 distinct structural-only completion result. It requires its own reviewed bounded
 controller, never ordinary app installation. The normal build has no automatic
 notebook-creation code. Neither diagnostic proves visual or pen correctness.
+The `geometry` profile additionally tests exposed-pane navigation and input mapping
+after native loading settles. Its successful on-device receipt is in the
+[direct-write log](playbook/log/direct_write_2026-09-22.md). Staging refuses any
+repeat until a separately reviewed need exists; rebuilding is not deployment clearance.
 
 The native host keeps primary-document scale unchanged, uses a distinct native
 DocumentView for a recent local companion, and persists only pairing metadata

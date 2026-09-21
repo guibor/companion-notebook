@@ -10,6 +10,8 @@ assert(['load','render','structural','geometry'].includes(profile));
 // until a replacement diagnostic has its own independent safety review.
 assert.notEqual(profile, 'render',
     'Rendering probes suspended after native SIGSEGV; see playbook/RENDER-PROBE.md');
+assert.notEqual(profile, 'geometry',
+    'Geometry review consumed by successful 20260921T224844Z-1; fresh review required');
 const payload = profile === 'load' ? 'build/native' : `build/${profile}-native`;
 const controller = profile === 'load' ? 'ops/probe-pro329.sh' : payload+'/probe.sh';
 assert.match(id || '', /^\d{8}T\d{6}Z-\d+$/);

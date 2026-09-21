@@ -311,3 +311,10 @@ companion exists and geometry is pending, even when `paired` just became false.
 Only the primary is refreshed while tucked; the companion waits for reveal.
 The Qt fixture now models that gate and catches the former premature reopen.
 These source changes are not substituted into an already frozen tablet stage.
+
+The frozen readiness geometry trial `20260921T224844Z-1` passed both exposed-pane
+edge/scale/viewport/focal checks and deferred native input refreshes, then restored
+the prior document and accepted base automatically (`base:53104`, Dates14463).
+All11QMDs/10settings/3policies matched, root stayed read-only, and no Companion
+host/data/drop/lock remained. The one-run clearance is consumed; staging now
+rejects geometry before any write until a new independently reviewed need exists.

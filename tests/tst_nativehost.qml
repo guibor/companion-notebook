@@ -94,5 +94,45 @@ Item {
             fixture.host.secondary.cnGestureBusy = true
             verify(!fixture.host.tuck()); verify(!fixture.host.selectPane(false))
         }
+        function test_sheet_movement_refreshes_native_input_before_ungating() {
+            open(); tryCompare(fixture.host,"inputGeometryPending",false)
+            var count=fixture.bridge.geometryCount
+            verify(fixture.host.beginDrag(600));fixture.host.moveDrag(500)
+            verify(fixture.host.inputGeometryPending)
+            wait(20);compare(fixture.bridge.geometryCount,count)
+            fixture.host.finishDrag(false)
+            verify(fixture.host.inputGeometryPending)
+            tryCompare(fixture.host,"inputGeometryPending",false)
+            verify(fixture.bridge.geometryCount>=count+2)
+        }
+        function test_geometry_failure_stays_pen_gated() {
+            open();tryCompare(fixture.host,"inputGeometryPending",false)
+            fixture.bridge.failGeometry=true
+            fixture.host.scheduleInputGeometry()
+            tryVerify(function(){return fixture.host.error.length>0})
+            verify(fixture.host.inputGeometryPending)
+        }
+        function test_geometry_refresh_waits_for_pen_up() {
+            open();tryCompare(fixture.host,"inputGeometryPending",false)
+            fixture.pen.penDownChanged(true)
+            var count=fixture.bridge.geometryCount
+            fixture.host.scheduleInputGeometry();wait(20)
+            compare(fixture.bridge.geometryCount,count);verify(fixture.host.inputGeometryPending)
+            fixture.pen.penDownChanged(false)
+            tryCompare(fixture.host,"inputGeometryPending",false)
+            verify(fixture.bridge.geometryCount>=count+2)
+        }
+        function test_toolbar_follows_completed_stroke_only_after_pen_up() {
+            open(); fixture.pen.penDownChanged(true)
+            fixture.host.noteToolbarOwner(fixture.host.secondary)
+            wait(60);verify(!fixture.host.secondarySelected)
+            fixture.pen.penDownChanged(false)
+            tryCompare(fixture.host,"secondarySelected",true)
+        }
+        function test_closed_stroke_owner_cannot_retake_toolbar() {
+            open(); fixture.host.noteToolbarOwner(fixture.host.secondary)
+            fixture.host.closeSecondary(false)
+            wait(60);verify(!fixture.host.secondarySelected)
+        }
     }
 }

@@ -10,7 +10,7 @@ Read a source while writing in a notebook pulled over its lower edge.
 
 ## Scope
 
-- In scope: portrait overlay, explicit pane selection, independent scroll, paired documents.
+- In scope: portrait overlay, direct writing in either pane, independent scroll, paired documents.
 - Out of scope: same-document pairs, Move, landscape, server, native file edits.
 - Success: user-accepted fluidity on hardware, no lost or wrong-document edits,
   and ten of ten pair resumes recovering both positions.

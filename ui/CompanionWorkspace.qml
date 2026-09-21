@@ -58,7 +58,7 @@ Item {
         Text {
             id: label; anchors.centerIn: parent; font.pixelSize: 11
             color: root.activePane === "main" ? "white" : "#595959"
-            text: root.activePane === "main" ? "● Writing in reference" : "Tap reference to write"
+            text: root.activePane === "main" ? "● Reference tools" : "Reference · write here anytime"
         }
     }
     Item {
@@ -94,7 +94,7 @@ Item {
             color: "#f0eee7"; border.width: 1; border.color: "#8d8b84"
             Rectangle { anchors.horizontalCenter: parent.horizontalCenter; y: 8; width: 48; height: 4; radius: 2; color: "#6e6c65" }
             Text {
-                x: 18; y: 24; text: root.activePane === "companion" ? "● Notes · writing" : "Notes · tap below to write"
+                x: 18; y: 24; text: root.activePane === "companion" ? "● Notes tools" : "Notes · write directly below"
                 font.pixelSize: 12; color: "#333"
             }
             MouseArea {

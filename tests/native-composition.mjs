@@ -16,7 +16,7 @@ assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
 const profile=process.env.CN_PROBE||'load';
-assert(['load','render','structural'].includes(profile));
+assert(['load','render','structural','geometry'].includes(profile));
 const payload=profile==='load'?'build/native':`build/${profile}-native`;
 const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
@@ -42,7 +42,7 @@ for(const [name,patches] of variants) {
   assert.match(scene,/value: root.cnPaired\?null:EPFramebuffer/);
   assert.match(scene,/value: !root.cnPaired&&root.textMode/);
   assert.match(scene,/when: root.cnSelected&&root.viewBehavior/);
-  assert(/handler:sceneView&&root.cnInkAllowed/.test(scene.replace(/\s/g,'')),'Native handler gate missing');
+  assert(/handler:sceneView&&(?:root.cnInkAllowed|\(root.cnGeometryAttached)/.test(scene.replace(/\s/g,'')),'Native handler gate missing');
   assert(/height:Math.max\(0,root.cnInputHeight\)/.test(scene.replace(/\s/g,'')),'Native input clipping height missing');
   assert.match(scene,/PenInputBlocker/);
   const main=read('qml/device/view/main/MainView.qml');
@@ -72,6 +72,20 @@ for(const [name,patches] of variants) {
     assert.doesNotMatch(main,/root\.content\.grabToImage/);
   } else {
     assert.doesNotMatch(main,/cnProbeNotice/);
+  }
+  if (profile === 'load' || profile === 'geometry') {
+    assert.match(scene,/limitScrollingToPaper: !root.cnPaired/);
+    assert.match(scene,/cnPaired: root.cnPaired/);
+    assert.match(scene,/root.height - root.cnInputHeight/);
+    assert.match(scene,/function cnUpdateInputGeometry/);
+    assert.match(scene,/inputSurface.updateTransform\(\)/);
+    assert.match(scene,/manager.updateRegions\(\)/);
+    assert.match(scene,/visible: !root.cnGeometryHidden/);
+    if (profile === 'load') assert.match(doc,/!cnHost.inputGeometryPending/);
+    const nav=read('qml/device/view/documentview/Navigation.qml');
+    assert.match(nav,/function cnConstrainToPane/);
+    assert.match(nav,/if \(cnJump\(-1\)\) return/);
+    assert.match(nav,/cnConstrainToPane\(\); updateScrollbars\(\)/);
   }
   counts[name]=files(out).length;
 }

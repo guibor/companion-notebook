@@ -1,7 +1,7 @@
 # Companion Notebook
 
 A portrait pull-out writing margin for reMarkable: keep a source open and slide
-a separate notebook over its lower edge. Tap a pane to choose where to write;
+a separate notebook over its lower edge. Write directly in either visible pane;
 scroll either document independently. Pairings are specific to a notebook/PDF.
 
 **Status: desktop prototype plus native rendering candidate; not a tablet release.**
@@ -15,7 +15,8 @@ is blocked from staging. Its no-capture replacement is locally implemented;
 see [structural diagnostic](playbook/STRUCTURAL-PROBE.md) for current limits.
 The replacement completed one native structural trial and restored the normal
 Pro setup automatically. It did not qualify handwriting, scrolling or visual
-correctness; further tablet experiments are stopped, and the app is not installed.
+correctness. The user requested continued work; local native navigation and pen
+geometry adaptations are in progress, and the app is not installed.
 
 ## Run locally
 
@@ -34,10 +35,10 @@ On this Mac the executables are in `/opt/homebrew/bin`. Restricted sandboxes
 may prevent Qt CPU-feature detection; use a normal local terminal if it reports
 missing NEON. Desktop tests currently use Qt 6.8.2, not the tablet's 6.10.3.
 
-Drag the notes grip up/down; the underlying page never shrinks. Tap within a
-pane to select it; use a trackpad/wheel or flick to scroll. Tuck/Reveal preserves
+Drag the notes grip up/down; the underlying page never shrinks. Write directly
+in either pane; use a trackpad/wheel or flick to scroll. Tuck/Reveal preserves
 positions. “Simulate pen” tests ownership with the mouse, not real handwriting:
-the first press in an inactive pane only selects it. Demo marks are ephemeral.
+the first press immediately writes in the touched pane. Demo marks are ephemeral.
 The prototype uses synthetic documents, makes no network calls, and reads no
 notebooks. Demo pairings live only for the process lifetime. Native boundary tests
 exercise the separate host through mocked document controllers and temporary

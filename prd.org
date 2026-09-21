@@ -7,9 +7,11 @@ Read and write without losing context or compromising native handwriting.
 - Portrait-first bottom pull-out writable margin overlays the main document.
 - Main viewport and page scale do not shrink as the margin is pulled.
 - Dragging updates the actual margin continuously, with no settle-on-release substitute.
-- Two independently scrollable documents; finger tap selects the writing pane.
-- A pen tap on an inactive pane selects it but does not ink; subsequent strokes write.
-- Active pane has a visible writing indicator. Scrolling does not change focus.
+- Two independently scrollable documents; write directly in either visible pane.
+- Pull out the notebook and start writing without an activation tap. Native pen
+  hit-testing chooses the document at stroke start and keeps it until pen-up.
+- Toolbar context follows the pane in use; finger tap can choose toolbar context,
+  but must not be required before writing. Scrolling does not change that context.
 - Pairings belong to the primary notebook or PDF; no same-document pair in v1.
 - Tucking preserves positions and pairing; detaching never deletes documents.
 - No layout/focus/document changes during a stroke; gestures keep their owner.
@@ -18,11 +20,16 @@ Read and write without losing context or compromising native handwriting.
 
 * Requirements changed
 - Earlier proposal displaced/resized the main viewport: replaced by slide-over.
-- Automatic focus on first stroke: replaced by explicit tap-to-select.
+- Earlier automatic focus was replaced by explicit tap-to-select; on 2026-09-22
+  the user superseded that decision again: direct writing in either visible pane
+  is preferred, particularly after pulling out the notebook. No select-only pen tap.
 - Same-notebook different locations: excluded from v1.
 - Landscape in v1: deferred. Later landscape should fit scaled documents to equal halves.
 - Divider-only preview fallback: rejected; live fluid movement is a hard gate.
 - Design-only phase: user authorized implementation, with original device safety constraints.
+- After the structural trial, the user explicitly requested continued work until
+  usable unless technically infeasible or very risky. This supersedes the earlier
+  overnight stop decision; it does not authorize unsafe pen routing or firmware edits.
 
 * Validation and release decision
 - Desktop controller and QML tests must pass, including pointer drag before release.
@@ -71,13 +78,18 @@ Read and write without losing context or compromising native handwriting.
    resources). Initial discovery failed; after the user woke the Pro, the one
    reviewed structural run passed and automatically restored UI45382 / Dates14463,
    with all settings/QMD/policy checks passing. No capture, ink or visual pass.
-   The user permits stopping if this cannot be made correct safely: stop further
-   tablet experiments and leave normal setup active. Do not promote the feature.
-4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
+   User subsequently requested continuation. Work on remaining concrete native
+   constraints; the normal base stays active between separately reviewed trials.
+   Do not promote mere structural success into writing or visual qualification.
+4. Qualify direct native surface hit-testing, pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
    Before ink, also prove every part of a page can scroll into each short exposed
    pane: the fixed full-height native viewport's paper bounds may otherwise hide
    lower content. Native gesture ownership alone is not this acceptance test.
+5. Exposed-pane navigation and retained-manager input refresh are implemented
+   locally. A separate pen-disabled geometry profile (101 Node / 39 Qt tests,
+   three-order composition) awaits independent one-run review. Normal base
+   remains active; no new device deployment is implied.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

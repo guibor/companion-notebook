@@ -88,7 +88,8 @@ function beginStroke(s, x, y) {
     if (s.busy || !s.primary) return "blocked";
     var pane = hit(s, x, y);
     if (!available(s, pane)) return "blocked";
-    if (s.focus !== pane) { select(s, pane); return "selected"; }
+    // Pull out and write: the first point selects the owner AND starts ink.
+    s.focus = pane;
     s.busy = { kind: "stroke", pane: pane, document: pane === "main" ? s.primary : s.companion,
         originY: pane === "main" ? 0 : top(s) + s.header };
     return "writing";

@@ -21,6 +21,7 @@ Item {
         readonly property var cnProbeViewport: primaryView
         readonly property var cnProbeScene: primaryView
         function cnCloseFoldout() {}
+        function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
     }
     Component {
         id: secondaryFactory
@@ -37,6 +38,7 @@ Item {
             readonly property var cnProbeScene: secondaryView
             property bool closed: false
             function cnCloseFoldout() {}
+            function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
             function cnNativeClose() { closed = true; mockBridge.closeCount++ }
             function cnAction(name) { mockBridge.lastAction = name }
         }
@@ -49,6 +51,8 @@ Item {
         property bool portrait: true
         property bool sharingActive: false
         property bool failCreate: false
+        property bool failGeometry: false
+        property int geometryCount: 0
         property bool ready: true
         property int closeCount: 0
         property string lastAction: ""

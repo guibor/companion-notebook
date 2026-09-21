@@ -27,11 +27,18 @@ disposable pages. The new structural profile is implemented locally and
 cleared only for preparation of one bounded structural trial using exact reviewed
 bytes and fresh device/base/backup checks. That one hardware trial has now passed
 its structural sequence and automatically restored the normal base; no visual,
-scroll or pen acceptance is implied. Further tablet experiments are stopped.
+scroll or pen acceptance is implied. The user has since requested continuation
+unless technically infeasible or very risky; only local work is resumed so far.
 Moving capture
 to a parent/root or starting whole-screen RMStream is not an accepted workaround.
 
 ## Layout
+
+Latest interaction decision: pulling out the companion makes it immediately
+writable; both exposed panes accept native pen strokes without a focus tap.
+Toolbar context is separate from pen ownership. This supersedes the prototype's
+select-only first pen tap. The implementation below is still being adapted and
+keeps tablet writing disabled until the native routing gates are satisfied.
 
 Main viewport stays full-sized. The companion is a second fixed-size viewport
 translated to `height - reveal`, clipped by the workspace. Only its visible
@@ -41,6 +48,46 @@ for native integration, not proof that the e-ink compositor supports it.
 
 ## Modules and principal functions
 
+- `native/geometry-check.qml.inc`: proposed no-capture/pen-disabled native
+  diagnostic. It moves only the two disposable notebooks through exposed-height
+  native scroll jumps, checks both paper edges and stable viewport scale/size,
+  restores the original focal point, and exercises input-geometry refresh.
+  `CN_PROBE=geometry` uses a new output directory and distinct success marker,
+  sharing the already-tested recovery functions but has no staging clearance.
+  Its executable tests distinguish unreachable-page failure from successful
+  transform checks and require restoring the exact focal point on either path.
+- `native/input-geometry.qml.inc`: normal-build-only deferred pen geometry gate.
+  `scheduleInputGeometry()` blocks new pen input immediately, coalesces changes
+  by generation, waits for layout/restore/pen-up, then calls stock
+  `PenInputSurface.updateTransform()` and the native manager's `updateRegions()`
+  on both views before lifting the gate. A failure leaves writing paused.
+  Native binary inspection shows that live pen drawing still reaches the global
+  framebuffer independently of the viewport's framebuffer property. Its separate
+  native input region and transform therefore matter; parent QML clipping alone
+  is not sufficient. The exact explicit input-surface bounds are retained.
+  `native/pen-refresh.qml.inc` hides the input surface while retaining its native
+  manager, rebuilds regions, temporarily attaches the existing stroke handler,
+  reapplies the stock transform, then detaches and unhides under the still-closed
+  outer pen gate. This sequencing is essential: native setTransform is a no-op
+  without a handler and uses an identity screen transform without a manager.
+  Independent exact-binary review found synchronous direct signal publication
+  under separate native mutexes. This is a viable ink-closed/no-active-stroke
+  preparation mechanism, not a way to cancel an already-owned native stroke.
+  The controller/staged candidate still requires review before deployment.
+  `noteToolbarOwner()` records the native completed-stroke sender and changes
+  toolbar context only when pen and touch gestures have ended, never midway
+  through native stroke commit. Pen eligibility no longer depends on toolbar
+  selection; each pane retains its own native document tools.
+- `native/navigation.qml.inc`: local exposed-pane scrolling candidate, included
+  only in the normal build, leaving the frozen diagnostics byte-identical.
+  `cnConstrainToPane()` clamps the native tile transform against the actual
+  exposed rectangle and native scene exterior; `cnJump()` uses 80 percent of the
+  visible pane height. Full SceneView size and scale do not change. The stock
+  full-viewport paper clamp is disabled only while paired; drag, scrollbar,
+  search and autoscroll paths receive the pane-aware clamp. Layout dragging
+  suppresses clamping until release. Pure-function tests cover reachability,
+  zoom, extended pages, horizontal bounds and reentrancy; native behavior still
+  requires qualification. This is not part of any cleared device payload.
 - `native/structural-probe.qml.inc`: no-capture diagnostic state machine.
   `probeAssertStructure()` verifies saved DocumentView/current-scene/viewport
   identities and dimensions, disposable IDs/controller separation and pen gates
@@ -62,7 +109,7 @@ for native integration, not proof that the e-ink compositor supports it.
   log; the feature remains inactive and is not a writable release.
 - `native/NativeHost.qml`: actual native-view container, picker, translated sheet,
   compact companion toolbar and focus state. `openSecondary()` creates a distinct
-  native view and waits for readiness; `selectPane()` owns writing focus;
+  native view and waits for readiness; `selectPane()` chooses toolbar context;
   `beginDrag()/moveDrag()/finishDrag()` translate the live sheet;
   `beginPull()/finishPull()` support dragging an already-loaded tucked view.
   Cold views must load before dragging. `checkpoint()/persist()` save only pair
@@ -209,8 +256,8 @@ No adapter is faked with screenshots or custom serialized handwriting.
 ## Unqualified native boundaries
 
 The native candidate's `inkQualified` is false: paired views cannot accept ink or
-editing actions. Native PenInputBlocker regions cover disabled input; inactive
-pen-to-QML tap delivery is not proven. Native stroke signals lock layout/focus,
+editing actions. Native PenInputBlocker regions cover disabled input; the new
+direct-write model relies on native first-sample region ownership. Native stroke signals lock layout/focus,
 and unsupported orientation tucks after pen-up, but the underlying orientation
 geometry still needs live testing. No second Dates panel is allowed; other shared
 plugin/native globals require actual composition tests. Native viewport pixels,

@@ -10,9 +10,10 @@ test('overlay leaves main geometry fixed during every intermediate drag', () => 
   for (let y = 620; y >= 250; y--) { W.drag(s,y); assert.equal(s.reveal, 300 + 620-y); assert.equal(s.height,900); }
   W.endDrag(s); assert.equal(s.lastReveal,670);
 });
-test('inactive pen tap selects but does not write', () => {
-  const s = ready(); assert.equal(W.beginStroke(s,20,700),'selected'); assert.equal(s.busy,null);
-  assert.equal(W.beginStroke(s,20,700),'writing'); assert.equal(s.busy.document,'notes');
+test('first stroke writes in either pane without an activation tap', () => {
+  const s = ready(); assert.equal(W.beginStroke(s,20,700),'writing'); assert.equal(s.busy.document,'notes');
+  assert.equal(s.focus,'companion'); W.endStroke(s);
+  assert.equal(W.beginStroke(s,20,200),'writing'); assert.equal(s.busy.document,'pdf'); assert.equal(s.focus,'main');
 });
 test('stroke locks focus geometry pair and primary document', () => {
   const s=ready(); W.beginStroke(s,20,200);

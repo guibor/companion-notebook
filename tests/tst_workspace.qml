@@ -40,16 +40,18 @@ Item {
             workspace.tuck(); compare(workspace.revealed,0)
             workspace.reveal(); compare(workspace.companionView.contentY,210)
         }
-        function test_pen_selection_and_lock() {
+        function test_direct_pen_writing_and_lock() {
             workspace.inkMode = true
-            mouseClick(workspace,200,workspace.overlayTop+100)
-            compare(workspace.activePane,"companion")
-            compare(workspace.state.busy,null)
             mousePress(workspace,200,workspace.overlayTop+100)
+            compare(workspace.activePane,"companion")
             compare(workspace.state.busy.kind,"stroke")
+            compare(workspace.state.busy.document,"demo-notes")
             verify(!workspace.tuck())
             mouseRelease(workspace,200,workspace.overlayTop+110)
             compare(workspace.state.busy,null)
+            mousePress(workspace,200,100)
+            compare(workspace.state.busy.document,"demo-reference")
+            mouseRelease(workspace,200,110)
         }
         function test_pen_mode_handle_still_drags() {
             workspace.inkMode = true

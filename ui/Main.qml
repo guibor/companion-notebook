@@ -20,7 +20,7 @@ ApplicationWindow {
         CompanionWorkspace { id: workspace; Layout.fillWidth: true; Layout.fillHeight: true }
         Label {
             Layout.fillWidth: true; padding: 10; horizontalAlignment: Text.AlignHCenter
-            text: "Desktop only · tap to select · drag grip · scroll within either page"
+            text: "Desktop only · write in either pane · drag grip · scroll each page"
             font.pixelSize: 11; color: "#555"
         }
     }

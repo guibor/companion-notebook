@@ -3,7 +3,8 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-const structural = process.env.CN_PROBE === 'structural';
+const geometry = process.env.CN_PROBE === 'geometry';
+const structural = process.env.CN_PROBE === 'structural' || geometry;
 assert(!process.env.CN_PROBE || structural || process.env.CN_PROBE === 'render');
 const source=fs.readFileSync('ops/probe-pro329.sh','utf8');
 assert.equal(createHash('sha256').update(source).digest('hex'),'e219d071e62a5170f2799ba6b406a086495bc995e4976b7371265f9cf14116fb');
@@ -67,7 +68,11 @@ if (structural) {
         [ "$?" -eq 1 ] || return 1
     fi`);
 }
-const output=structural ? 'build/structural-native' : 'build/render-native';
+if (geometry) {
+    result=result.replaceAll('structural sequence and return completed','geometry sequence and return completed')
+        .replace('mark structural-machine-passed', 'mark geometry-machine-passed');
+}
+const output=geometry ? 'build/geometry-native' : structural ? 'build/structural-native' : 'build/render-native';
 fs.mkdirSync(output,{recursive:true});
 fs.writeFileSync(output+'/probe.sh',result,{mode:0o700});
 console.log((structural?'Structural':'Rendering')+' controller (requires independent review): '+createHash('sha256').update(result).digest('hex'));

@@ -7,7 +7,12 @@ const firmware = process.env.RM_FIRMWARE || '/Users/mdf/code/remarkable-beta-os/
 const tool = process.env.QMLDIFF_BIN || '/Users/mdf/code/remarkable-beta-os/.cache/tools/qmldiff-25681c3-bin';
 const renderProbe = process.env.CN_PROBE === 'render';
 const structuralProbe = process.env.CN_PROBE === 'structural';
-const diagnostic = renderProbe || structuralProbe;
+const geometryProbe = process.env.CN_PROBE === 'geometry';
+const noCaptureProbe = structuralProbe || geometryProbe;
+const diagnostic = renderProbe || noCaptureProbe;
+// Preserve the previously reviewed diagnostic bytes. This new navigation
+// candidate is local-only until it receives a separately scoped native trial.
+const paneNavigation = !diagnostic || geometryProbe;
 assert(!process.env.CN_PROBE || diagnostic, 'Unknown probe profile');
 const output = diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
@@ -22,7 +27,7 @@ const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL
 let q = 'VERSION 3.29.0.148\n';
 q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (diagnostic ? '\nproperty bool cnProbeStarted: false' : '')));
 let probeBridge = diagnostic ? inc('probe-bridge') : '';
-if (structuralProbe) {
+if (noCaptureProbe) {
     const start = probeBridge.indexOf('function probeCapture(host) {');
     const end = probeBridge.indexOf('function probeRestore(host) {');
     assert(start > 0 && end > start, 'Capture removal anchors drifted');
@@ -77,12 +82,24 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
  END TRAVERSE
 `, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (diagnostic ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
 let document = inc('document');
+if (paneNavigation) {
+    document = document.replace('!cnHost.dragging && !cnHost.restoring', '!cnHost.dragging && !cnHost.restoring && (!cnPaired || !cnHost.inputGeometryPending)')
+        .replace('cnHost.inkQualified && cnSelected && cnPaired', 'cnHost.inkQualified && cnPaired')
+        + `
+function cnUpdateInputGeometry() { return sceneView.cnUpdateInputGeometry() }
+Connections {
+    target: root.penHandler
+    function onStrokeCompleted() { if (root.cnHost) root.cnHost.noteToolbarOwner(root) }
+}
+`;
+}
 if (diagnostic) {
     document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, 'readonly property bool cnInkAllowed: false')
         + '\nreadonly property var cnProbeViewport: sceneView.viewport\n';
-    document += structuralProbe ? 'readonly property var cnProbeScene: sceneView.sceneView\n'
+    document += noCaptureProbe ? 'readonly property var cnProbeScene: sceneView.sceneView\n'
         : 'readonly property var cnProbeCaptureItem: sceneView.sceneView\nfunction cnProbeCaptureViewport(callback) { return !!cnProbeViewport && !!cnProbeCaptureItem && cnProbeCaptureItem.grabToImage(callback) }\n';
 }
+if (geometryProbe) document += '\nfunction cnProbePaneGeometry() { return sceneView.cnProbePaneGeometry() }\n';
 q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  RENAME close TO cnStockClose
  ${insert(document)}
@@ -94,7 +111,7 @@ q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  ${insert('when: root.cnOwnsGlobals; restoreMode: Binding.RestoreNone')}
  END TRAVERSE
  TRAVERSE DeviceSceneView#sceneView
- ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (diagnostic ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen)'))}
+ ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (diagnostic ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen || root.cnHost.inputGeometryPending)'))}
  END TRAVERSE
  TRAVERSE DocumentToolSettings#documentViewTools
  ${replace('onDocumentAboutToChange','Settings.setLastWritingTool(toolSettings());','if (root.cnOwnsGlobals) Settings.setLastWritingTool(toolSettings());')}
@@ -149,6 +166,28 @@ q += `AFFECT /qml/device/view/documentview/DeviceSceneView.qml
  END REBUILD
 END AFFECT
 `;
+if (paneNavigation) {
+    q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',`
+ ${geometryProbe ? insert(inc('geometry-check')) : ''}
+ ${insert(inc('pen-refresh'))}
+ TRAVERSE PenInputSurface#inputSurface
+ ${insert('visible: !root.cnGeometryHidden')}
+ ${replace('handler','root.cnInkAllowed && !root.cnLayoutBusy','(root.cnGeometryAttached || (root.cnInkAllowed && !root.cnLayoutBusy))')}
+ END TRAVERSE
+ TRAVERSE Component#sceneViewComponent > SceneView#view
+ ${replace('limitScrollingToPaper','true','!root.cnPaired')}
+ END TRAVERSE
+ TRAVERSE Navigation#sceneNavigation
+ ${insert('cnPaired: root.cnPaired; cnLayoutBusy: root.cnLayoutBusy; anchors.bottomMargin: root.cnPaired ? Math.max(0, root.height - root.cnInputHeight) : 0')}
+ END TRAVERSE
+ ${replace('availableSceneRect','root.height - root.keyboardMargin','(root.cnPaired ? root.cnInputHeight : root.height) - root.keyboardMargin')}
+`);
+    q += affect('qml/device/view/documentview/Navigation.qml','Item#root',insert(inc('navigation')) + `
+ ${replace('scrollDown','const nearestAlignment = function()','if (cnJump(-1)) return; const nearestAlignment = function()')}
+ ${replace('scrollUp','const nearestAlignment = function()','if (cnJump(1)) return; const nearestAlignment = function()')}
+ ${replace('updateDragAndZoom','updateScrollbars();','cnConstrainToPane(); updateScrollbars();')}
+`);
+}
 q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
  TRAVERSE Component#settingsComponent > ColumnLayout#content
  ${insert(`ToolbarTool {
@@ -167,9 +206,19 @@ fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
 fs.writeFileSync(output+'/companion-notebook.qmd',q);
 let host=fs.readFileSync('native/NativeHost.qml','utf8');
-if (diagnostic) host=host.replace('property bool renderProbeOnly: false','property bool renderProbeOnly: true')
-    .replace(/}\s*$/, inc(structuralProbe ? 'structural-probe' : 'render-probe')+'\n}\n');
-if (structuralProbe) {
+if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
+    .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
+if (diagnostic) {
+    let driver=inc(noCaptureProbe ? 'structural-probe' : 'render-probe');
+    if (geometryProbe) driver=driver
+        .replace('console.log("Companion probe: observation window;', `if (!bridge.primary.cnProbePaneGeometry() || !host.secondary.cnProbePaneGeometry())
+                    throw new Error("Native exposed-pane geometry failed")
+                console.log("Companion probe: observation window;`)
+        .replace('structural sequence and return completed', 'geometry sequence and return completed');
+    host=host.replace('property bool renderProbeOnly: false','property bool renderProbeOnly: true')
+        .replace(/}\s*$/, driver+'\n}\n');
+}
+if (noCaptureProbe) {
     for (const content of [q, host])
         assert(!/grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer\s*\./.test(content), 'Forbidden offscreen capture in structural profile');
 }

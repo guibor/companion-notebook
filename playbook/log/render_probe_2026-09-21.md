@@ -187,3 +187,7 @@ not a captured fault PC. All 70 Node tests pass after staging suspension.
 
 ReManager was informed of restored base and asked for local-only analysis of a
 non-layer diagnostic; no device changes or new run approval requested.
+
+After the fourth recovery the user explicitly confirmed: normal document
+scrolling works. This closes the physical input recovery check, not Companion's
+rendering or writing acceptance gates.

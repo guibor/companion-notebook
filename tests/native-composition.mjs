@@ -53,7 +53,11 @@ for(const [name,patches] of variants) {
     assert.match(doc,/function cnProbeCaptureViewport/);
     assert.match(doc,/readonly property\s+var cnProbeViewport: sceneView.viewport/);
     assert.match(main,/enabled: false/);
+    assert.match(main,/id: cnProbeNotice/);
+    assert.match(main,/Temporary test — writing and scrolling paused/);
     assert.doesNotMatch(main,/root\.content\.grabToImage/);
+  } else {
+    assert.doesNotMatch(main,/cnProbeNotice/);
   }
   counts[name]=files(out).length;
 }

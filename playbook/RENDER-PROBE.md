@@ -26,6 +26,7 @@ receipts. Do not reuse a stage ID, the old load-only artifact or its review.
   the actual waiting gate without exposing document content or personal metadata.
 - This profile compiles MainView interaction, document shortcuts, native gestures
   and pen input off independently of external-host loading; its picker is locked.
+  A bottom notice explains the temporary input lock and automatic restoration.
 - Claim a process-wide singleton flag before any creation. Never retry creation
   in that process, even if a later step fails.
 - Remember the current document/page in memory. Create exactly two new notebooks
@@ -65,6 +66,14 @@ the accepted base's unlimited policy returns when the diagnostic drop-in is remo
 Observed pretrial memory: ~439 MiB base RSS, ~1.3 GiB available on a 2-GiB device.
 The completion wait rechecks independent-watchdog liveness on every iteration
 and again immediately before its success receipt.
+The independent watchdog also checks `Companion probe: FAILED` each polling
+cycle and invokes the unchanged recovery function immediately on that marker,
+even while the owner is busy with warmup checks. The owner checks before every
+warmup pass as well. Failed diagnostics need not wait for the deadline. Recovery
+verification/start budgets remain unchanged, so recovery itself still takes time.
+Owner error checks explicitly exit on native/QML errors and reject log-read
+errors. Bare `! grep` is not used as a top-level failure gate: Bash's `set -e`
+exempts negated commands, which previously delayed owner failure handling.
 
 Follow the [load probe's](LOAD-PROBE.md) strict-key staging, independently verified
 Mac backup and watched operator sequence, using this derivative's frozen review

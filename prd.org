@@ -49,9 +49,9 @@ Read and write without losing context or compromising native handwriting.
    independent review passed. Second trial opened both native documents, then
    failed on a native API argument error; recovered base UI34683 / Dates14463.
    Native refresh correction is local only (55 Node / 29 Qt tests pass).
-   No further hardware trials this turn after the user's risk/input concerns.
-   Before retrying, review the fix and shorten failure-to-recovery delay without
-   weakening guards. Obtain physical confirmation that normal scrolling returned.
+   User confirmed normal scrolling returned and authorized continuation.
+   Refresh fix, fail-fast watchdog and visible temporary-test notice now have
+   independent review (66 Node / 29 Qt tests); use a fresh guarded trial and backup.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
 

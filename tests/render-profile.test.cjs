@@ -2,7 +2,9 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const {execFileSync}=require('node:child_process');
+const {execFileSync,spawnSync}=require('node:child_process');
+const os=require('node:os');
+const path=require('node:path');
 
 test('rendering controller preserves the reviewed recovery implementation',()=>{
     execFileSync(process.execPath,['ops/build-render-controller.mjs']);
@@ -17,8 +19,51 @@ test('rendering controller preserves the reviewed recovery implementation',()=>{
     assert.doesNotMatch(render,/mark load-only-passed/);
     assert.match(render,/for n in \$\(seq 1 80\); do\n    healthy probe\n    systemctl is-active --quiet "\$WATCH"/);
     assert.match(render,/systemctl is-active --quiet "\$WATCH"\nmark rendering-machine-passed/);
+    assert.match(render,/for n in \$\(seq 1 25\); do\n    if grep -Fq 'Companion probe: FAILED' "\$B\/probe.log"; then exit 1; else \[ "\$\?" -eq 1 \]; fi/);
     execFileSync('/bin/bash',['-n','build/render-native/probe.sh']);
 });
+
+for (const kind of ['native','qml']) for (const scenario of ['failure','clean','missing']) {
+    test('actual owner '+kind+' log gate rejects '+scenario+' correctly',()=>{
+        execFileSync(process.execPath,['ops/build-render-controller.mjs']);
+        const render=fs.readFileSync('build/render-native/probe.sh','utf8');
+        const gate=render.split('\n').find(line=>line.trim().startsWith(kind==='native'?"if grep -Fq 'Companion probe: FAILED'":"if grep -Eiq 'Failed to load file"));
+        assert(gate);
+        const dir=fs.mkdtempSync(path.join(os.tmpdir(),'companion-owner-gate-'));
+        try {
+            if (scenario!=='missing') fs.writeFileSync(path.join(dir,'probe.log'),scenario==='clean'?'all clear\n':kind==='native'?'Companion probe: FAILED phase=4 injected\n':'TypeError: injected\n');
+            const r=spawnSync('/bin/bash',['-c',`set -Eeuo pipefail\nB=${JSON.stringify(dir)}\n${gate}\nprintf accepted`],{encoding:'utf8'});
+            assert.equal(r.status,scenario==='clean'?0:1);
+            assert.equal(r.stdout,scenario==='clean'?'accepted':'');
+        } finally { fs.rmSync(dir,{recursive:true,force:true}); }
+    });
+}
+
+for (const scenario of ['failure','no-log','normal-log','abort','owner-ended']) {
+    test('actual independent watch loop recovers correctly: '+scenario,()=>{
+        execFileSync(process.execPath,['ops/build-render-controller.mjs']);
+        const render=fs.readFileSync('build/render-native/probe.sh','utf8');
+        const loop=render.slice(render.indexOf('    while [ "$(stamp)" -lt "$deadline" ]; do'),render.indexOf('\nfi\n[ "$ACTION" = run ]'));
+        const dir=fs.mkdtempSync(path.join(os.tmpdir(),'companion-failfast-'));
+        try {
+            fs.writeFileSync(path.join(dir,'clock'),'1');
+            if (scenario==='failure') fs.writeFileSync(path.join(dir,'probe.log'),'qml Companion probe: FAILED phase=4 Error: injected\n');
+            if (scenario==='normal-log') fs.writeFileSync(path.join(dir,'probe.log'),'qml Companion: host ready; ink=false; settings=true\n');
+            if (scenario==='abort') fs.writeFileSync(path.join(dir,'abort'),'');
+            const script=`set -Eeuo pipefail
+B=${JSON.stringify(dir)}; deadline=2
+stamp() { cat "$B/clock"; }
+owner_alive() { ${scenario==='owner-ended'?'return 1':'return 0'}; }
+sleep() { printf 2 >"$B/clock"; printf sleep; }
+recover() { printf 'recovered:%s' "$1"; }
+${loop}`;
+            const r=spawnSync('/bin/bash',['-c',script],{encoding:'utf8',timeout:2000});
+            assert.equal(r.status,0,r.stderr);
+            assert.equal(r.stdout,scenario==='failure'?'recovered:native-failure':
+                ['abort','owner-ended'].includes(scenario)?'recovered:owner-ended':'sleeprecovered:deadline');
+        } finally { fs.rmSync(dir,{recursive:true,force:true}); }
+    });
+}
 
 const bridge=fs.readFileSync('native/probe-bridge.qml.inc','utf8');
 const functions=bridge.slice(bridge.indexOf('function probeReadiness()'));

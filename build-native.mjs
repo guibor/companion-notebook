@@ -24,6 +24,23 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((render
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  LOCATE AFTER Loader#documentView
  INSERT {
+   ${renderProbe ? `Rectangle {
+     id: cnProbeNotice
+     z: 9001
+     anchors.left: parent.left
+     anchors.right: parent.right
+     anchors.bottom: parent.bottom
+     height: 140 * parent.width / 1620
+     color: "white"
+     border.color: "black"
+     Text {
+       anchors.centerIn: parent
+       text: "Temporary test — writing and scrolling paused\\nNormal setup restores automatically after this test"
+       horizontalAlignment: Text.AlignHCenter
+       font.pixelSize: 28 * parent.width / 1620
+       color: "black"
+     }
+   }` : ''}
    Loader {
      id: cnHostLoader
      anchors.fill: documentView

@@ -11,8 +11,8 @@ Its first trial timed out at readiness; its second opened both native documents
 then failed on a native argument error. Both automatically restored the accepted base.
 Its [trial receipt](playbook/log/render_probe_2026-09-21.md) separates failed native
 rendering qualification from successful recovery; no ink has been enabled.
-The refresh correction is local only. Further hardware trials are stopped for
-this turn after the user's risk and temporarily blocked-input concerns.
+The user confirmed normal scrolling returned and authorized continuation. The
+refresh correction and faster failure recovery require a newly reviewed trial.
 
 ## Layout
 
@@ -69,12 +69,21 @@ for native integration, not proof that the e-ink compositor supports it.
   logging emits only readiness reason labels when they change, never document data.
   Failure messages include the numeric diagnostic phase to localize native errors.
   Exceptions stop the diagnostic; no custom notebook serialization or deletion.
+  A render-profile-only bottom notice explains that writing/scrolling are paused
+  and the normal setup restores automatically; it is absent from the normal app.
 - `ops/build-render-controller.mjs`: generates a narrowly transformed derivative
   of the hash-pinned reviewed load controller. It requires its own review and
   receipt: 180-second owner window, 1-GiB temporary UI memory cap and a distinct
   two-view/return/capture marker. Completion polling checks watchdog liveness on
   each iteration and before marking success. The original load-only controller
-  is unchanged.
+  is unchanged. The independent watchdog now checks the native failure marker
+  every polling cycle, recovering even while the owner is busy in health checks;
+  the owner also checks before each warmup pass. Recovery functions and restart
+  budgets remain byte-identical to their reviewed versions.
+  Owner native-failure and strict-QML-error gates use explicit exit paths and
+  accept only grep's no-match status; they do not rely on bare shell negation
+  under `set -e`, which does not abort on a matched error. Log-read failures fail
+  closed. Executable tests cover these actual generated gate statements.
 - `tests/native-composition.mjs`: verifies the coordinated base candidate hash set,
   applies all extensions in three orders, parses every generated QML resource,
   checks critical hooks and rejects a wrong firmware. It does not activate anything.
@@ -159,8 +168,8 @@ and unsupported orientation tucks after pen-up, but the underlying orientation
 geometry still needs live testing. No second Dates panel is allowed; other shared
 plugin/native globals require actual composition tests. Native viewport pixels,
 scrolling, save durability, occlusion and fluidity remain unmeasured on hardware.
-The first probe must use disposable documents and a bounded independent watchdog.
+Rendering probes use disposable documents and a bounded independent watchdog.
 ReManager explicitly handed over its accepted r1 base after final verification.
-Fresh strict-key identity/inventory checks confirmed UI14472 and Dates14463 with
-zero restarts and read-only root. The first planned probe is load-only and
-automatically returns to that base; it does not open or create test documents yet.
+The last verified recovery returned UI34683 / Dates14463 with zero restarts and
+read-only root; the user confirmed normal scrolling. Consult the dated receipts
+and revalidate live identity/base state before each new trial, not these old PIDs.

@@ -51,3 +51,36 @@ Required constraints before implementation or execution:
 This is a feasibility path, not permission to skip any current native gate. If
 native lifetime/routing cannot be bounded using the existing APIs, stop before
 ink and retain the normal tablet setup.
+
+## Exact-build lifetime audit and current risk stop
+
+The coordinated read-only audit is retained at
+`build/review-stroke-lifetime.txt`. It found **real native destruction safety**:
+the ScenePenInputHandler destructor emits `aboutToBeDestroyed` before releasing
+its derived resources; a direct worker callback takes the worker mutex and removes
+the handler. Preserve this path. Do not claim the native destructor itself lacks
+lifetime protection, manually emit that signal, or alter native worker pointers.
+
+However, the normal end sequence emits `strokeCompleted` and the inherited
+stroke signal before later cleanup and worker-unlock work. The retained worker
+handler pointer normally remains non-null after completion, so it is not an
+active-stroke indicator. `timeSincePenUp()` can become positive before worker
+completion; the alternate cleanup path makes it positive even before releasing
+renderer/auxiliary-image resources. None acknowledges durable notebook saving.
+The internal main-thread lock/unlock methods are not a reusable queue-drain API.
+
+Concrete current risk: stock `_open_helper` can continue document reassignment
+after the wrapper's `close()` returns early for pen-down. The shared live pen
+handler and its document controller can consequently be rebound independently of
+the old stroke's handoff. The live `visible: mayShow`/size bindings also are not
+fully frozen by the explicit tuck guard. A timeout would hide these races, not
+establish safe completion. Ordinary page/controller edits must stay native.
+
+**Decision:** stop hardware work before ink, leave the accepted Pro base running,
+and keep Companion uninstalled. This is not a claim that split writing is
+impossible or that no other firmware hook exists. It is a bounded finding that
+the inspected exposed paths do not yet support a demonstrated safe handoff for
+this implementation. A deeper native lifecycle integration would need a separate
+design/review and disposable-only durability evidence before any personal pilot.
+No synthetic pen events, private notebook content edits, firmware/root/boot
+changes or Move changes were made in this continuation.

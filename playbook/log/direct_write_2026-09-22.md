@@ -131,3 +131,19 @@ changes were not substituted into this frozen stage.
 Two empty labelled native test notebooks retained, not deleted:
 `82a01d7e-6170-4295-bda0-dce126592231`, `53f68b2c-f5a2-443e-b1b1-ff363f1b7abd`.
 Further geometry staging is explicitly blocked because its one-run review is spent.
+
+## Native writing risk boundary
+
+The bounded independent binary audit found synchronized native handler removal,
+not a reusable stroke-drain/save acknowledgement. In particular, completion
+signals precede later worker cleanup, and stock `_open_helper` continues past an
+early-returning close wrapper. The current shared live handler/controller rebind
+and visibility/size transitions therefore are not safe enough for personal ink.
+See INK-QUALIFICATION.md for the nuanced finding; native destruction itself is
+synchronized. No claim that all possible native approaches are infeasible.
+
+Stopped before ink under the user's explicit risk exception. No injector built
+or run, no personal notebook content edited, no persistent Companion activation.
+Pro remains accepted base53104 / Dates14463; Move untouched. Current source and
+notes are committed on beta/pro/3.29.0.148; no Git remote is configured here.
+Final local checks:108 Node/42 Qt; normal and geometry3orders×30resources each.

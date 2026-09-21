@@ -318,3 +318,11 @@ the prior document and accepted base automatically (`base:53104`, Dates14463).
 All11QMDs/10settings/3policies matched, root stayed read-only, and no Companion
 host/data/drop/lock remained. The one-run clearance is consumed; staging now
 rejects geometry before any write until a new independently reviewed need exists.
+
+The bounded exact-binary audit found synchronized native handler destruction,
+but not a reusable per-stroke queue-drain/save acknowledgement in the inspected
+exposed paths. Stock `_open_helper` can bypass an early-returning close wrapper;
+live visibility/size bindings are another transition boundary. See
+`playbook/INK-QUALIFICATION.md` for the evidence and risk stop. Native writing
+remains disabled and Companion uninstalled; no timer is treated as a save barrier.
+Final local checks:108 Node,42 Qt,normal and geometry three-order composition.

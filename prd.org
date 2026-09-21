@@ -100,6 +100,10 @@ Read and write without losing context or compromising native handwriting.
    Its one-run clearance is consumed and further geometry staging is blocked.
 6. Resolve native stroke-lifetime/document-transition holds before any ink profile;
    see playbook/INK-QUALIFICATION.md. Tuck-transition eligibility is fixed locally.
+   Exact-build audit found native destructor synchronization but no proven exposed
+   per-stroke drain/save acknowledgement in inspected paths. Stop before enabling
+   ink under the user's low-risk constraint; Pro base53104 remains restored.
+   Future work needs a safe pre-mutation handoff design, not a longer quiet timer.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

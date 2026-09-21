@@ -19,6 +19,9 @@ correctness. A subsequent pen-disabled geometry trial proved full-page reachabil
 in both exposed panes at unchanged scale and refreshed both native input transforms.
 The accepted base was automatically restored. Actual handwriting, save durability,
 visual rendering and physical fluidity remain unqualified; the app is not installed.
+Hardware work is stopped before ink because safe stroke handoff across document
+and visibility transitions is unresolved with the inspected exposed APIs. The
+normal Pro setup is restored. See [the risk boundary](playbook/INK-QUALIFICATION.md).
 
 ## Run locally
 

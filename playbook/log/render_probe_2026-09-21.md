@@ -185,6 +185,22 @@ null guard: setup's createLayer virtual call at 0x239b9c is followed by storing 
 returned pointer and dereferencing it at 0x239ba4. This is static evidence only,
 not a captured fault PC. All 70 Node tests pass after staging suspension.
 
+Independent ReManager review subsequently traced the exact cached xochitl's
+EPContext vtable slot +160 to 0x852f60: it constructs and returns a non-null
+EPLayer while emitting the warning. Thus the unchecked dereference above does
+NOT establish a null-createLayer crash. The precise SIGSEGV instruction remains
+unproven. The supported conclusion is incompatibility with the custom e-ink
+offscreen-layer path, not a demonstrated failure of two-document rendering.
+
+The review retains the hardware STOP and staging suspension. A parent/root
+grab still invokes createLayer and is not a safe workaround. The narrow proposed
+replacement uses no grabToImage/layer APIs, keeps pen disabled, and reports only
+structural/focus/geometry/disposable-ID checks with capture-not-attempted.
+Visual acceptance must be a separate user observation/photo of disposable pages,
+never inferred from state-machine completion. RMStream is not a private drop-in
+capture replacement because it exposes whole-screen LAN streaming. This is a
+recommendation only: fresh review and authorization precede any hardware trial.
+
 ReManager was informed of restored base and asked for local-only analysis of a
 non-layer diagnostic; no device changes or new run approval requested.
 

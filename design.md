@@ -19,6 +19,12 @@ native SIGSEGV after unsupported-layer warnings. The watchdog restored the base;
 render staging is now suspended. A different diagnostic must be reviewed before
 another hardware run. The ordinary app never uses grabToImage; this failed in
 the diagnostic only, but dual-view rendering itself remains unqualified.
+Independent binary review found the custom EPContext returns a non-null EPLayer;
+the exact crash instruction is unknown, and a null-layer diagnosis is unsupported.
+The proposed replacement diagnostic avoids all offscreen-layer APIs and separates
+machine state checks (capture not attempted) from user visual acceptance on
+disposable pages. It is not implemented or approved for hardware. Moving capture
+to a parent/root or starting whole-screen RMStream is not an accepted workaround.
 
 ## Layout
 

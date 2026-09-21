@@ -59,6 +59,10 @@ Read and write without losing context or compromising native handwriting.
    pass. Render staging is now suspended in code. Investigate a non-layer-based
    diagnostic locally and obtain fresh independent review before any new trial.
    Keep all writing disabled; do not replay old stages.
+   Independent review recommends a no-capture structural diagnostic and separate
+   visual acceptance restricted to disposable pages. Do not substitute a parent
+   grab or whole-screen stream. This direction needs implementation, fresh review
+   and authorization; staging remains suspended meanwhile.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
    Before ink, also prove every part of a page can scroll into each short exposed

@@ -16,8 +16,14 @@ but Qt rejected direct capture of the internally created viewport. All recovered
 see the [trial receipt](log/render_probe_2026-09-21.md). The independently reviewed
 readiness correction was approved only for a fresh bounded diagnostic, not ink.
 The refresh correction and fast failure recovery were exercised by trial 3.
-The revised QML-created current-SceneView capture passed independent local review;
-its actual native pixels still require a new guarded trial and visual inspection.
+The revised QML-created current-SceneView capture passed local review but crashed
+in trial 4. Exact binary review found a non-null custom EPLayer, not a proven
+null-layer return; the faulting instruction remains unknown. Do not retry this
+capture or move it to a parent/root: both invoke the same layer mechanism.
+A proposed future diagnostic must avoid all grabToImage/layer APIs and distinguish
+machine structural checks from separate visual acceptance on disposable pages.
+No replacement has been approved. Whole-screen LAN streaming is not a private
+drop-in alternative.
 
 Build the ordinary profile for the desktop/mock suite, then use
 `CN_PROBE=render node build-native.mjs` and
@@ -25,8 +31,8 @@ Build the ordinary profile for the desktop/mock suite, then use
 `build/render-native`; the normal host contains no automatic creation driver.
 `node ops/build-render-controller.mjs` derives a separately reviewable controller
 from the exact accepted load-controller hash, with assertions on every changed
-anchor. `node ops/stage-probe.mjs ID render` requires matching profile/hash
-receipts. Do not reuse a stage ID, the old load-only artifact or its review.
+anchor. `node ops/stage-probe.mjs ID render` is currently blocked even with
+matching profile/hash receipts. Do not reuse an old staged artifact or its review.
 
 ## Native sequence and boundaries
 

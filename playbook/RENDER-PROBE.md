@@ -1,5 +1,13 @@
 # Two-native-document diagnostic (not a qualified release)
 
+**Hardware staging suspended after trial 4.** The current SceneView capture
+triggered a native xochitl SIGSEGV immediately after two unsupported-layer
+warnings. Automatic recovery passed, but no image or completion receipt exists.
+`ops/stage-probe.mjs` now refuses the render profile before reading artifacts or
+creating a stage. Offline builds/tests remain available for investigation.
+Do not reuse any previously staged render payload. A replacement diagnostic and
+fresh independent review are required before another tablet trial; no ink enablement.
+
 The accepted load-only trial established host startup and automatic return to
 base, not dual rendering. This is a separately generated and reviewed profile.
 Its first hardware attempt timed out at readiness; the second opened both native

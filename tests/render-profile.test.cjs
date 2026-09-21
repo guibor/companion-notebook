@@ -6,6 +6,18 @@ const {execFileSync,spawnSync}=require('node:child_process');
 const os=require('node:os');
 const path=require('node:path');
 
+test('render staging is suspended before artifacts or device actions',()=>{
+    const dir=fs.mkdtempSync(path.join(os.tmpdir(),'companion-stage-block-'));
+    try {
+        const stage=path.resolve('ops/stage-probe.mjs');
+        const result=spawnSync(process.execPath,[stage,'20990101T000000Z-1','render'],
+            {cwd:dir,encoding:'utf8'});
+        assert.notEqual(result.status,0);
+        assert.match(result.stderr,/Rendering probes suspended after native SIGSEGV/);
+        assert.deepEqual(fs.readdirSync(dir),[]);
+    } finally { fs.rmSync(dir,{recursive:true,force:true}); }
+});
+
 test('rendering controller preserves the reviewed recovery implementation',()=>{
     execFileSync(process.execPath,['ops/build-render-controller.mjs']);
     const base=fs.readFileSync('ops/probe-pro329.sh','utf8');

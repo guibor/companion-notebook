@@ -5,6 +5,11 @@ import {execFileSync} from 'node:child_process';
 const id = process.argv[2];
 const profile = process.argv[3] || 'load';
 assert(['load','render'].includes(profile));
+// Trial 20260921T205838Z-1 crashed the native e-ink renderer during grabToImage.
+// Keep offline builds/tests available, but do not package another hardware trial
+// until a replacement diagnostic has its own independent safety review.
+assert.notEqual(profile, 'render',
+    'Rendering probes suspended after native SIGSEGV; see playbook/RENDER-PROBE.md');
 const payload = profile === 'render' ? 'build/render-native' : 'build/native';
 const controller = profile === 'render' ? payload+'/probe.sh' : 'ops/probe-pro329.sh';
 assert.match(id || '', /^\d{8}T\d{6}Z-\d+$/);

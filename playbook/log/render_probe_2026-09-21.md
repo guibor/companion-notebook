@@ -141,3 +141,49 @@ controller `034d4553a5c03a93426527eb3633f92bc0cb1992f63c9b92b8c1065965b4d03f`,
 host `0c3d3aa120ccd0f86a5ff18597d39c42775b45e10e2e6b9ec038d09865561919`,
 pair store `44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19`.
 No scene cache siblings are captured. Real image usefulness remains unqualified.
+
+## Trial 4: native capture SIGSEGV; base recovered; hardware trials suspended
+
+- Source `beb7f5c`, transaction `20260921T205838Z-1`.
+- Stage manifest `5dae3a98309088c6bf0f93ff909b4cd473faf6d7370d9d1e652ba7de28b56d2d`.
+- Preimages SHA-256 (device and Mac):
+  `23761d7baf8cd0cf9ead6d1bd9ff8e7973e74e3b5b795aac34784a442fcef126`.
+- Private log SHA-256 (device and Mac):
+  `0e1246747333f59b867b51efe3c74c19d184fff8fe0351d57ce03b2efa396b87`.
+
+At 21:01:13 UTC the driver created the two disposable notebooks. Native secondary
+readiness passed at 21:01:17.052. At 21:01:19.176 the log emitted two warnings:
+`Layers are not supported and don't make sense`. systemd reported xochitl
+`code=dumped, status=11/SEGV` at 21:01:19. No PNG or completion marker exists.
+The owner exited status 1, and the independent watchdog restored the accepted
+base: `recovering=owner-ended`, `recovered=base:41100`.
+
+All 11 QMDs and 10 protected settings files verified unchanged. The first manual
+QMD check was accidentally run from the home directory and reported missing
+relative paths; rerunning from the actual qt-resource-rebuilder directory passed
+all eleven. Exact original three runtime policy hashes matched. UI41100 and
+Dates14463 active with zero restarts; Dates PID unchanged. MemoryMax infinity,
+root read-only, no active host/data/probe drop-in/lock. No stock fallback or
+manual-intervention marker. Watchdog exited successfully. A later stability
+check retained the same UI PID, zero restarts, and no relevant recent base QML
+errors. Private evidence retained in the transaction's device/Mac directories.
+
+No further tablet experiments this session. Render staging is blocked in code,
+including an executable regression test proving refusal precedes file creation.
+Previously staged render artifacts must not be reused. Normal source builds and
+offline tests remain possible; no native ink or pilot acceptance has been granted.
+
+Upstream Qt 6.10.3 `QQuickItemGrabResult::setup()` calls createLayer and immediately
+dereferences the result without a null check. The stock xochitl binary contains
+its own EPContext/EPRenderContext, so ordinary desktop Qt capture support is not
+evidence of compatibility. The warning/crash timing strongly implicates capture,
+but without a native backtrace the precise failing instruction is unconfirmed.
+Source: https://raw.githubusercontent.com/qt/qtdeclarative/v6.10.3/src/quick/items/qquickitemgrabresult.cpp
+
+Local disassembly of the exact cached tablet libQt6Quick corroborates the missing
+null guard: setup's createLayer virtual call at 0x239b9c is followed by storing the
+returned pointer and dereferencing it at 0x239ba4. This is static evidence only,
+not a captured fault PC. All 70 Node tests pass after staging suspension.
+
+ReManager was informed of restored base and asked for local-only analysis of a
+non-layer diagnostic; no device changes or new run approval requested.

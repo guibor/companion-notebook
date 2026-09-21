@@ -54,10 +54,16 @@ Read and write without losing context or compromising native handwriting.
    independent review (66 Node / 29 Qt tests); use a fresh guarded trial and backup.
    Third trial passed movement/focus but Qt rejected capture on an internally
    C++-created viewport (no QML engine). Fast recovery restored UI37973 / Dates14463.
-   Qualify capture on only the QML-created current SceneView, with both document
-   and capture-object identity guards; keep all writing disabled.
+   Fourth trial's QML-created SceneView capture caused native SIGSEGV after
+   unsupported-layer warnings; watchdog restored UI41100 / Dates14463. No visual
+   pass. Render staging is now suspended in code. Investigate a non-layer-based
+   diagnostic locally and obtain fresh independent review before any new trial.
+   Keep all writing disabled; do not replay old stages.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
+   Before ink, also prove every part of a page can scroll into each short exposed
+   pane: the fixed full-height native viewport's paper bounds may otherwise hide
+   lower content. Native gesture ownership alone is not this acceptance test.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

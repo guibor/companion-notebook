@@ -14,7 +14,11 @@ Its [trial receipt](playbook/log/render_probe_2026-09-21.md) separates failed na
 rendering qualification from successful recovery; no ink has been enabled.
 The user confirmed normal scrolling returned and authorized continuation. The
 third trial verified faster failure recovery. Capture through the QML-created
-current SceneView has passed local review but still needs its guarded hardware test.
+current SceneView passed local review but its fourth hardware trial caused a
+native SIGSEGV after unsupported-layer warnings. The watchdog restored the base;
+render staging is now suspended. A different diagnostic must be reviewed before
+another hardware run. The ordinary app never uses grabToImage; this failed in
+the diagnostic only, but dual-view rendering itself remains unqualified.
 
 ## Layout
 
@@ -122,6 +126,10 @@ for native integration, not proof that the e-ink compositor supports it.
   its own new host/settings files. No commit or persistent activation action.
 - `ops/stage-probe.mjs`: emits a new private, hash-manifested five-file stage
   after composition and controller syntax checks. It never connects to a device.
+  It now rejects every render-profile staging request before artifact reads or
+  writes, following the native capture crash. There is no command-line bypass;
+  lifting this suspension requires a reviewed source change. Offline diagnostic
+  compilation remains available, and the existing load-only behavior is unchanged.
   `playbook/LOAD-PROBE.md` documents the strict-key, backup-acknowledged operator
   sequence and separates automatic recovery from feature acceptance.
 - `tests/probe-policy.test.cjs`: executes the actual recovery function in a
@@ -176,9 +184,15 @@ and unsupported orientation tucks after pen-up, but the underlying orientation
 geometry still needs live testing. No second Dates panel is allowed; other shared
 plugin/native globals require actual composition tests. Native viewport pixels,
 scrolling, save durability, occlusion and fluidity remain unmeasured on hardware.
+In particular, a fixed full-height viewport clipped into a shorter pane does not
+by itself establish usable independent scrolling. Exact stock SceneView sets
+`limitScrollingToPaper: true`, while Navigation uses full viewport dimensions
+for bounds and page jumps. Qualification must prove bottom-of-page reachability
+in both exposed panes without shrinking/reflowing them during drag. Do not treat
+gesture routing alone as proof, or silently replace the user's full-scale layout.
 Rendering probes use disposable documents and a bounded independent watchdog.
 ReManager explicitly handed over its accepted r1 base after final verification.
-The last verified recovery returned UI37973 / Dates14463 with zero restarts and
+The last verified recovery returned UI41100 / Dates14463 with zero restarts and
 read-only root; user scrolling acceptance was confirmed after the earlier trial.
 Consult the dated receipts
 and revalidate live identity/base state before each new trial, not these old PIDs.

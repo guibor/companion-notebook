@@ -67,3 +67,9 @@ Fresh host-key-first strict-key SSH matched Ferrari 3.29.0.148, active UI45382 /
 Dates14463, zero UI restarts, root read-only and absent Companion host/data.
 No device writes or restarts occurred as of this entry. New trial still requires
 independent review and a fresh verified backup; no old clearance is reused.
+
+Independent review held staging for an acceptance bug: nonfinite edge coordinates
+and refused native jumps could pass the diagnostic. Explicit numeric validation
+and return-value checks were added with regression coverage. This is a test
+correctness repair, not a newly discovered firmware/pen safety barrier. Payload
+must be rehashed and independently rechecked before one-run clearance.

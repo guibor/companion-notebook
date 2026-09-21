@@ -56,6 +56,9 @@ for native integration, not proof that the e-ink compositor supports it.
   sharing the already-tested recovery functions but has no staging clearance.
   Its executable tests distinguish unreachable-page failure from successful
   transform checks and require restoring the exact focal point on either path.
+  Independent review caught nonfinite native values passing comparisons; the
+  diagnostic now requires finite positive dimensions/scale, finite centers,
+  native bounds and edge coordinates, and successful jump return values.
 - `native/input-geometry.qml.inc`: normal-build-only deferred pen geometry gate.
   `scheduleInputGeometry()` blocks new pen input immediately, coalesces changes
   by generation, waits for layout/restore/pen-up, then calls stock

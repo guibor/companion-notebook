@@ -13,6 +13,9 @@ two-document rendering, native ink and physical UX still require qualification.
 The historical capture diagnostic crashed the native e-ink rendering path and
 is blocked from staging. Its no-capture replacement is locally implemented;
 see [structural diagnostic](playbook/STRUCTURAL-PROBE.md) for current limits.
+The replacement completed one native structural trial and restored the normal
+Pro setup automatically. It did not qualify handwriting, scrolling or visual
+correctness; further tablet experiments are stopped, and the app is not installed.
 
 ## Run locally
 

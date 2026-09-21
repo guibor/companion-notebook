@@ -68,8 +68,11 @@ Read and write without losing context or compromising native handwriting.
    pinned to those bytes for one bounded always-revert trial; historical render
    stays blocked. Fresh device/base/backup gates remain mandatory.
    Local suite passes (86 Node / 34 Qt; three profiles x three orders x 29 QML
-   resources). No device run: Pro did not respond and no matching host key was
-   found on the current subnet. Keep normal tablet state untouched.
+   resources). Initial discovery failed; after the user woke the Pro, the one
+   reviewed structural run passed and automatically restored UI45382 / Dates14463,
+   with all settings/QMD/policy checks passing. No capture, ink or visual pass.
+   The user permits stopping if this cannot be made correct safely: stop further
+   tablet experiments and leave normal setup active. Do not promote the feature.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
    Before ink, also prove every part of a page can scroll into each short exposed

@@ -52,3 +52,57 @@ Qt remains 34 passing tests and all three composition profiles pass; staging
 changes do not modify the frozen tablet payload/controller. Independent review
 used decoded/static and targeted executable checks, not an independent full Qt
 run (its Qt attempt was sandbox-blocked). The full Qt result is this task's run.
+
+## One live structural trial — passed and automatically restored
+
+The user reported the tablet awake, authorized one autonomous continuation with
+no extra user checks, and explicitly permitted stopping if a correct implementation
+was infeasible. This consumed the one reviewed bounded structural trial; no
+further tablet runs or writing enablement are authorized by this receipt.
+
+- Source: `483a5f9`; transaction: `20260921T221147Z-1`.
+- Stage manifest: `d878d1b04523a3ec58df0f1a42366a24005a7956327eb38ea56549cf52922920`.
+- Preimages SHA-256, verified on device and Mac:
+  `bd0bd93b157a267b61102a985566fb888cce4a7b06f09f448a74908366477456`.
+- Private log SHA-256, verified on device and Mac:
+  `2a6c9dbf933bcd6603bde0c6da81c563bbf09c996163a170697d918be7555580`.
+- Private evidence: device `.codex-backups/companion-20260921T221147Z-1/`,
+  ignored Mac `build/recovery-20260921T221147Z-1/` (0700 directory/0600 files).
+
+Fresh public host key, Ferrari model/serial, firmware 3.29.0.148/build
+20260911125116 and stock hash matched. Pretrial normal UI41100 / Dates14463
+were active, zero restarts, root read-only. Preparation verified the entire
+accepted inventory and policies; the off-device archive matched before activation.
+
+Trial UI43827 reported host ready at 22:13:53 UTC. Two disposable test notebooks
+were created at 22:13:55; secondary ready at 22:13:58. The driver completed native
+identity/controller separation, fixed-geometry translation, focus and disabled-ink
+checks, held the observation window from 22:14:00, then tucked/reopened and returned
+to the exact prior view. At 22:14:21.893 its structural-only completion marker was
+logged: capture not attempted, visual unverified, ink false. No crash or screenshot.
+Both `structural-machine-passed=43827` and `recovered=base:45382` are present.
+Owner and watchdog exited successfully; recovery reason is normal owner-ended.
+
+Postchecks: all eleven base QMDs and all ten protected private-settings hashes
+passed; exact original three runtime policy hashes restored; UI45382 active with
+zero restarts/MemoryMax infinity; Dates14463 unchanged and active. Root remains
+read-only. Companion host/data, probe drop-in and lock absent. No stock fallback
+or manual-intervention marker. Restored base's recent log has no relevant QML
+errors. Only pairing metadata was archived; no image files. Two empty labelled
+test notebooks remain, created through native APIs and not silently deleted.
+
+## Decision: stop before enabling experimental writing
+
+This success shows that two native documents can coexist through the scripted
+sequence without the former offscreen-capture crash. It does NOT establish
+correct visible occlusion, physical pane selection/pen routing, saved handwriting,
+full-page scrolling through short exposed panes or fluid e-ink touch interaction.
+The fixed-height stock viewport's paper-bound scrolling remains a concrete
+unresolved concern, separate from the removed diagnostic crash.
+
+Do not label the feature technically impossible from this evidence, but do not
+ship it as a working writable margin either. A reliable release would require
+additional native input/scroll work and physical acceptance that cannot be replaced
+with these logs. In accordance with the user's stop-if-not-safe instruction,
+leave the accepted normal setup in place and stop further tablet experiments.
+No firmware/boot changes, Move/server changes, or pen enablement occurred.

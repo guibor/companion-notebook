@@ -6,6 +6,11 @@ the four frozen hashes in the dated structural log, supporting preparation of on
 bounded always-revert trial. The render profile stays blocked. Fresh device,
 base-state and backup checks remain prerequisites, and there is no release clearance.
 
+**The one reviewed trial has now completed:** structural-machine-passed and
+automatic base recovery both passed in `20260921T221147Z-1`. Normal setup is
+restored. No further hardware runs are cleared by this review. See the
+[receipt and stop decision](log/structural_probe_2026-09-22.md).
+
 ## Scope
 
 Retain the prior diagnostic's pen/gesture/shortcut/MainView input locks, visible
@@ -55,4 +60,5 @@ Never infer that observation from state-machine success.
    transaction is mandatory; never modify or rerun an older stage.
 6. Any permitted hardware run must require both its structural receipt and
    automatic `recovered=base:<PID>`, then full settings/QMD/policy/root checks.
-   Leave the tablet in normal accepted base and ask for physical scrolling check.
+   Leave the tablet in normal accepted base. User requested no further checks
+   tonight; physical scrolling/visual acceptance is explicitly unverified.

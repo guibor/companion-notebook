@@ -25,7 +25,10 @@ The proposed replacement diagnostic avoids all offscreen-layer APIs and separate
 machine state checks (capture not attempted) from user visual acceptance on
 disposable pages. The new structural profile is implemented locally and
 cleared only for preparation of one bounded structural trial using exact reviewed
-bytes and fresh device/base/backup checks. No hardware trial has run. Moving capture
+bytes and fresh device/base/backup checks. That one hardware trial has now passed
+its structural sequence and automatically restored the normal base; no visual,
+scroll or pen acceptance is implied. Further tablet experiments are stopped.
+Moving capture
 to a parent/root or starting whole-screen RMStream is not an accepted workaround.
 
 ## Layout
@@ -54,8 +57,9 @@ for native integration, not proof that the e-ink compositor supports it.
   four frozen hashes, rejecting byte drift before writing a stage. Historical
   render staging remains blocked.
   Local verification passed 86 Node / 34 Qt tests plus all three composition
-  profiles. The Pro was not discoverable in this run, so there is no new native
-  receipt; see the 2026-09-22 structural log.
+  profiles. Once the Pro became reachable, the one reviewed trial passed native
+  structure/return checks and automatic recovery. See the 2026-09-22 structural
+  log; the feature remains inactive and is not a writable release.
 - `native/NativeHost.qml`: actual native-view container, picker, translated sheet,
   compact companion toolbar and focus state. `openSecondary()` creates a distinct
   native view and waits for readiness; `selectPane()` owns writing focus;
@@ -219,7 +223,8 @@ in both exposed panes without shrinking/reflowing them during drag. Do not treat
 gesture routing alone as proof, or silently replace the user's full-scale layout.
 Rendering probes use disposable documents and a bounded independent watchdog.
 ReManager explicitly handed over its accepted r1 base after final verification.
-The last verified recovery returned UI41100 / Dates14463 with zero restarts and
-read-only root; user scrolling acceptance was confirmed after the earlier trial.
+The last verified recovery returned UI45382 / Dates14463 with zero restarts and
+read-only root; user scrolling acceptance was confirmed after the earlier trial,
+not requested again during this overnight structural run.
 Consult the dated receipts
 and revalidate live identity/base state before each new trial, not these old PIDs.

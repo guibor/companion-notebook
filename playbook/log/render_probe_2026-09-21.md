@@ -49,3 +49,55 @@ guards. Revised frozen artifacts under `build/render-native/`:
 - Pair store: `44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19` (unchanged).
 
 Use a fresh transaction/backup; the first trial is never modified or reused.
+
+## Trial 2: both native documents opened; interaction failed; base recovered
+
+- Source `cb6d88f`, transaction `20260921T203300Z-1`.
+- Stage manifest `f2df4aa94248d08fbe3cf47e952a6f46aeea1c06c4080548ab9025c3d6cc3d08`.
+- Preimages SHA-256 (device and Mac):
+  `176214ea2906efaaf409dad5178941acd7cc3e68580bd6b7015a21266b7a18e5`.
+- Private log SHA-256 (device and Mac):
+  `235ec1ae45ac61e346d8c8bf88e484932a19f930405e9611a9cd2f5536a5cffc`.
+- Evidence: device `.codex-backups/companion-20260921T203300Z-1` and ignored Mac
+  `build/recovery-20260921T203300Z-1/` (0700/0600).
+
+Trial UI30615 reported readiness=ready at 20:34:28 UTC and created exactly two
+labelled test notebooks through native APIs. The secondary reported native
+rendering ready at 20:34:31.990. At 20:34:33.427 the diagnostic failed with
+`Error: Insufficient arguments` during the scripted interaction. There was no
+capture or completion marker. This proves native opening progressed, not visual
+correctness, native ink, scroll usability or a passed rendering trial.
+
+Independent watchdog restored `base:34683` after its deadline. UI34683 and
+Dates14463 active with zero restarts; Dates unchanged. All eleven QMDs, protected
+private settings and exact original three policy hashes verified unchanged.
+MemoryMax returned to infinity; trial drop-in, host/data directories and lock
+absent; root read-only. No relevant QML errors in the restored base's recent log.
+Owner was killed by watchdog (signal); watchdog inactive/success. No stock
+fallback or manual-intervention marker. No capture files were retained.
+
+The user reported inability to scroll while the diagnostic's intentional input
+lock was active. On requesting safe abort, the watchdog had already completed
+recovery, so the conditional abort action made no change. User was asked to test
+scrolling after recovery; physical input acceptance is not yet confirmed.
+
+No more hardware trials in this turn. The remaining work is local only.
+Before another trial, improve immediate failure-to-recovery responsiveness: the
+native failure occurred before the expensive controller warmup checks completed,
+and the independent deadline restored the base before the owner exited itself.
+Do not weaken identity/inventory/recovery checks or broaden restart budgets.
+
+## Local-only refresh correction
+
+`cnRefresh()` used zero-argument `viewport.requestRepaint()`. Exact firmware's
+stock QML instead demonstrates `markDirty(rect)` and `requestRepaintDirty()`.
+The correction follows those calls, guards absent/zero-size viewports and adds
+actual-helper argument tests. It is the likely failing call, but the prior
+diagnostic omitted its phase/stack, so the attribution remains provisional.
+Future failure messages include the numeric phase. 55 Node / 29 Qt tests pass;
+both composition profiles pass three orders, 29 resources each. Not deployed.
+ReManager independently passed the narrow local source review, explicitly without
+hardware-trial clearance this turn. Frozen local QMD
+`18c47150553835d04982a3f6548ad094d68991564bfff895fafd91cf57a4714b` and host
+`0c3d3aa120ccd0f86a5ff18597d39c42775b45e10e2e6b9ec038d09865561919`;
+controller/pair store unchanged. Physical scrolling acceptance remains pending.

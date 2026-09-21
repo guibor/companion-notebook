@@ -6,10 +6,13 @@ device-local pairing settings and a composable QMD. Native writing remains
 disabled. The load-only probe has passed on the Pro
 and automatically returned to the accepted base; no Companion remains active.
 No qualified installer or release exists yet.
-The separately generated two-document diagnostic passed independent local review,
-then timed out waiting for readiness and automatically restored the accepted base.
+The separately generated two-document diagnostic passed independent local review.
+Its first trial timed out at readiness; its second opened both native documents
+then failed on a native argument error. Both automatically restored the accepted base.
 Its [trial receipt](playbook/log/render_probe_2026-09-21.md) separates failed native
 rendering qualification from successful recovery; no ink has been enabled.
+The refresh correction is local only. Further hardware trials are stopped for
+this turn after the user's risk and temporarily blocked-input concerns.
 
 ## Layout
 
@@ -39,7 +42,9 @@ for native integration, not proof that the e-ink compositor supports it.
   recovery state. `cnAction()` uses native pen, eraser, undo, next-page and add-page
   methods. `cnIsolateCompanionUi()` suppresses only the secondary Dates panel,
   after children are initialized, independent of QMD order. Dates' add-page wrapper
-  is retained. `cnRefresh()` requests native viewport repaint after dragging.
+  is retained. `cnRefresh()` marks the full local viewport rectangle dirty and
+  invokes stock `requestRepaintDirty()` after dragging. It avoids the unsupported
+  zero-argument `requestRepaint()` call and ignores absent/zero-size viewports.
 - `src/PairStore.js`: strict schema/UUID/size validation, immutable pair updates
   and removal. No notebook content or credentials are serialized.
 - `build-native.mjs`: verifies exact stock ELF, symbol table and QMLDiff hashes,
@@ -62,6 +67,7 @@ for native integration, not proof that the e-ink compositor supports it.
   when its inactive SceneView reports loading, but still blocks a real loading
   document and all locked/asleep/landscape/sharing/library-busy states. Diagnostic
   logging emits only readiness reason labels when they change, never document data.
+  Failure messages include the numeric diagnostic phase to localize native errors.
   Exceptions stop the diagnostic; no custom notebook serialization or deletion.
 - `ops/build-render-controller.mjs`: generates a narrowly transformed derivative
   of the hash-pinned reviewed load controller. It requires its own review and

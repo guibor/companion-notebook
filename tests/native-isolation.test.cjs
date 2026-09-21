@@ -26,3 +26,17 @@ test('primary Dates panel remains active; an absent panel is harmless', () => {
     assert.equal(panel.active, true);
     assert.doesNotThrow(() => isolate([], true));
 });
+
+const refresh = new Function('sceneView','Qt',source.slice(source.indexOf('function cnRefresh()'),source.indexOf('function cnAction('))+'\ncnRefresh();');
+test('native refresh marks a full local rectangle then calls the stock dirty repaint API',()=>{
+    const calls=[];
+    const viewport={width:1620,height:2048,
+        markDirty:rect=>calls.push(['dirty',rect]),requestRepaintDirty:()=>calls.push(['repaint'])};
+    refresh({viewport},{rect:(x,y,width,height)=>({x,y,width,height})});
+    assert.deepEqual(calls,[['dirty',{x:0,y:0,width:1620,height:2048}],['repaint']]);
+});
+test('native refresh ignores missing and zero-size viewports',()=>{
+    const qt={rect:()=>{throw new Error('must not repaint');}};
+    refresh({viewport:null},qt);
+    refresh({viewport:{width:0,height:500}},qt);
+});

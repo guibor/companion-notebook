@@ -24,7 +24,12 @@ function close() {
     if (!cnSecondary && cnHost) cnHost.closeSecondary(false)
     cnStockClose()
 }
-function cnRefresh() { if (sceneView.viewport) sceneView.viewport.requestRepaint() }
+function cnRefresh() {
+    var viewport = sceneView.viewport
+    if (!viewport || viewport.width <= 0 || viewport.height <= 0) return
+    viewport.markDirty(Qt.rect(0, 0, viewport.width, viewport.height))
+    viewport.requestRepaintDirty()
+}
 function cnAction(name) {
     if (!cnHost || !cnHost.idle || !cnHost.inkQualified || !cnSelected || !document) return
     switch (name) {

@@ -92,6 +92,6 @@ Timer {
                 console.log("Companion probe: two native views and return completed; ink=false; capture=true")
                 break
             }
-        } catch (e) { host.probeFail(String(e)) }
+        } catch (e) { host.probeFail("phase=" + host.probePhase + " " + String(e)) }
     }
 }

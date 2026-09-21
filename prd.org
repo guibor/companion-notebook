@@ -37,7 +37,7 @@ Read and write without losing context or compromising native handwriting.
 1. ReManager handover and fresh strict-key identity/inventory verification passed.
 2. Load-only trial passed and automatically restored the accepted r1 base at
    UI22703 / Dates14463. Native writing remains disabled; no active Companion.
-3. The bounded, independently reviewed rendering trial is prepared for two
+3. The bounded, independently reviewed rendering trial uses two
    disposable documents. Candidate already disables direct framebuffer paths
    while paired and clips native input; actual behavior must be verified.
    The diagnostic creates only labeled test notebooks through native APIs,
@@ -46,7 +46,12 @@ Read and write without losing context or compromising native handwriting.
    Local review passed (45 Node / 29 Qt tests; both composition profiles pass).
    First trial timed out at readiness and recovered base UI28522 / Dates14463.
    The empty-library-view readiness correction passes 53 Node / 29 Qt tests;
-   independent review passed; use a fresh guarded transaction and backup.
+   independent review passed. Second trial opened both native documents, then
+   failed on a native API argument error; recovered base UI34683 / Dates14463.
+   Native refresh correction is local only (55 Node / 29 Qt tests pass).
+   No further hardware trials this turn after the user's risk/input concerns.
+   Before retrying, review the fix and shorten failure-to-recovery delay without
+   weakening guards. Obtain physical confirmation that normal scrolling returned.
 4. Qualify inactive pen-tap routing, native pen/save durability, shared plugin
    ownership and fluidity before enabling writing or declaring a personal pilot.
 

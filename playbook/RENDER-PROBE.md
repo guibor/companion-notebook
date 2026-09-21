@@ -2,9 +2,12 @@
 
 The accepted load-only trial established host startup and automatic return to
 base, not dual rendering. This is a separately generated and reviewed profile.
-Its first hardware attempt timed out at readiness and recovered the accepted base;
+Its first hardware attempt timed out at readiness; the second opened both native
+documents but failed on an API argument error. Both recovered the accepted base;
 see the [trial receipt](log/render_probe_2026-09-21.md). The independently reviewed
-readiness correction is approved only for a fresh bounded diagnostic, not ink.
+readiness correction was approved only for a fresh bounded diagnostic, not ink.
+The subsequent refresh fix is local only. Do not run another trial before its
+review and a reviewed improvement to immediate failure-to-recovery responsiveness.
 
 Build the ordinary profile for the desktop/mock suite, then use
 `CN_PROBE=render node build-native.mjs` and

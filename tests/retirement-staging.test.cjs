@@ -10,7 +10,12 @@ const {createHash}=require('node:crypto');
 function fixture(){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'companion-stage-unit-'));
   fs.mkdirSync(root+'/ops');fs.mkdirSync(root+'/build');
-  fs.copyFileSync('ops/stage-probe.mjs',root+'/ops/stage-probe.mjs');
+  // Exercise the historical downstream validation in an isolated copy only.
+  // The real stager's consumed-clearance refusal is separately tested.
+  const blocked="assert.notEqual(profile, 'retirement',\n    'Retirement review consumed by trial 20260922T173005Z-1; fresh review required');\n";
+  const stager=fs.readFileSync('ops/stage-probe.mjs','utf8');
+  assert.equal(stager.split(blocked).length,2);
+  fs.writeFileSync(root+'/ops/stage-probe.mjs',stager.replace(blocked,''));
   fs.cpSync('build/retirement-native',root+'/build/retirement-native',{recursive:true});
   fs.mkdirSync(root+'/build/observer-arm64');
   const receipt={_syntheticUnitTestOnly:true,status:'target-observer-smoke-passed',model:'reMarkable Ferrari',firmware:'3.29.0.148',

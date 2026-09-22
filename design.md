@@ -1,11 +1,38 @@
 # Architecture and implementation status
 
+Latest hardware result (2026-09-22): the v2 retirement diagnostic completed four
+correctly attributed native submissions across destruction, actual sheet motion,
+and handler recreation. Its final shell observation exceeded the owner deadline;
+the watchdog restored the exact base76210/Dates14463 and all protected settings.
+There is no overall controller-pass receipt and no installed user-facing release.
+The two saved disposable pages each contain two24-point lines. Their centerline
+bounds are inset3 units per edge relative to native conservative rectangles.
+Exact-binary review established tool15's thickness-dependent padding; the
+verifier now reconstructs that padded rectangle for the two qualified thicknesses
+(1 and2), retaining the existing5-unit tolerance and rejecting unknown tools or
+thicknesses. This is not an exact brush-hull measurement or a new tolerance. The
+one-run retirement clearance is consumed in the stager. See the dated trial log.
+Staging regressions exercise the old downstream checks only in isolated temporary
+copies with synthetic receipts; a separate test proves the real consumed-clearance
+guard refuses all new retirement stages. They never replace the actual target receipt.
+
 Implemented locally: a portrait interaction prototype and an exact-firmware
 native rendering candidate. The candidate contains native document adapters,
 device-local pairing settings and a composable QMD. Native writing remains
 disabled. The load-only probe has passed on the Pro
 and automatically returned to the accepted base; no Companion remains active.
 No qualified installer or release exists yet.
+The current user-driven transition blocker is documented in
+`playbook/ADMISSION-HANDOFF.md`: public-Qt worker acknowledgement is viable for
+prior normal strokes, but producer admission closure remains unresolved. This
+distinguishes controller handoff from disk persistence and rejects both queued
+producer callbacks on a blocking-read loop and an unsynchronized atomic filter.
+No opaque native call or private-object-offset access has been implemented.
+The final region audit refines this: an empty-region signal really can seal
+new producer starts without dropping admitted records. Whole-manager signal
+blocking still allows pending handler geometry to mutate, and normal reopening
+publishes the new producer region before worker candidates. The complete
+transition protocol remains unresolved, not the narrower ability to close admission.
 The separately generated two-document diagnostic passed independent local review.
 Its first trial timed out at readiness; its second opened both native documents
 then failed on a native argument error. The third passed programmed movement/focus
@@ -47,6 +74,28 @@ debounce, page reflow or release-only commit. This is an optimization hypothesis
 for native integration, not proof that the e-ink compositor supports it.
 
 ## Modules and principal functions
+
+- `native/visual-open.qml.inc` / `visual-reopen.qml.inc`: local-only,
+  pen-disabled diagnostic for the exact two v2 disposable notes. Native library
+  lookups require their existing labels, single-page UUIDs, type and orientation;
+  no documents are created or written. The driver keeps both native controllers
+  alive at1320 then1680 reveal, publishes fresh identity/geometry heartbeats,
+  and closes eligibility on pen, sleep/lock, sharing, orientation or identity
+  changes. It never returns to a personal document within the diagnostic. The
+  proposed external pixel read uses the already-loaded framebuffer-spy's buffer,
+  not QML offscreen layers or a network server. No execution clearance/installer
+  accompanies this local profile; capture needs its own scoped controller review.
+  `ops/capture-visual-frame.sh` requires a fresh exact-document heartbeat before
+  and after one bounded `/proc/PID/mem` read of the already-discovered RGB32 buffer.
+  It checks process lifetime, candidate environment, private trial paths, absence
+  of recovery/failure and unique exact framebuffer shape. Output is a new private
+  scratch file only; no tablet memory/input is written and no server is started.
+  `build-visual-controller.mjs` preserves the structural controller's recovery
+  bodies/deadlines, verifies the two saved page hashes before activation (never
+  as a recovery prerequisite), acquires both stages, then always restores base.
+  Local tests exercise heartbeat freshness/identity/closed-state rejection,
+  finite/exclusive raw acquisition and byte-identical restoration functions.
+  These tests are not target pixel evidence; this visual capsule remains local.
 
 - `native/geometry-check.qml.inc`: proposed no-capture/pen-disabled native
   diagnostic. It moves only the two disposable notebooks through exposed-height
@@ -485,3 +534,32 @@ The complete local Node suite now passes152tests with7historical-clearance skips
 Network discovery is read-only and host-key-first. An offline target or changed
 LAN does not create a receipt, activate a package, or consume a trial clearance;
 the next action remains the actual standalone target import preflight.
+Fresh target inspection established `/lib` is an alias of `/usr/lib` on this
+exact firmware. Runtime checks use the actual canonical `/usr/lib/libc.so.6` and
+`/usr/lib/libgcc_s.so.1` paths with unchanged verified hashes. The strict `exact()`
+check is not relaxed to accept aliases; recovery and all other payloads are
+unchanged. This two-path controller correction passed narrow independent review.
+The first live retirement trial received a mismatching callback before its owner
+ever started the scripted marker helper. It restored base71641/Dates14463 with
+all app/settings/policy hashes intact. Neither copied test page contains a saved
+line; the primary-page write log does not prove misdirected ink. Input provenance
+and the mismatch cause remain unknown. The next local diagnostic snapshots scalar
+bounds/count and verifies the exact callback view, controller and native handler
+**before** `addDrawingLine`; unexpected input is refused before notebook mutation.
+The post-submit receipt consumes that snapshot without re-reading a possibly
+consumed native Stroke object. This tighter diagnostic is not yet cleared or
+deployed and does not change the ordinary package or historical ink payload.
+The diagnostic controller now monitors the ready-to-inject gate immediately
+after initial process health checks. Its unchanged25stable-PID/watchdog checks
+are moved after all four submissions, when future pen input is closed, rather
+than leaving the writable test panes unmonitored during that interval. Helper
+identity/pen-up/event checks, deadlines and the complete recovery/release bodies
+remain unchanged. This reduces the pre-helper window; it does not establish
+physical event provenance or exclude every possible concurrent user event.
+The strict QML-error scan is repeated after the relocated stability interval,
+before the machine-pass marker, so late errors cannot escape final qualification.
+`tests/tst_handlerfactory.qml` models two real QML creation contexts with separate
+controller/tool sentinels and per-instance dynamic Components. It checks reactive
+ownership, inner-ID versus published-property resolution, independent recreation,
+foreign QObject parenting and pre/post callback snapshots. These six desktop
+scenarios isolate lexical semantics only, not the proprietary native handler.

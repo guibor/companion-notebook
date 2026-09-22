@@ -97,6 +97,8 @@ hashes, and `/lib/ld-linux-aarch64.so.1`. Record base UI/Dates PIDs before and a
 Execute the fixed smoke command under a ten-second external timeout with core
 dumps disabled. Require exactly `OBSERVER_SMOKE_PASS` and exit0, with unchanged
 UI/Dates PIDs/restart counts. Do not restart xochitl for this step.
+On this firmware the external timeout is BusyBox: use `timeout -s KILL 10`,
+not GNU `timeout --signal=KILL`. The latter refuses before executing the helper.
 
 A pass verifies module ABI/import using **fake** targets, not real pen behavior.
 Do not fabricate a pass from the macOS executable or ELF symbol inspection.
@@ -122,6 +124,15 @@ Independent review of the frozen artifacts has passed for one such experiment.
 The stager pins all eight payload artifacts and requires
 `build/observer-arm64/target-smoke.json` from actual target execution, matching
 the module/executable hashes, target identity, successful output/exit and unchanged
-UI/Dates PIDs and restart counts. That receipt does not yet exist; do not create
-it from local tests. Isolated stager unit tests use synthetic receipts only in
-temporary directories and are not hardware evidence.
+UI/Dates PIDs and restart counts. Actual target import passed on2026-09-22 with
+UI60746/Dates14463 and zero restarts before/after. Its recorded target receipt is
+not derived from local tests. Isolated stager unit tests use synthetic receipts
+only in temporary directories and are not hardware evidence.
+
+Both the target smoke and native write–retire–move–recreate–write sequence have
+now executed. All four saved shapes matched the native conservative padded
+bounds after an exact-tool semantic correction in the verifier. The shell's
+final stability loop reached its deadline, so the whole-controller pass marker
+was not produced; the independent watchdog restored every protected base/settings
+hash. This one-run clearance is consumed and staging is blocked. See
+[the dated receipt](log/retirement_probe_2026-09-22.md). Ordinary ink remains off.

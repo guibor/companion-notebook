@@ -9,13 +9,21 @@ The initial hardware target is Paper Pro **3.29.0.148**. Move and landscape rema
 out of scope. The normal Pro setup was restored after each bounded experiment;
 no Companion is left active and ordinary-document ink remains gated off.
 
+The remaining release blocker is **safe admission of pen input during user-driven
+movement**, not creating the second native view. The firmware's worker can finish
+earlier input, but the inspected public controls do not yet provide a complete
+way to stop new input and resume it with coherent geometry. See the bounded
+[handoff audit](playbook/ADMISSION-HANDOFF.md). This project is not ready for daily
+use or inclusion in the recurring installation list.
+
 | Capability | Evidence |
 | --- | --- |
 | Two distinct native views, independent controllers | Passed bounded on-device structural test |
 | Reach page edges in both exposed panes at unchanged scale | Passed on-device geometry test |
 | Write in either pane without selecting it first | Passed on-device fixed-layout test |
 | Native saving of those two strokes | Both exact disposable files contained their expected shapes after UI restart |
-| Move the sheet, then continue writing | Separate retirement/recreation diagnostic built and locally tested; hardware qualification pending |
+| Move the sheet, then continue writing | Native four-stroke write–retire–move–recreate–write sequence completed; final controller observation timed out and restored base |
+| Native saving before and after movement | All four saved shapes matched their pane/round and reconstructed native bounds exactly |
 | Visual clipping, rapid transitions, physical drag fluidity | Not yet qualified |
 
 The historical Qt capture diagnostic crashed the native e-ink rendering path and
@@ -35,6 +43,8 @@ CN_PROBE=geometry node build-native.mjs # offline only; its one-run review is co
 CN_PROBE=ink node build-native.mjs # builds disposable diagnostic only, does not deploy
 aarch64-linux-gnu-gcc -std=c11 -Wall -Wextra -Werror -O2 -static -o build/ink-native/ink-events ops/ink-events.c
 CN_PROBE=ink node ops/build-render-controller.mjs
+CN_PROBE=visual node build-native.mjs # local-only saved-note reopen candidate
+node ops/build-visual-controller.mjs # requires the frozen structural controller
 npm test
 QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner -input tests
 QT_QUICK_CONTROLS_STYLE=Basic qml ui/Main.qml
@@ -92,6 +102,11 @@ between them. The normal host and historical reviewed ink bytes are unchanged.
 The module has a standalone import test that needs no UI restart or input access;
 actual target loading must pass before the UI diagnostic. These are qualification
 tools, not an installer. Build/review details are in the retirement playbook.
+The actual standalone import and native retirement sequence have now run. All
+four saved shapes passed verification against the native tool/thickness-padded
+rectangle semantics, but the whole-trial pass marker was not reached before
+automatic restoration. Its one-run staging
+clearance is consumed; do not rerun an old capsule.
 
 The native host keeps primary-document scale unchanged, uses a distinct native
 DocumentView for a recent local companion, and persists only pairing metadata

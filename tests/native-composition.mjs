@@ -16,7 +16,7 @@ assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
 const profile=process.env.CN_PROBE||'load';
-assert(['load','render','structural','geometry','ink','retirement'].includes(profile));
+assert(['load','render','structural','geometry','ink','retirement','visual'].includes(profile));
 const payload=profile==='load'?'build/native':`build/${profile}-native`;
 const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
@@ -49,6 +49,11 @@ for(const [name,patches] of variants) {
   assert.match(main,/cnSecondary: true/); assert.match(main,/id: rmstreamShortcutLoader/);
   assert.match(main,/id: dispatchDocumentMenuLoader/);
   if (profile !== 'load') {
+    if (profile === 'visual') {
+      assert.doesNotMatch(main,/createDocument\(/);
+      assert.match(main,/reopening saved disposable IDs/);
+      assert.match(main,/entry.pageForId\(pages\[i\]\) !== 0/);
+    }
     if (profile === 'ink' || profile === 'retirement') {
       assert(/readonlypropertyboolcnInkAllowed:!!cnHost&&cnHost.probeAllows\(root\)/.test(doc.replace(/\s/g,'')), 'Disposable-only ink gate missing');
       assert(/function_open_helper\([^)]*\)\{if\(cnHost&&cnHost.probeDocumentLocked\)return;/.test(doc.replace(/\s/g,'')), 'Open lock must precede all mutation');
@@ -60,6 +65,9 @@ for(const [name,patches] of variants) {
       assert.match(scene,/if \(cnProbeDocumentLocked\) return; const pageIndex/);
       assert.match(main,/acceptedButtons: Qt.AllButtons/);
       if (profile === 'retirement') {
+        assert.match(doc,/cnProbeReceive: function\(stroke, targetController, inputHandler\)/);
+        assert.match(scene,/if \(!root.cnProbeReceive \|\| !root.cnProbeReceive\(stroke,controller,strokeHandler\)\) return; completedStroke\(\);/);
+        assert(scene.indexOf('root.cnProbeReceive(stroke,controller,strokeHandler)')<scene.indexOf('controller.addDrawingLine(stroke); root.cnProbeSubmitted(stroke);'));
         assert.match(scene,/property\s+ScenePenInputHandler strokeHandler: null/);
         assert.match(scene,/id: cnStrokeHandlerComponent/);
         assert.match(scene,/root\.cnHandlerDetached\?null:strokeHandler/);

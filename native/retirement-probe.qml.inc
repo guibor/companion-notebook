@@ -9,6 +9,7 @@ property var probeViews: []
 property var probeScenes: []
 property var probeControllers: []
 property var probeCounts: [0, 0]
+property var probePending: [null, null]
 property int probeSettledTicks: 0
 property int probeRound: 1
 property real probeHeight: 1080
@@ -49,22 +50,54 @@ function probeAllows(view) {
     return probeWriting && !inputGeometryPending && !probeFailure && probeStable()
         && (view === probeViews[0] || view === probeViews[1])
 }
-function probeSubmitted(view, stroke) {
-    if (!probeWriting || !probeStable()) { probeFail("stroke outside disposable state"); return }
+function probeBeforeSubmit(view, stroke, targetController, inputHandler) {
     var i = view === probeViews[0] ? 0 : view === probeViews[1] ? 1 : -1
-    if (i < 0 || probeCounts[i] !== probeRound - 1 || !stroke || stroke.pointCount < 2 || stroke.pointCount > 500) {
-        probeFail("unexpected stroke owner/count"); return
+    var actual = stroke ? stroke.boundingRect : null
+    var expected = i >= 0 ? view.cnProbeExpectedBounds(i) : null
+    var fields = ["x", "y", "width", "height"]
+    var values = [], expectedValues = []
+    for (var k of fields) {
+        values.push(actual ? actual[k] : undefined)
+        expectedValues.push(expected ? expected[k] : undefined)
     }
-    var expected = view.cnProbeExpectedBounds(i), actual = stroke.boundingRect
-    for (var k of ["x", "y", "width", "height"]) {
-        if (!actual || !expected || typeof actual[k] !== "number" || typeof expected[k] !== "number"
-            || !isFinite(actual[k]) || !isFinite(expected[k]) || Math.abs(actual[k] - expected[k]) > 30) {
-            probeFail("native stroke mapping mismatch pane=" + i); return
+    var controllerMatches = i >= 0 && targetController === probeControllers[i] && targetController === view.sceneController
+    var handlerMatches = i >= 0 && inputHandler !== null && inputHandler === view.penHandler
+    // Scalar receipt precedes native submission; no live Stroke object is retained.
+    console.log("Companion retirement: received pane=" + i + "; round=" + probeRound
+        + "; controller=" + controllerMatches + "; handler=" + handlerMatches
+        + "; points=" + (stroke ? stroke.pointCount : "missing")
+        + "; actual=" + values.join(",") + "; expected=" + expectedValues.join(","))
+    if (!probeWriting || !probeStable() || (probePhase !== 4 && probePhase !== 10)
+        || i < 0 || !controllerMatches || !handlerMatches || probePending[i] !== null
+        || probeCounts[i] !== probeRound - 1 || !stroke
+        || typeof stroke.pointCount !== "number" || !isFinite(stroke.pointCount)
+        || Math.floor(stroke.pointCount) !== stroke.pointCount || stroke.pointCount < 2 || stroke.pointCount > 500) {
+        probeFail("unexpected pre-submit owner/count/state"); return false
+    }
+    for (var n = 0; n < fields.length; ++n) {
+        if (typeof values[n] !== "number" || typeof expectedValues[n] !== "number"
+            || !isFinite(values[n]) || !isFinite(expectedValues[n]) || Math.abs(values[n] - expectedValues[n]) > 30) {
+            probeFail("native stroke mapping mismatch before submit pane=" + i); return false
         }
     }
+    var pending = probePending.slice()
+    pending[i] = {round: probeRound, count: stroke.pointCount, bounds: values.slice(),
+        controller: targetController, handler: inputHandler}
+    probePending = pending
+    return true
+}
+function probeSubmitted(view, stroke) {
+    var i = view === probeViews[0] ? 0 : view === probeViews[1] ? 1 : -1
+    var receipt = i >= 0 ? probePending[i] : null
+    if (!probeWriting || !probeStable() || !receipt || receipt.round !== probeRound
+        || receipt.controller !== view.sceneController || receipt.handler !== view.penHandler
+        || probeCounts[i] !== probeRound - 1) {
+        probeFail("submission without matching pre-submit receipt"); return
+    }
+    var pending = probePending.slice(); pending[i] = null; probePending = pending
     var counts = probeCounts.slice(); counts[i]++; probeCounts = counts
-    console.log("Companion ink: submitted pane=" + i + "; points=" + stroke.pointCount
-        + "; bounds=" + [actual.x,actual.y,actual.width,actual.height].join(",") + "; round=" + probeRound)
+    console.log("Companion ink: submitted pane=" + i + "; points=" + receipt.count
+        + "; bounds=" + receipt.bounds.join(",") + "; round=" + probeRound)
 }
 function probePanesReady() {
     return bridge.viewReady(bridge.primary) && bridge.viewReady(secondary) && bridge.probeReadinessReason === "ready"

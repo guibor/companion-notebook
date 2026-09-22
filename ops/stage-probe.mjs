@@ -14,6 +14,8 @@ assert.notEqual(profile, 'geometry',
     'Geometry review consumed by successful 20260921T224844Z-1; fresh review required');
 assert.notEqual(profile, 'ink',
     'Ink review consumed by trial 20260922T043500Z-1; inspect its result before any new clearance');
+assert.notEqual(profile, 'retirement',
+    'Retirement review consumed by trial 20260922T173005Z-1; fresh review required');
 const payload = profile === 'load' ? 'build/native' : `build/${profile}-native`;
 const controller = profile === 'load' ? 'ops/probe-pro329.sh' : payload+'/probe.sh';
 assert.match(id || '', /^\d{8}T\d{6}Z-\d+$/);
@@ -21,13 +23,13 @@ const dir = `build/probe-${id}`;
 assert(!fs.existsSync(dir), 'Never reuse a probe stage');
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 if (profile === 'retirement') {
-    // Independent frozen-artifact review, 2026-09-22. ONE disposable-only,
+    // Independent v2 frozen-artifact review, 2026-09-22. ONE disposable-only,
     // always-revert test; conditional on the actual target ABI/import preflight.
     const reviewed = {
-        'companion-notebook.qmd':'aa83acff2d6e3aee2647e670b9a45c13c868b8123b3ae11dcd55715e2370991c',
-        'NativeHost.qml':'d319e032a80cf1d45585e8f10b88934b7dfbc5654a45e10bb75eb99c52b5d31d',
+        'companion-notebook.qmd':'456f01db54f8d702ef39981e8a47acbec6fe56c6bb2971c6f5b702bbd0dc3679',
+        'NativeHost.qml':'309bac33376a0990063d2c327d63e99a4e40f3756d0572d87558d678f04a3a80',
         'PairStore.js':'44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19',
-        'probe.sh':'aa2ad0a4ee720f83ac97fdce3e0a3f3bd48db93e4a59cca4bb8d78526f8d5b41',
+        'probe.sh':'2fe7bdbaa4a7e9ad6b80ef417b02c3790d67be45fa9728267f6e60bac83177e4',
         'ink-events':'bfe83e745e82cbade565c49aa8b2dd18164aa9900be849739eada557697d2b7e',
         'ink-events-second':'f15bd56c67ced9b8ea28dd5f9a447f1ffe39f7f27aef28f0500c95125d611453',
         'lifecycle-qmldir':'fbc4c0fd3629f913f04dc6a2c56599074631e6a232d9bab770da811b4c3e23ae',

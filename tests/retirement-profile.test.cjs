@@ -21,7 +21,7 @@ function fixture(){
     cnUpdateInputGeometry(){calls.push('transform:'+id);return true;}});
   const primary=view('first'),secondary=view('second');
   const host={probePhase:0,probeTicks:0,probeDocumentLocked:false,probeWriting:false,probeFailure:'',
-    probeDocuments:[],probeViews:[],probeScenes:[],probeControllers:[],probeCounts:[0,0],probeSettledTicks:0,
+    probeDocuments:[],probeViews:[],probeScenes:[],probeControllers:[],probeCounts:[0,0],probePending:[null,null],probeSettledTicks:0,
     probeRound:1,probeHeight:1080,probeRetired:false,probeMoveStep:0,probeMoveStarted:0,
     width:1620,height:2160,revealHeight:0,inputGeometryPending:false,dragging:false,restoring:false,
     secondarySelected:false,secondary,penDown:false,error:'',synchronizePrimary(){},pick(){return true;}};
@@ -35,7 +35,7 @@ function fixture(){
   c.retirementMoveTimer={start(){c.moving=true;},stop(){c.moving=false;}};
   for(const key of Object.keys(host))Object.defineProperty(c,key,{get:()=>host[key],set:v=>{host[key]=v;},configurable:true});
   vm.createContext(c);
-  for(const [name,args] of [['probeFail','reason'],['probeStable',''],['probeAllows','view'],['probeSubmitted','view,stroke'],['probePanesReady',''],['probeOpenGate','']]){
+  for(const [name,args] of [['probeFail','reason'],['probeStable',''],['probeAllows','view'],['probeBeforeSubmit','view,stroke,targetController,inputHandler'],['probeSubmitted','view,stroke'],['probePanesReady',''],['probeOpenGate','']]){
     host[name]=vm.runInContext('(function('+args+'){'+body(driver,'function '+name+'(')+'})',c);
     Object.defineProperty(c,name,{get:()=>host[name],configurable:true});
   }
@@ -44,7 +44,7 @@ function fixture(){
   const ack=gen=>vm.runInContext('(function(generation){'+body(driver,'onRetired: function(')+'})',c)(gen);
   const arm=()=>{for(let i=0;i<5&&host.probePhase<4&&c.running;i++)tick();assert.equal(host.probePhase,4,host.probeFailure);};
   const stroke=()=>({pointCount:31,boundingRect:{...bounds}});
-  const submitPair=()=>{host.probeSubmitted(primary,stroke());host.probeSubmitted(secondary,stroke());tick();};
+  const submitPair=()=>{for(const view of [primary,secondary]){const line=stroke();assert(host.probeBeforeSubmit(view,line,view.sceneController,view.penHandler),host.probeFailure);host.probeSubmitted(view,line);}tick();};
   return{host,bridge,primary,secondary,observer,c,calls,logs,tick,move,ack,arm,stroke,submitPair};
 }
 test('retirement diagnostic waits for both native retirements before live movement or fresh handlers',()=>{
@@ -92,6 +92,44 @@ test('movement rejects any new pen or resurrected old handler',()=>{
     f.move();assert(f.host.probeFailure);assert(!f.c.moving&&!f.host.probeWriting);assert.equal(f.host.revealHeight,1080);
   }
 });
+test('pre-submit rejects wrong context and malformed bounds before native controller dispatch',()=>{
+  for(const kind of ['controller','handler','foreign-view','missing','nan','string','offset','fractional-count','pending','phase']){
+    const f=fixture();f.arm();let view=f.primary,line=f.stroke(),controller=view.sceneController,handler=view.penHandler;
+    if(kind==='controller')controller=f.secondary.sceneController;
+    if(kind==='handler')handler=f.secondary.penHandler;
+    if(kind==='foreign-view')view={};
+    if(kind==='missing')line=null;
+    if(kind==='nan')line.boundingRect.x=NaN;
+    if(kind==='string')line.boundingRect.x='10';
+    if(kind==='offset')line.boundingRect.y+=100;
+    if(kind==='fractional-count')line.pointCount=2.5;
+    if(kind==='pending')f.host.probePending[0]={};
+    if(kind==='phase')f.host.probePhase=5;
+    assert.equal(f.host.probeBeforeSubmit(view,line,controller,handler),false,kind);
+    assert(f.host.probeFailure,kind);assert(!f.host.probeWriting,kind);
+    assert.deepEqual(f.host.probeCounts,[0,0]);assert(f.logs.some(x=>x.includes('received pane=')),kind);
+  }
+});
+test('post-submit uses the pre-dispatch scalar snapshot, not a mutable native stroke',()=>{
+  const f=fixture();f.arm();const line=f.stroke();
+  assert(f.host.probeBeforeSubmit(f.primary,line,f.primary.sceneController,f.primary.penHandler));
+  line.pointCount=0;line.boundingRect.x=9000;
+  f.host.probeSubmitted(f.primary,line);
+  assert.equal(f.host.probeCounts[0],1);assert.equal(f.host.probePending[0],null);
+  assert(f.logs.some(x=>x.includes('submitted pane=0; points=31; bounds=10,20,300,50; round=1')));
+  assert.equal(f.host.probeFailure,'');
+});
+test('post-submit requires one matching pre-submit receipt and unchanged context',()=>{
+  for(const kind of ['missing','handler','controller','duplicate']){
+    const f=fixture();f.arm();const line=f.stroke();
+    if(kind!=='missing')assert(f.host.probeBeforeSubmit(f.primary,line,f.primary.sceneController,f.primary.penHandler));
+    if(kind==='handler')f.primary.penHandler={};
+    if(kind==='controller')f.primary.sceneController={};
+    if(kind==='duplicate')f.host.probeSubmitted(f.primary,line);
+    f.host.probeSubmitted(f.primary,line);
+    assert(f.host.probeFailure,kind);assert(!f.host.probeWriting,kind);
+  }
+});
 test('factory detaches both consumers and clears published handle before normal destruction',()=>{
   const source=body(factory,'function cnRetireHandler(');
   assert(source.indexOf('cnRetirementReadiness()')<source.indexOf('cnHandlerDetached = true'));
@@ -120,9 +158,43 @@ test('second helper changes only one fixed coordinate expression, with no generi
   assert.equal(second,source.replace('draw(550,450,850,500) && pause_ms(600) && draw(700,1500,1000,1570)',
     'draw(550,650,850,700) && pause_ms(600) && draw(700,1700,1000,1770)'));
 });
-test('reviewed retirement cannot stage without target module smoke evidence',()=>{
-  const id='20990922T030000Z-1';
-  const r=spawnSync(process.execPath,['ops/stage-probe.mjs',id,'retirement'],{encoding:'utf8'});
-  assert.notEqual(r.status,0);assert.match(r.stderr,/requires actual target module smoke PASS/);
-  assert(!fs.existsSync('build/probe-'+id));
+test('consumed retirement review cannot stage again even with target smoke evidence',()=>{
+  // Never depend on, remove or accidentally stage with an actual target receipt.
+  const path=require('node:path'),os=require('node:os');
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'companion-missing-smoke-'));
+  try {
+    fs.mkdirSync(root+'/ops');fs.mkdirSync(root+'/build');
+    fs.copyFileSync('ops/stage-probe.mjs',root+'/ops/stage-probe.mjs');
+    fs.cpSync('build/retirement-native',root+'/build/retirement-native',{recursive:true});
+    const id='20990922T030000Z-1';
+    const r=spawnSync(process.execPath,['ops/stage-probe.mjs',id,'retirement'],{cwd:root,encoding:'utf8'});
+    assert.notEqual(r.status,0);assert.match(r.stderr,/Retirement review consumed/);
+    assert(!fs.existsSync(root+'/build/probe-'+id));
+    const source=fs.readFileSync(root+'/ops/stage-probe.mjs','utf8');
+    assert(source.includes('requires actual target module smoke PASS'));
+  } finally { fs.rmSync(root,{recursive:true,force:true}); }
+});
+test('retirement runtime checks pin canonical target libraries without relaxing exact()',()=>{
+  const source=fs.readFileSync('build/retirement-native/probe.sh','utf8');
+  assert(source.includes('exact /usr/lib/libgcc_s.so.1 4eb38311c9289c974f70149d780e6bb1df29d17804af693f0812bdce63a96071 || return 1'));
+  assert(source.includes('exact /usr/lib/libc.so.6 ac7f8dd9a4d30f7714d3faf480575303b43b90c084e01ede7a53561fd3f04008 || return 1'));
+  assert.doesNotMatch(source,/exact \/lib\/lib(?:gcc_s|c)\./);
+  assert(source.includes('[ ! -L "$1" ] && [ "$(readlink -f "$1")" = "$1" ]'));
+});
+test('ready-gate monitoring is immediate and the same stability loop runs with ink closed',()=>{
+  const source=fs.readFileSync('build/retirement-native/probe.sh','utf8');
+  const frozen=fs.readFileSync('build/retirement-v1/probe.sh','utf8');
+  const stability=/for n in \$\(seq 1 25\); do\n    if grep -Fq 'Companion probe: FAILED'[\s\S]*?\ndone/.exec(frozen)[0];
+  assert.equal(source.split(stability).length,2);
+  const start=source.indexOf('probe_pid=$(pid xochitl.service)');
+  const watch=source.indexOf('for n in $(seq 1 60); do',start);
+  const inject=source.indexOf('"$S/ink-events" draw',watch);
+  assert(watch>start&&inject>watch&&source.indexOf(stability)>inject);
+  assert(source.indexOf(stability)>source.indexOf("grep -Fq 'Companion probe: retirement ink submissions completed; panes=2; strokes=4; durable=unverified'",inject));
+  assert(source.indexOf(stability)<source.indexOf('mark retirement-submission-machine-passed'));
+  const finalScan=source.lastIndexOf("if grep -Eiq 'Failed to load file|ReferenceError|TypeError");
+  assert(finalScan>source.indexOf(stability)&&finalScan<source.indexOf('mark retirement-submission-machine-passed'));
+  assert(source.slice(finalScan).includes('else [ "$?" -eq 1 ]; fi'));
+  for(const name of ['recover','release_injected_pen','owner_cgroup_empty','cleanup_host'])
+    assert.equal(body(source,name+'()'),body(frozen,name+'()'),name+' must remain byte-identical');
 });

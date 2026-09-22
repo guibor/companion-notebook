@@ -20,19 +20,32 @@ UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 NUMBER = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
 
 
-def stroke_report(points, native_count, bounds):
+def stroke_report(line, native_count, bounds):
+    points = line.points
     # Native serialization simplifies samples. Check shape, not exact sampling.
     assert 2 <= len(points) <= native_count <= 500, "Unexpected native/persisted sample counts"
     assert all(math.isfinite(p.x) and math.isfinite(p.y) for p in points)
     xs, ys = [p.x for p in points], [p.y for p in points]
     saved = [min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)]
-    assert all(abs(a - b) <= 5 for a, b in zip(saved, bounds)), "Saved coordinates disagree with native submission"
+    # Exact3.29 Line::boundingRect is a conservative padded point AABB, not
+    # a centerline or exact brush hull. Qualified tool15 uses factor2 and
+    # pad=(float(thickness)*2+2)/2. Restrict this diagnostic to the two pen
+    # thicknesses actually exercised; unknown tools must not silently pass.
+    assert int(line.tool) == 15, "Unqualified native bounding-box tool"
+    assert line.thickness_scale in (1.0, 2.0), "Unqualified native bounding-box thickness"
+    padding = line.thickness_scale + 1.0
+    padded = [saved[0] - padding, saved[1] - padding,
+              saved[2] + 2 * padding, saved[3] + 2 * padding]
+    assert all(abs(a - b) <= 5 for a, b in zip(padded, bounds)), "Saved coordinates disagree with native submission"
     dx, dy = xs[-1] - xs[0], ys[-1] - ys[0]
     length = math.hypot(dx, dy)
     assert length > 1
     deviation = max(abs((p.x - xs[0]) * dy - (p.y - ys[0]) * dx) / length for p in points)
     assert deviation <= 10, "Saved stroke deviates from the fixed straight-line input"
-    return {"nativePoints": native_count, "savedPoints": len(points), "bounds": saved, "maxLineDeviation": deviation}
+    return {"nativePoints": native_count, "savedPoints": len(points), "bounds": saved,
+            "nativeBoundsReconstructed": padded, "nativeBoundsPadding": padding,
+            "boundsSemantics": "exact-3.29-ballpoint-15-conservative-padded-aabb",
+            "maxLineDeviation": deviation}
 
 
 def verify(directory):
@@ -89,7 +102,7 @@ def verify(directory):
         # an exact one-to-one geometric match to all native submissions.
         for order in itertools.permutations(lines):
             try:
-                matched = [stroke_report(line.points, count, bounds)
+                matched = [stroke_report(line, count, bounds)
                            for line, (count, bounds) in zip(order, submissions)]
                 break
             except AssertionError as error:

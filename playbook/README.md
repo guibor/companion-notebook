@@ -12,6 +12,8 @@
 | [LOAD-PROBE.md](LOAD-PROBE.md) | Always-reverting exact-3.29 load-only trial |
 | [RENDER-PROBE.md](RENDER-PROBE.md) | Separately qualified two-native-document diagnostic |
 | [STRUCTURAL-PROBE.md](STRUCTURAL-PROBE.md) | Reviewed no-capture structural diagnostic; not a release |
+| [RETIREMENT-PROBE.md](RETIREMENT-PROBE.md) | Native write–retire–move–recreate evidence and consumed trial |
+| [ADMISSION-HANDOFF.md](ADMISSION-HANDOFF.md) | Remaining user-driven input boundary and exact-build audit |
 | [log/](log/) | Decisions, research, and changelog entries |
 
 ## How to use this playbook

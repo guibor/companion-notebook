@@ -9,8 +9,9 @@ const renderProbe = process.env.CN_PROBE === 'render';
 const structuralProbe = process.env.CN_PROBE === 'structural';
 const geometryProbe = process.env.CN_PROBE === 'geometry';
 const retirementProbe = process.env.CN_PROBE === 'retirement';
+const visualProbe = process.env.CN_PROBE === 'visual';
 const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe;
-const noCaptureProbe = structuralProbe || geometryProbe || inkProbe;
+const noCaptureProbe = structuralProbe || geometryProbe || inkProbe || visualProbe;
 const diagnostic = renderProbe || noCaptureProbe;
 // Preserve the previously reviewed diagnostic bytes. This new navigation
 // candidate is local-only until it receives a separately scoped native trial.
@@ -38,6 +39,13 @@ if (noCaptureProbe) {
         .replace('property bool probeCaptureSaved: false\n', '')
         .replaceAll('cnProbeCaptureItem', 'cnProbeScene');
     assert(!/probeCapture|grabToImage|saveToFile/.test(probeBridge));
+}
+if (visualProbe) {
+    const start=probeBridge.indexOf('function probeCreate() {');
+    const end=probeBridge.indexOf('function probeSeparate(host) {');
+    assert(start>0 && end>start);
+    probeBridge=probeBridge.slice(0,start)+inc('visual-open')+probeBridge.slice(end);
+    assert(!probeBridge.includes('createDocument('));
 }
 const main = inc('main').replace('// PROBE_BRIDGE', probeBridge);
 q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagnostic && !inkProbe ? 'enabled: false\n' : '') + main) + `
@@ -281,6 +289,7 @@ if (retirementProbe) {
  END TRAVERSE
  TRAVERSE ScenePenInputHandler#strokeHandler
  ${replace('gestureMode','const quickSwitch =','if (root.cnPaired) return 0; const quickSwitch =')}
+ ${replace('onStrokeCompleted','completedStroke();','if (!root.cnProbeReceive || !root.cnProbeReceive(stroke,controller,strokeHandler)) return; completedStroke();')}
  END TRAVERSE
  REDEFINE ScenePenInputHandler#strokeHandler
  LOCATE BEFORE ALL
@@ -304,6 +313,12 @@ if (retirementProbe) {
  END REBUILD
 END AFFECT
 `;
+    q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert('property var cnProbeReceive: null'));
+    q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ TRAVERSE DeviceSceneView#sceneView
+ ${insert('cnProbeReceive: function(stroke, targetController, inputHandler) { return !!root.cnHost && root.cnHost.probeBeforeSubmit(root, stroke, targetController, inputHandler) }')}
+ END TRAVERSE
+`);
 }
 fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
@@ -313,7 +328,7 @@ if (retirementProbe) host = 'import Companion.Lifecycle 1.0 as Lifecycle\n'+host
 if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
     .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
 if (diagnostic) {
-    let driver=inc(retirementProbe ? 'retirement-probe' : inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');
+    let driver=inc(visualProbe ? 'visual-reopen' : retirementProbe ? 'retirement-probe' : inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');
     if (geometryProbe) driver=driver
         .replace('property int probePhase: 0', 'property int probePhase: 0\nproperty bool probeInputRefreshed: false')
         .replace('case 5:', 'case 5:\n                if (!bridge.viewReady(bridge.primary) || !bridge.viewReady(host.secondary)) return')

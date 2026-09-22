@@ -63,7 +63,7 @@ replace('    grep -Fq \'durable=unverified\' "$S/NativeHost.qml" || return 1',
     grep -Fq 'durable=unverified' "$S/NativeHost.qml" || return 1`);
 // Verify the actual provider bytes on the target, not just the firmware string.
 const runtimePaths={'libQt6Core.so.6':'/usr/lib/libQt6Core.so.6.10.3','libQt6Qml.so.6':'/usr/lib/libQt6Qml.so.6.10.3',
-  'libstdc++.so.6':'/usr/lib/libstdc++.so.6.0.36','libgcc_s.so.1':'/lib/libgcc_s.so.1','libc.so.6':'/lib/libc.so.6'};
+  'libstdc++.so.6':'/usr/lib/libstdc++.so.6.0.36','libgcc_s.so.1':'/usr/lib/libgcc_s.so.1','libc.so.6':'/usr/lib/libc.so.6'};
 const runtimeChecks=Object.entries(elf.runtimeHashes).map(([lib,h])=>{
   assert(runtimePaths[lib]);return `    exact ${runtimePaths[lib]} ${h} || return 1`;
 }).join('\n');
@@ -98,6 +98,20 @@ result=result.replaceAll('fixed ink submissions completed; panes=2; durable=unve
 for(const pane of [0,1]) replace(`[ "$(grep -Fc 'Companion ink: submitted pane=${pane};' "$B/probe.log")" = 1 ]`,
   `[ "$(grep -Fc 'Companion ink: submitted pane=${pane};' "$B/probe.log")" = 2 ]`);
 replace('mark ink-submission-machine-passed "$probe_pid"','mark retirement-submission-machine-passed "$probe_pid"');
+// Keep the same 25 healthy-PID/watchdog checks, but observe stability after the
+// controlled strokes, with input closed. Waiting here before watching the gate
+// previously left disposable input open and unmonitored for many seconds.
+const stability=`for n in $(seq 1 25); do
+    if grep -Fq 'Companion probe: FAILED' "$B/probe.log"; then exit 1; else [ "$?" -eq 1 ]; fi
+    healthy probe
+    [ "$(pid xochitl.service)" = "$probe_pid" ]
+    systemctl is-active --quiet "$WATCH"
+    sleep 1
+done`;
+replace(stability,'# Start monitoring the ready gate immediately; stability is checked with input closed below.');
+const finalLogScan=`if grep -Eiq 'Failed to load file|ReferenceError|TypeError|is not a type|Cannot assign|Unable to assign|QQmlComponent: Component is not ready|Binding loop|module .* is not installed' "$B/probe.log"; then exit 1; else [ "$?" -eq 1 ]; fi`;
+replace('mark retirement-submission-machine-passed "$probe_pid"',
+  stability+'\n'+finalLogScan+'\nmark retirement-submission-machine-passed "$probe_pid"');
 fs.mkdirSync(out,{recursive:true});
 fs.copyFileSync(plugin,out+'/libcompanionlifecycleplugin.so');
 fs.copyFileSync(qmldir,out+'/lifecycle-qmldir');

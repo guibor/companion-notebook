@@ -153,6 +153,54 @@ Read and write without losing context or compromising native handwriting.
    IP was requested; no target smoke or UI trial has run. Resume directly at the
    standalone import preflight when its host key is found; do not rebuild or
    repeat the already passed frozen-code review without a source change.
+9. Later reconnect succeeded at10.100.102.101 with the exact accepted base.
+   The actual standalone observer import passed with both service PIDs unchanged.
+   First retirement trial20260922T171005Z-1 stopped on an unexpected stroke
+   callback before scripted input started; retirement/movement were not tested.
+   Normal base71641/Dates14463 and all protected hashes were verified restored.
+   Two new test pages contain no saved lines; cause/provenance is unproven.
+   Local follow-up now validates/logs before native submission and moves the
+   stability observation to after input closes. A two-instance desktop factory
+   fixture passes. Review the exact revised bytes, then use one new bounded
+   disposable trial; do not interpret either failure or local success as release.
+   The revised exact QMD/host/controller have independent one-run clearance,
+   including a repeated strict-error scan after the moved stability interval.
+   Complete full regressions and fresh device/backup gates before the new trial.
+   Trial20260922T173005Z-1 completed native write-retire-move-recreate-write:
+   four correctly attributed31-point submissions. The final controller stability
+   loop hit its deadline; no whole-trial pass marker. Watchdog restored base76210
+   with Dates14463 and every protected hash intact. Readback has two24-point
+   lines per disposable note, but the pre-controller rectangle differs by an
+   exact3-unit inset from saved centerlines; audit semantics before claiming
+   persistence. This one-run review is consumed. Do not repeat it unchanged.
+   Exact-native audit resolved this as conservative tool/thickness padding.
+   The corrected strict verifier reconstructs all four rectangles exactly and
+   verifies one-to-one saved shapes. Unknown tools/thicknesses are refused;
+   the5-unit tolerance was not widened. This is a saved-shape pass, not an
+   overall controller, native-reopen, visual or release pass.
+10. Resolve the rectangle semantics, then qualify native reopen and visual
+    occlusion using only these disposable documents. The already-loaded
+    framebuffer-spy provides a possible read-only pixel source without Qt layers
+    or a network screen-sharing server; no capture is authorized by this design
+    note alone. General user-driven lifecycle handoff remains separate work.
+    The pen-disabled visual-reopen capsule now builds and passes16 local tests
+    plus all3 composition orders. It is unexecuted, has no staging clearance,
+    and does not solve input admission. Do not run it merely to postpone the
+    core lifecycle decision.
+11. Exact native/public-Qt audit establishes a useful queued worker completion
+    acknowledgement, but no complete owner-consistent producer admission closure
+    for arbitrary seamless user dragging. Blocking producer reads invalidate a
+    queued producer-dispatcher closure; an atomic filter alone races a report
+    already past its check. Manual region signals disagree with native cache
+    ownership. See playbook/ADMISSION-HANDOFF.md. Ordinary ink stays disabled;
+    no personal installation is authorized by the four-stroke result. A future
+    continuation needs a concrete admission protocol, not another identical test.
+    Final refinement: manual empty-region publication DOES seal the producer
+    while preserving existing records. However signal-blocked manager updates
+    can still alter handlers' pending clips, and normal reopening publishes
+    producer acceptance before fresh worker candidates. The proposed lightweight
+    stop/move/reopen protocol is therefore not cleared; do not describe the
+    narrower producer-seal result itself as impossible.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

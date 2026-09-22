@@ -201,6 +201,9 @@ Read and write without losing context or compromising native handwriting.
     producer acceptance before fresh worker candidates. The proposed lightweight
     stop/move/reopen protocol is therefore not cleared; do not describe the
     narrower producer-seal result itself as impossible.
+    Cold-start worker discovery before a genuine completion is also unresolved;
+    inspected PenInput/manager APIs expose no worker pointer/startup notification.
+    Do not require or synthesize a personal-note setup stroke as an implicit fix.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

@@ -33,6 +33,10 @@ new producer starts without dropping admitted records. Whole-manager signal
 blocking still allows pending handler geometry to mutate, and normal reopening
 publishes the new producer region before worker candidates. The complete
 transition protocol remains unresolved, not the narrower ability to close admission.
+Final bounded audit also found no public startup route to the parentless worker
+before a genuine native completion; a never-annotated PDF cannot be assumed to
+have a discoverable worker context. No synthetic setup stroke or private-pointer
+fallback was added.
 The separately generated two-document diagnostic passed independent local review.
 Its first trial timed out at readiness; its second opened both native documents
 then failed on a native argument error. The third passed programmed movement/focus

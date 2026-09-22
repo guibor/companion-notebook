@@ -39,6 +39,10 @@ different input-admission contract from that fixed diagnostic.
 - The worker is parentless; it cannot be assumed discoverable under PenInput's
   QObject child tree. Direct completion-based discovery also needs a first real
   completion; no synthetic personal-note stroke is an acceptable initialization.
+  Final bounded inspection found no public worker pointer or forwarded startup
+  signal in PenInput/manager. Manager callbacks execute on the caller/UI thread,
+  so they cannot discover it. This leaves a cold-start case such as an unannotated
+  PDF unresolved even if a later-completion worker fence is implemented.
 - Digitizer's input thread runs one blocking-read loop without Qt event dispatch
   between reports. Queuing a function on that thread's event dispatcher cannot
   provide a live producer-turn boundary.
@@ -59,6 +63,8 @@ different input-admission contract from that fixed diagnostic.
   clip. Existing cnInkAllowed/cnLayoutBusy bindings trigger detach/exclusion
   changes, so they cannot serve as the pre-fence freeze. A separate UI-only
   transition intent would have to leave all native inputs unchanged until handoff.
+  Such a UI-only intent conditionally addresses this specific pre-fence issue;
+  it does not resolve cold-start discovery or reopening order.
 - Even reconciling the empty manager cache does not safely reopen: normal
   updateRegions publishes the producer's nonempty region before fresh worker
   candidates. A new stroke can enter between those publications against stale

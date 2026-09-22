@@ -122,7 +122,9 @@ execFileSync(tool,['apply-diffs','--clean','--hashtab',path.join(fw,'hashtab'),'
 assert.equal(files('build/wrong-firmware').length,0);
 assert.doesNotMatch(fs.readFileSync('native/NativeHost.qml','utf8'),/\bCanvas\b|addDrawingLine|\.rm\b|\.content\b/);
 assert.match(fs.readFileSync('native/NativeHost.qml','utf8'),/property bool inkQualified: false/);
-const payloadSha256=Object.fromEntries(['NativeHost.qml','PairStore.js'].map(p=>[p,sha(payload+'/'+p)]));
+const payloadFiles=['NativeHost.qml','PairStore.js',...(profile === 'load' ? ['SizeRuler.qml'] : [])];
+const payloadSha256=Object.fromEntries(payloadFiles.map(p=>[p,sha(payload+'/'+p)]));
+if (profile === 'load') execFileSync('qmlformat',['--ignore-settings',payload+'/SizeRuler.qml'],{stdio:['ignore','ignore','pipe']});
 execFileSync('qmlformat',['--ignore-settings',payload+'/NativeHost.qml'],{stdio:['ignore','ignore','pipe']});
 fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:profile==='ink'||profile==='retirement',ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
 console.log(JSON.stringify(counts));

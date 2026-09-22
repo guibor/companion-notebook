@@ -1,5 +1,49 @@
 # User-driven pen handoff: current technical boundary
 
+## New fixed-size direction
+
+The user replaced continuous dragging with a tap-only ⅓ / ½ / ⅔ ruler on
+2026-09-22. The UI is implemented locally and has not been deployed. Discrete
+changes permit an explicit paused-input transition; they do not make the
+existing synchronous geometry mutation a qualified native handwriting path.
+
+A bounded follow-up native review identified this possible smaller protocol:
+
+1. Record UI-only intent on the control press, preserving old surfaces, geometry
+   and controllers. Do not change `cnInkAllowed` or pending native clips yet.
+2. From a **direct producer-thread `penDownChanged(false)`** callback, set the
+   native event filter, then publish a seal token. On this exact build, that
+   false notification occurs after the report's filter check, so the current
+   pen ending and Qt mouse release still run; later reports are filtered.
+3. With a previously observed real native worker context, wait for its queued
+   fence, UI/QML controller handoff and the initiating control's actual release.
+4. Retire/recreate handlers and publish final geometry while filtering remains
+   active, avoiding new input during region-before-candidate publication.
+5. Resume only on a new, post-ready out→in proximity sequence. The UX must show
+   writing is paused and explain the lift/re-approach; cached proximity is not
+   a fresh handshake. All filter ownership must be exclusive and explicit.
+
+This is a candidate design, **not implemented or cleared for a trial**. In
+particular, setting the filter from proximity-out is wrong: proximity is emitted
+before the filter check, and an up/out combined report could lose its ending.
+An ordinary queued QML `onPenDownChanged` is also not the direct producer seal.
+
+Cold-start remains conditional. The native Digitizer queue starts empty, but its
+public `strokePending()` is not forwarded by accessible `PenInput`; the Digitizer
+and worker are parentless with no inspected public pointer route. A construction-
+time all-inputs-closed epoch plus synchronous global down ledger might prove a
+zero-contact fast path. Any possible contact after eligibility invalidates that
+shortcut until real worker discovery and drainage. A pen tap on chrome could
+overcount without producing handwriting completion; do not ship a sticky blocked
+state or require a hidden setup stroke as a workaround. No full cold-start
+construction proof was established in this follow-up review.
+
+The device did not answer at its last address in this continuation; a credential-
+free subnet scan and public-key comparison found no matching Pro. There was no
+SSH login, upload, restart, filter change or input injection in this revision.
+
+## Earlier seamless-drag audit
+
 This is an exact3.29.0.148 static audit, not a device trial or a declaration that
 split-screen is universally impossible. The controlled native four-stroke test
 passed saved-shape verification; arbitrary user-driven transitions need a

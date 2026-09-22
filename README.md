@@ -1,7 +1,7 @@
 # Companion Notebook
 
-A portrait pull-out writing margin for reMarkable: keep a source open and slide
-a separate notebook over its lower edge. Write directly in either visible pane;
+A portrait writing margin for reMarkable: keep a source open and place
+a separate notebook over its lower edge at **⅓, ½ or ⅔** of the screen. Write directly in either visible pane;
 scroll either document independently. Pairings are specific to a notebook/PDF.
 
 **Status: native two-pane writing demonstrated; not yet a tablet release.**
@@ -9,8 +9,9 @@ The initial hardware target is Paper Pro **3.29.0.148**. Move and landscape rema
 out of scope. The normal Pro setup was restored after each bounded experiment;
 no Companion is left active and ordinary-document ink remains gated off.
 
-The remaining release blocker is **safe admission of pen input during user-driven
-movement**, not creating the second native view. The firmware's worker can finish
+The tap-only size ruler is implemented locally; the filled mark shows the selected
+size. There is no drag interaction. The remaining release blocker is **safe
+pen handoff during size and document changes**, not creating the second native view. The firmware's worker can finish
 earlier input, but the inspected public controls do not yet provide a complete
 way to stop new input and resume it with coherent geometry. See the bounded
 [handoff audit](playbook/ADMISSION-HANDOFF.md). This project is not ready for daily
@@ -24,7 +25,8 @@ use or inclusion in the recurring installation list.
 | Native saving of those two strokes | Both exact disposable files contained their expected shapes after UI restart |
 | Move the sheet, then continue writing | Native four-stroke write–retire–move–recreate–write sequence completed; final controller observation timed out and restored base |
 | Native saving before and after movement | All four saved shapes matched their pane/round and reconstructed native bounds exactly |
-| Visual clipping, rapid transitions, physical drag fluidity | Not yet qualified |
+| Fixed ⅓ / ½ / ⅔ ruler, per-pair selection, no accidental drag | Local pointer/state tests pass; not deployed |
+| Visual clipping and user-triggered size transitions | Not yet qualified |
 
 The historical Qt capture diagnostic crashed the native e-ink rendering path and
 remains blocked. No capture/layer workaround is part of the new experiment. See
@@ -54,7 +56,7 @@ On this Mac the executables are in `/opt/homebrew/bin`. Restricted sandboxes
 may prevent Qt CPU-feature detection; use a normal local terminal if it reports
 missing NEON. Desktop tests currently use Qt 6.8.2, not the tablet's 6.10.3.
 
-Drag the notes grip up/down; the underlying page never shrinks. Write directly
+Tap a ruler mark to choose ⅓, ½ or ⅔; the underlying page never shrinks. Write directly
 in either pane; use a trackpad/wheel or flick to scroll. Tuck/Reveal preserves
 positions. “Simulate pen” tests ownership with the mouse, not real handwriting:
 the first press immediately writes in the touched pane. Demo marks are ephemeral.
@@ -67,7 +69,7 @@ local settings files; they are not native-device acceptance tests.
 
 `build-native.mjs` requires the private exact-firmware cache and pinned QMLDiff
 tool (override their locations with `RM_FIRMWARE` and `QMLDIFF_BIN`). It emits
-`build/native/companion-notebook.qmd`, `NativeHost.qml`, `PairStore.js` and a hash
+`build/native/companion-notebook.qmd`, `NativeHost.qml`, `PairStore.js`, `SizeRuler.qml` and a hash
 manifest. It never connects to a device. Firmware resources stay outside this
 repository and are not redistributed.
 
@@ -112,6 +114,12 @@ The native host keeps primary-document scale unchanged, uses a distinct native
 DocumentView for a recent local companion, and persists only pairing metadata
 through Qt settings. Notebook writes remain exclusively native. Read
 [the ordered native gates](playbook/NATIVE-GATES.md) before any device trial.
+
+Historical diagnostics use the checksum-pinned `native/DiagnosticHost.qml`.
+Their payloads remain reproducible independently of the ordinary ruler UI.
+The old load-probe packaging is blocked for the revised normal payload: its
+controller does not yet install the added ruler file. A new reviewed capsule
+must account for the complete file inventory; rebuilding is not deployment.
 
 ## Why a separate project?
 

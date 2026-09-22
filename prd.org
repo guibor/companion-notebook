@@ -6,7 +6,9 @@ Read and write without losing context or compromising native handwriting.
 * Accepted requirements (2026-09-21)
 - Portrait-first bottom pull-out writable margin overlays the main document.
 - Main viewport and page scale do not shrink as the margin is pulled.
-- Dragging updates the actual margin continuously, with no settle-on-release substitute.
+- Tap a ruler mark to choose a fixed companion height: ⅓, ½ or ⅔ of the screen.
+  The filled mark shows the current size. No live drag or drag-to-snap control.
+  Remember the selected size per document pair; tuck/reopen restores it.
 - Two independently scrollable documents; write directly in either visible pane.
 - Pull out the notebook and start writing without an activation tap. Native pen
   hit-testing chooses the document at stroke start and keeps it until pen-up.
@@ -19,13 +21,18 @@ Read and write without losing context or compromising native handwriting.
 - Pro only initially; no changes to Move or shared servers.
 
 * Requirements changed
+- On 2026-09-22 the user dropped live dragging and requested fixed fractions,
+  optionally chosen on a ruler. This supersedes continuous motion, divider-drag
+  and high-speed-video fluidity requirements. Native ink handoff, clipping and
+  preservation requirements still apply to every discrete geometry change.
 - Earlier proposal displaced/resized the main viewport: replaced by slide-over.
 - Earlier automatic focus was replaced by explicit tap-to-select; on 2026-09-22
   the user superseded that decision again: direct writing in either visible pane
   is preferred, particularly after pulling out the notebook. No select-only pen tap.
 - Same-notebook different locations: excluded from v1.
 - Landscape in v1: deferred. Later landscape should fit scaled documents to equal halves.
-- Divider-only preview fallback: rejected; live fluid movement is a hard gate.
+- Earlier divider-only preview fallback was rejected; the later fixed-size
+  requirement supersedes the live-fluid-movement gate, not native ink safety.
 - Design-only phase: user authorized implementation, with original device safety constraints.
 - After the structural trial, the user explicitly requested continued work until
   usable unless technically infeasible or very risky. This supersedes the earlier
@@ -36,15 +43,26 @@ Read and write without losing context or compromising native handwriting.
   personal-document release gates and the no-firmware/no-bricking-risk boundary.
 
 * Validation and release decision
-- Desktop controller and QML tests must pass, including pointer drag before release.
+- Desktop controller and QML tests must pass, including ruler taps and rejecting
+  accidental drags, pen/scroll locks, and selected-size restoration.
 - Hardware must prove independent rendering, clipping, pen ownership and native durability.
 - Base 3.29 XOVI/QRR qualification precedes any native probe.
 - Any lost, duplicate or wrong-document ink blocks release.
-- Measure high-speed-video drag latency and visual artifacts on the Pro; compare
-  with stock touch response and obtain actual user acceptance of fluidity.
+- Verify discrete size changes and native repaint/clipping on the Pro.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. Current direction: implement the tap-only preset ruler on the current Pro
+   branch; preserve historical diagnostic builds. Qualify discrete pen handoff
+   and native visuals before enabling the ordinary host's writing gate. Fixed
+   sizes alone do not prove that pending strokes survive a layout change.
+   Ruler implementation and local pointer tests now pass; all consumed native
+   diagnostic hashes remain unchanged. Direct producer pen-up filtering is a
+   promising discrete-transition candidate (see ADMISSION-HANDOFF.md), not yet
+   implemented/qualified. No matching Pro SSH endpoint was found on the current
+   subnet, so this revision made no tablet changes. Next: finish the concrete
+   cold-start/transition integration, then a fresh bounded native test when
+   reachable; do not install the pen-disabled candidate as a working feature.
 1. ReManager handover and fresh strict-key identity/inventory verification passed.
 2. Load-only trial passed and automatically restored the accepted r1 base at
    UI22703 / Dates14463. Native writing remains disabled; no active Companion.

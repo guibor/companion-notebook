@@ -10,15 +10,31 @@ Item {
         name: "CompanionInteraction"; when: windowShown
         property var workspace
         function init() { workspace = createTemporaryObject(factory, host); verify(workspace); wait(20) }
-        function test_live_drag() {
+        function test_header_drag_does_not_resize() {
             var h = workspace.mainView.height
             var initial = workspace.overlayTop
             mousePress(workspace,300,initial + 20)
             mouseMove(workspace,300,initial - 80,20)
-            verify(workspace.overlayTop < initial - 50, "actual sheet must move before release")
+            compare(workspace.overlayTop,initial)
             compare(workspace.mainView.height,h)
             mouseRelease(workspace,300,initial - 80)
             compare(workspace.state.busy,null)
+        }
+        function test_ruler_taps_change_size() {
+            var ruler = workspace.sizeRuler
+            for (var i = 0; i < 3; ++i) {
+                mouseClick(ruler, ruler.width * (i + 0.5) / 3, ruler.height / 2)
+                compare(workspace.state.ratio,ruler.sizes[i])
+                compare(workspace.revealed,900*ruler.sizes[i])
+                compare(workspace.mainView.height,900)
+            }
+        }
+        function test_ruler_drag_is_not_a_size_choice() {
+            var ruler = workspace.sizeRuler
+            mousePress(ruler,ruler.width/2,ruler.height/2)
+            mouseMove(ruler,ruler.width/2,ruler.height/2-80,20)
+            mouseRelease(ruler,ruler.width/2,ruler.height/2-80)
+            compare(workspace.state.ratio,1/3)
         }
         function test_tap_focus() {
             mouseClick(workspace,200,workspace.overlayTop+100)
@@ -53,13 +69,11 @@ Item {
             compare(workspace.state.busy.document,"demo-reference")
             mouseRelease(workspace,200,110)
         }
-        function test_pen_mode_handle_still_drags() {
+        function test_pen_mode_ruler_still_works_without_inking_chrome() {
             workspace.inkMode = true
-            var initial = workspace.overlayTop
-            mousePress(workspace,300,initial+20)
-            mouseMove(workspace,300,initial-80,20)
-            verify(workspace.overlayTop < initial-50)
-            mouseRelease(workspace,300,initial-80)
+            var ruler = workspace.sizeRuler
+            mouseClick(ruler,ruler.width/2,ruler.height/2)
+            compare(workspace.revealed,450)
             compare(workspace.state.busy,null)
         }
         function test_z_render_capture() {

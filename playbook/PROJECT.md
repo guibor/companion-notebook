@@ -12,7 +12,7 @@ Read a source while writing in a notebook pulled over its lower edge.
 
 - In scope: portrait overlay, direct writing in either pane, independent scroll, paired documents.
 - Out of scope: same-document pairs, Move, landscape, server, native file edits.
-- Success: user-accepted fluidity on hardware, no lost or wrong-document edits,
+- Success: clear fixed-size transitions on hardware, no lost or wrong-document edits,
   and ten of ten pair resumes recovering both positions.
 
 ## Milestones
@@ -26,7 +26,8 @@ Read a source while writing in a notebook pulled over its lower edge.
 ## Open questions
 
 - Native compositor and input occlusion are unknown; see NATIVE-GATES.md.
-- Measure hardware latency against stock before deciding whether live dragging passes.
+- The user replaced live dragging with a ⅓ / ½ / ⅔ tap-only ruler. Check native
+  handoff and repaint for discrete size changes, not continuous-drag fluidity.
 
 Hypothesis: keeping reference and notes visible reduces place-recovery effort.
 Compare PDF + notes and two-notebook synthesis tasks with ordinary switching.

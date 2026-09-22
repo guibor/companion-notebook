@@ -46,8 +46,9 @@ The exact private resource cache is in the maintenance repository under
 5. Native pen enabled only after surface routing proof: corners, boundary
    crossings, eraser, undo/redo, tool changes, page addition, close/reopen,
    sleep/wake and crash recovery; verify actual saved results, not screenshots.
-6. Measure e-ink drag/input latency and refresh behavior. User's fluidity
-   requirement is hard; no ghost divider or settle-on-release downgrade.
+6. Qualify fixed ⅓ / ½ / ⅔ transitions and repaint. The user's later preset
+   request supersedes live-drag fluidity; it does not waive stroke handoff or
+   correct native input/clipping at each size.
 7. BetterTOC/Dates attribution, Gestik, pen-layer memory and screen-sharing
    composition. Dispatch/Smart remain disabled until capture ownership and their
    independent server gates are satisfied.

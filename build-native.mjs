@@ -323,7 +323,9 @@ END AFFECT
 fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
 fs.writeFileSync(output+'/companion-notebook.qmd',q);
-let host=fs.readFileSync('native/NativeHost.qml','utf8');
+// Keep consumed diagnostic receipts reproducible while the product UI evolves.
+if (diagnostic) exact('native/DiagnosticHost.qml','7b76db63188dfc4065cf88301fb0591e0b2213e4483285061c9b08e9f10621e7');
+let host=fs.readFileSync(diagnostic ? 'native/DiagnosticHost.qml' : 'native/NativeHost.qml','utf8');
 if (retirementProbe) host = 'import Companion.Lifecycle 1.0 as Lifecycle\n'+host;
 if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
     .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
@@ -368,10 +370,11 @@ if (noCaptureProbe) {
 }
 fs.writeFileSync(output+'/NativeHost.qml',host);
 fs.copyFileSync('src/PairStore.js',output+'/PairStore.js');
+if (!diagnostic) fs.copyFileSync('ui/SizeRuler.qml',output+'/SizeRuler.qml');
 execFileSync(tool,['hash-diffs',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{stdio:'inherit'});
 const result = execFileSync(tool,['check-compatibility',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{encoding:'utf8'});
 assert.match(result,/No compatibility errors found\./);
 process.stdout.write(result);
-fs.writeFileSync(output+'/SHA256SUMS', ['NativeHost.qml','PairStore.js','companion-notebook.qmd'].map(p=>hash(output+'/'+p)+'  '+p+'\n').join(''));
+fs.writeFileSync(output+'/SHA256SUMS', ['NativeHost.qml','PairStore.js','companion-notebook.qmd',...(!diagnostic ? ['SizeRuler.qml'] : [])].map(p=>hash(output+'/'+p)+'  '+p+'\n').join(''));
 console.log(inkProbe ? 'Disposable-only fixed-layout ink diagnostic built. Not deployed; ordinary document ink remains disabled.'
     : 'Native rendering candidate built, pen disabled. Not deployed.');

@@ -1,5 +1,38 @@
 # Architecture and implementation status
 
+## Current product revision: fixed sizes (2026-09-22)
+
+The user superseded live dragging with a tap-only ruler at ⅓, ½ and ⅔. The
+filled dot indicates the currently selected size; it is not a slider thumb.
+`ui/SizeRuler.qml` is the shared native/desktop control. Its `chosen(ratio)`
+signal fires only for a tap within the movement threshold, never while dragging.
+`NativeHost.chooseSize()` and `Workspace.chooseSize()` validate the three values,
+refuse busy pen/scroll states, retain native document/view identities and save
+the selection with the pair. Tuck retains the selected size and reopening uses
+it. Legacy continuous ratios are snapped to the nearest mark when read, without
+silently rewriting the stored record before a normal checkpoint.
+
+The ordinary native host has no drag or pull handlers. A read-only `dragging:false`
+property keeps the existing bridge compatible, while `native/DiagnosticHost.qml`
+freezes the historical host with a checksum so consumed trial artifacts remain
+reproducible. Only normal builds include the new `SizeRuler.qml` runtime file in
+their checksum manifest. Diagnostic manifests and payloads remain unchanged.
+The historical load stager now refuses the revised normal host before creating
+any stage: its old controller knows only two host files and would omit the new
+ruler. This guards against an incomplete accidental upload, not a new installer.
+The composition receipt hashes the ruler as well as the host and pairing store.
+
+This UI change does not turn on `inkQualified`. Preset taps still move native
+input geometry; pending-stroke handoff, coherent reopening and visual occlusion
+remain native qualification work. The historical sections below describe earlier
+continuous-drag experiments, not the current user-facing interaction.
+The fixed-preset follow-up in `playbook/ADMISSION-HANDOFF.md` records a possible
+producer-direct pen-up filter protocol. It is a design finding only: no filter
+adapter, cold-start proof, writable pilot or new device stage is implied by the
+ruler implementation. Current local regression coverage includes actual ruler
+taps, rejected drags and invalid sizes, independent scroll retention, per-pair
+size restoration across host recreation, and unchanged historical host hashes.
+
 Latest hardware result (2026-09-22): the v2 retirement diagnostic completed four
 correctly attributed native submissions across destruction, actual sheet motion,
 and handler recreation. Its final shell observation exceeded the owner deadline;
@@ -73,9 +106,9 @@ keeps tablet writing disabled until the native routing gates are satisfied.
 
 Main viewport stays full-sized. The companion is a second fixed-size viewport
 translated to `height - reveal`, clipped by the workspace. Only its visible
-portion appears. Dragging updates translation directly, with no animation,
-debounce, page reflow or release-only commit. This is an optimization hypothesis
-for native integration, not proof that the e-ink compositor supports it.
+portion appears. A preset tap changes its position once, without animation or
+page reflow. No drag path remains in the ordinary UI. The historical diagnostic
+host retains its original movement code solely to reproduce earlier trial bytes.
 
 ## Modules and principal functions
 

@@ -9,7 +9,7 @@ Item {
     property bool inkMode: false // Mouse-only synthetic ink test; NOT a native pen handler.
     property alias mainView: main
     property alias companionView: companion
-    property alias dragHandle: handle
+    property alias sizeRuler: sizeRuler
     readonly property real overlayTop: { root.revision; return Model.top(state) }
     readonly property real revealed: { root.revision; return state.portrait ? state.reveal : 0 }
     readonly property string activePane: { root.revision; return state.focus }
@@ -21,6 +21,7 @@ Item {
     function attach(id) { var ok = Model.attach(state, id); changed(); return ok }
     function tuck() { var ok = Model.tuck(state); changed(); return ok }
     function reveal() { var ok = Model.reveal(state); changed(); return ok }
+    function chooseSize(ratio) { var ok = Model.chooseSize(state, ratio); changed(); return ok }
     function detach() { var ok = Model.detach(state); changed(); return ok }
     function openPrimary(id) {
         if (!Model.openPrimary(state, id)) return false
@@ -66,7 +67,7 @@ Item {
         objectName: "overlay"
         y: root.overlayTop; width: root.width; height: root.height
         visible: root.revealed > 0; z: 2; clip: true
-        // Fixed-sized companion viewport translates with the sheet; no per-drag reflow.
+        // Fixed-sized companion viewport moves only on a preset tap, never reflows.
         Rectangle { anchors.fill: parent; color: "#faf9f5" }
         Flickable {
             id: companion
@@ -89,25 +90,23 @@ Item {
         }
         Rectangle {
             id: handle
-            objectName: "dragHandle"
+            objectName: "companionBar"
             width: parent.width; height: root.state.header
             color: "#f0eee7"; border.width: 1; border.color: "#8d8b84"
-            Rectangle { anchors.horizontalCenter: parent.horizontalCenter; y: 8; width: 48; height: 4; radius: 2; color: "#6e6c65" }
             Text {
-                x: 18; y: 24; text: root.activePane === "companion" ? "● Notes tools" : "Notes · write directly below"
+                x: 18; anchors.verticalCenter: parent.verticalCenter
+                text: root.activePane === "companion" ? "● Notes tools" : "Notes · write directly below"
                 font.pixelSize: 12; color: "#333"
             }
-            MouseArea {
-                anchors.fill: parent; preventStealing: true
-                onPressed: function(mouse) {
-                    var p = mapToItem(root, mouse.x, mouse.y)
-                    mouse.accepted = Model.beginDrag(root.state, p.y); root.changed()
-                }
-                onPositionChanged: function(mouse) {
-                    if (pressed) { var p = mapToItem(root, mouse.x, mouse.y); Model.drag(root.state, p.y); root.changed() }
-                }
-                onReleased: { Model.endDrag(root.state, false); root.changed() }
-                onCanceled: { Model.endDrag(root.state, true); root.changed() }
+            MouseArea { anchors.fill: parent; preventStealing: true }
+            SizeRuler {
+                id: sizeRuler
+                anchors.right: parent.right; anchors.rightMargin: 12
+                anchors.verticalCenter: parent.verticalCenter
+                width: 180; height: parent.height; unit: 0.44
+                ratio: { root.revision; return root.state.ratio }
+                enabled: !root.busy
+                onChosen: function(ratio) { root.chooseSize(ratio) }
             }
         }
     }
@@ -116,17 +115,8 @@ Item {
         width: 168; height: 38; radius: 12
         visible: root.revealed === 0 && root.state.companion !== "" && root.state.portrait
         color: "#e9e7de"; border.color: "#8d8b84"
-        Text { anchors.centerIn: parent; text: "⌃  Pull out notes"; font.pixelSize: 13 }
-        MouseArea {
-            anchors.fill: parent; preventStealing: true
-            property bool moved: false
-            onPressed: function(mouse) { moved = false; mouse.accepted = Model.beginDrag(root.state, mapToItem(root, mouse.x, mouse.y).y); root.changed() }
-            onPositionChanged: function(mouse) {
-                if (pressed) { moved = true; Model.drag(root.state, mapToItem(root, mouse.x, mouse.y).y); root.changed() }
-            }
-            onReleased: { Model.endDrag(root.state, false); if (!moved) root.reveal(); root.changed() }
-            onCanceled: { Model.endDrag(root.state, true); root.changed() }
-        }
+        Text { anchors.centerIn: parent; text: "⌃  Open notes"; font.pixelSize: 13 }
+        TapHandler { onTapped: root.reveal() }
     }
     // Demo ink records screen-local points only. Never export this to a tablet.
     Canvas {

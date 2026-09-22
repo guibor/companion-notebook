@@ -25,7 +25,7 @@ Item {
         }
         function test_pen_signal_locks_layout_and_focus() {
             open(); fixture.pen.penDownChanged(true)
-            verify(!fixture.host.tuck()); verify(!fixture.host.beginDrag(620)); verify(!fixture.host.selectPane(true))
+            verify(!fixture.host.tuck()); verify(!fixture.host.chooseSize(1/2)); verify(!fixture.host.selectPane(true))
             fixture.pen.penDownChanged(false); verify(fixture.host.selectPane(true))
         }
         function test_probe_never_calls_native_edit_action() {
@@ -59,25 +59,51 @@ Item {
             verify(fixture); compare(fixture.host.companionId,notes)
             compare(fixture.host.revealHeight,0); compare(fixture.host.secondary,null)
         }
-        function test_live_native_container_drag() {
+        function test_native_header_has_no_drag_resize() {
             open(); var top=fixture.host.height-fixture.host.revealHeight
-            mousePress(fixture.host,300,top+5)
-            mouseMove(fixture.host,300,top-80,25)
-            verify(fixture.host.revealHeight>fixture.host.height*0.35+50)
-            mouseRelease(fixture.host,300,top-80)
+            var reveal=fixture.host.revealHeight
+            mousePress(fixture.host,50,top+5)
+            mouseMove(fixture.host,50,top-80,25)
+            compare(fixture.host.revealHeight,reveal)
+            mouseRelease(fixture.host,50,top-80)
             verify(!fixture.host.dragging)
         }
-        function test_pull_from_tucked_is_continuous() {
+        function test_tucked_drag_does_not_reveal_and_tap_reopens() {
             open(); fixture.host.tuck()
             var view = fixture.host.secondary
             mousePress(fixture.host,300,885)
             mouseMove(fixture.host,300,650,25)
-            verify(fixture.host.revealHeight > 200)
+            compare(fixture.host.revealHeight,0)
             compare(fixture.host.secondary,view)
-            verify(fixture.host.dragging)
             mouseRelease(fixture.host,300,650)
+            compare(fixture.host.revealHeight,0)
+            mouseClick(fixture.host,300,885)
             verify(fixture.host.paired); verify(!fixture.host.dragging)
-            verify(!fixture.host.pullingFromTucked)
+        }
+        function test_native_size_ruler_taps_and_pair_persistence() {
+            open()
+            var view=fixture.host.secondary
+            var ruler=findChild(fixture.host,"nativeSizeRuler")
+            verify(ruler)
+            for (var i=0;i<3;++i) {
+                mouseClick(ruler,ruler.width*(i+0.5)/3,ruler.height/2)
+                compare(fixture.host.savedRatio,ruler.sizes[i])
+                compare(fixture.host.revealHeight,900*ruler.sizes[i])
+                compare(fixture.host.secondary,view)
+            }
+            var url=fixture.storeLocation
+            fixture.host.tuck();fixture.destroy();fixture=null;wait(20)
+            fixture=createTemporaryObject(fixtureFactory,surface,{storeLocation:url})
+            compare(fixture.host.savedRatio,2/3);compare(fixture.host.revealHeight,0)
+            verify(fixture.host.openSecondary());tryCompare(fixture.host,"restoring",false)
+            compare(fixture.host.revealHeight,600)
+        }
+        function test_presets_reject_arbitrary_values_and_snap_legacy_values() {
+            open()
+            for (var value of [0,0.4,0.85,NaN,Infinity,"0.5",null]) verify(!fixture.host.chooseSize(value))
+            compare(fixture.host.nearestSize(0.35),1/3)
+            compare(fixture.host.nearestSize(0.49),1/2)
+            compare(fixture.host.nearestSize(0.85),2/3)
         }
         function test_unavailable_during_pen_waits_until_pen_up_to_tuck() {
             open(); fixture.pen.penDownChanged(true)
@@ -89,7 +115,7 @@ Item {
         }
         function test_native_gesture_locks_layout_without_changing_focus() {
             open(); fixture.primary.cnGestureBusy = true
-            verify(!fixture.host.beginDrag(620)); verify(!fixture.host.selectPane(true))
+            verify(!fixture.host.chooseSize(1/2)); verify(!fixture.host.selectPane(true))
             fixture.primary.cnGestureBusy = false; verify(fixture.host.selectPane(true))
             fixture.host.secondary.cnGestureBusy = true
             verify(!fixture.host.tuck()); verify(!fixture.host.selectPane(false))
@@ -97,10 +123,7 @@ Item {
         function test_sheet_movement_refreshes_native_input_before_ungating() {
             open(); tryCompare(fixture.host,"inputGeometryPending",false)
             var count=fixture.bridge.geometryCount
-            verify(fixture.host.beginDrag(600));fixture.host.moveDrag(500)
-            verify(fixture.host.inputGeometryPending)
-            wait(20);compare(fixture.bridge.geometryCount,count)
-            fixture.host.finishDrag(false)
+            verify(fixture.host.chooseSize(1/2))
             verify(fixture.host.inputGeometryPending)
             tryCompare(fixture.host,"inputGeometryPending",false)
             verify(fixture.bridge.geometryCount>=count+2)

@@ -17,10 +17,11 @@ Item {
     property var secondary: null
     property bool secondarySelected: false
     property bool choosing: false
-    readonly property bool dragging: false // Shared bridge compatibility; no live dragging.
+    property bool dragging: false
+    property bool pullingFromTucked: false
     property bool closing: false
     property real revealHeight: 0
-    property real savedRatio: 1 / 3
+    property real savedRatio: 0.35
     property bool penDown: false
     property bool restoring: false
     property string restorePage: ""
@@ -67,7 +68,7 @@ Item {
         primaryId = id
         var p = pairs.pairs[id]
         companionId = p ? p.companion : ""
-        savedRatio = nearestSize(p ? p.ratio : 1 / 3)
+        savedRatio = p ? p.ratio : 0.35
         revealHeight = 0; secondarySelected = false; choosing = false
     }
     function choose() {
@@ -136,26 +137,40 @@ Item {
         if (!idle || !secondary || !secondarySelected || !inkQualified) return
         secondary.cnAction(name)
     }
-    function nearestSize(ratio) {
-        var sizes = [1 / 3, 1 / 2, 2 / 3], best = sizes[0]
-        for (var i = 1; i < sizes.length; ++i)
-            if (Math.abs(ratio - sizes[i]) < Math.abs(ratio - best)) best = sizes[i]
-        return best
+    function beginDrag(y) {
+        if (!idle || !mayShow || !secondary) return false
+        dragStartY = y; dragStartHeight = revealHeight; dragging = true
+        bridge.beginAnimation(); return true
     }
-    function chooseSize(ratio) {
-        if (!idle || !mayShow || !secondary || typeof ratio !== "number" || !isFinite(ratio)
-                || Math.abs(nearestSize(ratio) - ratio) > 0.000001) return false
-        // This host remains pen-disabled until the native transition is qualified.
-        // No deferred resize is queued to run unexpectedly after a stroke.
-        savedRatio = nearestSize(ratio)
-        if (paired) revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio))
-        checkpoint()
-        bridge.endAnimation()
-        return true
+    property real dragStartY: 0
+    property real dragStartHeight: 0
+    function moveDrag(y) {
+        if (dragging) revealHeight = Math.max(0, Math.min(maximumHeight, dragStartHeight + dragStartY - y))
+    }
+    function finishDrag(cancel) {
+        if (!dragging) return
+        if (cancel) revealHeight = dragStartHeight
+        dragging = false; bridge.endAnimation()
+        if (revealHeight < minimumHeight) tuck()
+        else { savedRatio = revealHeight / height; checkpoint() }
+    }
+    function beginPull(y) {
+        if (!idle || !mayShow) return false
+        // A cold native view must finish opening before accepting a drag.
+        if (!secondary) { openSecondary(); return false }
+        pullingFromTucked = beginDrag(y)
+        return pullingFromTucked
+    }
+    function finishPull(cancel) {
+        var tapped = !cancel && dragging && Math.abs(revealHeight - dragStartHeight) < 8 * unit
+        finishDrag(cancel)
+        pullingFromTucked = false
+        if (tapped) openSecondary()
     }
     function hideWhenUnavailable() {
         if (!mayShow && !penDown) {
-            choosing = false; revealHeight = 0; secondarySelected = false
+            if (dragging) finishDrag(true)
+            pullingFromTucked = false; choosing = false; revealHeight = 0; secondarySelected = false
         }
     }
     onMayShowChanged: hideWhenUnavailable()
@@ -206,21 +221,18 @@ Item {
         }
         Rectangle {
             id: grip; width: parent.width; height: host.barHeight; color: "#f1f1ed"; border.color: "#888"
+            Rectangle { width: 110 * host.unit; height: 8 * host.unit; radius: height / 2; anchors.horizontalCenter: parent.horizontalCenter; y: 12 * host.unit; color: "#666" }
             Text {
-                x: 32 * host.unit; anchors.verticalCenter: parent.verticalCenter; width: parent.width * 0.28; elide: Text.ElideRight
+                x: 32 * host.unit; y: 50 * host.unit; width: parent.width * 0.45; elide: Text.ElideRight
                 text: (host.secondarySelected ? "● " : "") + (host.secondary && host.secondary.document ? host.secondary.document.visibleName : "Companion")
                 font.pixelSize: 30 * host.unit; color: "#222"
             }
             MouseArea {
-                anchors.fill: parent; preventStealing: true // Chrome never starts an underlying scroll.
-            }
-            SizeRuler {
-                objectName: "nativeSizeRuler"
-                x: 510 * host.unit; anchors.verticalCenter: parent.verticalCenter
-                width: 390 * host.unit; height: 104 * host.unit
-                unit: host.unit; ratio: host.savedRatio
-                enabled: host.idle
-                onChosen: function(ratio) { host.chooseSize(ratio) }
+                anchors.fill: parent; preventStealing: true
+                onPressed: function(m) { m.accepted = host.beginDrag(mapToItem(host,m.x,m.y).y) }
+                onPositionChanged: function(m) { if (pressed) host.moveDrag(mapToItem(host,m.x,m.y).y) }
+                onReleased: host.finishDrag(false)
+                onCanceled: host.finishDrag(true)
             }
             Row {
                 anchors.right: parent.right; anchors.rightMargin: 20 * host.unit; anchors.bottom: parent.bottom
@@ -242,13 +254,18 @@ Item {
         }
     }
     Rectangle {
-        objectName: "reopenCompanion"
-        visible: !!host.companionId && !host.paired
+        visible: !!host.companionId && (!host.paired || host.pullingFromTucked)
         width: 420 * host.unit; height: 94 * host.unit
         anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
         color: "#efefea"; radius: 25 * host.unit; border.color: "#888"
-        Text { anchors.centerIn: parent; text: "⌃  Open companion"; font.pixelSize: 30 * host.unit }
-        TapHandler { onTapped: host.openSecondary() }
+        Text { anchors.centerIn: parent; text: "⌃  Pull out companion"; font.pixelSize: 30 * host.unit }
+        MouseArea {
+            anchors.fill: parent; preventStealing: true
+            onPressed: function(m) { m.accepted = host.beginPull(mapToItem(host,m.x,m.y).y) }
+            onPositionChanged: function(m) { if (pressed) host.moveDrag(mapToItem(host,m.x,m.y).y) }
+            onReleased: host.finishPull(false)
+            onCanceled: host.finishPull(true)
+        }
     }
     Rectangle {
         visible: host.choosing || !!host.error; anchors.fill: parent; color: "white"

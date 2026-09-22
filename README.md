@@ -17,6 +17,14 @@ way to stop new input and resume it with coherent geometry. See the bounded
 [handoff audit](playbook/ADMISSION-HANDOFF.md). This project is not ready for daily
 use or inclusion in the recurring installation list.
 
+Latest fix (2026-09-23): the admission prototype's startup loader was leaking Qt
+dependencies into unrelated child programs. A separate process-scoped, Qt-free
+bootstrap now passes isolated tests on the Pro, including a negative control
+with the old loader and the fake-worker/QML transaction. The normal interface was
+not restarted, and no Companion feature is installed. The exact startup crash
+path was identified; a fresh native-UI trial is still required before calling
+that crash resolved. See [the diagnosis and fix receipt](playbook/log/bootstrap_fix_2026-09-23.md).
+
 | Capability | Evidence |
 | --- | --- |
 | Two distinct native views, independent controllers | Passed bounded on-device structural test |
@@ -109,6 +117,14 @@ four saved shapes passed verification against the native tool/thickness-padded
 rectangle semantics, but the whole-trial pass marker was not reached before
 automatic restoration. Its one-run staging
 clearance is consumed; do not rerun an old capsule.
+
+The newer admission sidecar builds with `node ops/build-admission-cross.mjs`.
+`node ops/stage-bootstrap-smoke.mjs YYYYMMDD-N` only prepares a fresh **local**
+fake-process capsule; it does not connect or authorize deployment. Its operator
+must use the separate bounded process group described in the fix receipt.
+`node ops/build-admission-controller.mjs` emits a distinct
+`build/admission-bootstrap-native` candidate without overwriting the consumed
+combined-preload controller. The existing admission stager stays blocked.
 
 The native host keeps primary-document scale unchanged, uses a distinct native
 DocumentView for a recent local companion, and persists only pairing metadata

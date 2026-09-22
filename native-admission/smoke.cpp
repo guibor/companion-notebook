@@ -11,6 +11,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QVariant>
+#include <QProcess>
 #include <atomic>
 #include <cstdio>
 #include <dlfcn.h>
@@ -126,12 +127,25 @@ int main(int argc, char **argv)
     alarm(5);
     require(argc == 1, "no arguments accepted");
     QCoreApplication app(argc, argv);
-    const auto module = app.applicationDirPath() + "/qml/Companion/Admission/libcompanionadmissionplugin.so";
+    const auto bootstrap = app.applicationDirPath() + "/libcompanionbootstrap.so";
     void *symbol = dlsym(RTLD_DEFAULT, "_ZN7QObject12moveToThreadEP7QThreadN2Qt15Disambiguated_tE");
     Dl_info info {};
     require(symbol && dladdr(symbol, &info) && info.dli_fname
         && QFileInfo(QString::fromLocal8Bit(info.dli_fname)).canonicalFilePath()
-            == QFileInfo(module).canonicalFilePath(), "exact preload symbol binding");
+            == QFileInfo(bootstrap).canonicalFilePath(), "exact bootstrap symbol binding");
+    char actualExe[4096];
+    const auto exeLength = readlink("/proc/self/exe", actualExe, sizeof(actualExe) - 1);
+    require(exeLength > 0 && exeLength < static_cast<ssize_t>(sizeof(actualExe) - 1), "kernel executable path");
+    actualExe[exeLength] = 0;
+    require(QFileInfo(QString::fromLocal8Bit(actualExe)).canonicalFilePath()
+        == QFileInfo(app.applicationFilePath()).canonicalFilePath(), "native executable identity preserved");
+    QProcess child;
+    child.setProgram(app.applicationDirPath() + "/admission-preload-child");
+    child.start();
+    require(child.waitForStarted(500) && child.waitForFinished(1000), "bounded non-Qt child");
+    require(child.exitStatus() == QProcess::NormalExit && child.exitCode() == 0
+        && child.readAllStandardOutput() == "6\n" && child.readAllStandardError().isEmpty(),
+        "exec child preserves numeric stdout without Qt/admission inheritance");
     Smoke smoke;
     smoke.worker.start();
     require(smoke.worker.moveToThread(&smoke.worker), "actual public self-move");
@@ -154,7 +168,7 @@ int main(int argc, char **argv)
     smoke.worker.quit();
     require(smoke.worker.wait(500), "worker clean exit");
     delete smoke.gate;
-    std::puts("ADMISSION_SMOKE_PASS: actual preload ABI, one shared registry, cold worker roundtrip, sealed FIFO park, final candidates then release; fake objects only");
+    std::puts("ADMISSION_SMOKE_PASS: Qt-free exec child, preserved executable identity, actual bootstrap ABI, one shared registry, cold worker roundtrip, sealed FIFO park, final candidates then release; fake objects only");
     alarm(0);
     return 0;
 }

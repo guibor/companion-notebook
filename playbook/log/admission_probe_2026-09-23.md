@@ -125,3 +125,12 @@ Continue local startup-cause isolation first. A later tablet experiment requires
 normal-input recovery confirmation plus fresh review of a bounded changed
 payload. Do not replay this stage, enable ordinary writing, or include Companion
 in recurring reinstalls. No working Companion installation is being claimed.
+
+## Subsequent diagnosis
+
+A later read-only Memfault retrieval established the numeric-helper stdout parser
+as the exact crash path. The combined preload's child dependency leak was then
+reproduced safely with a fake non-Qt program, and the new Qt-free bootstrap passed
+the isolated target regression without restarting the UI. See
+[the separate fix receipt](bootstrap_fix_2026-09-23.md). This does not change the
+failed trial's outcome or renew its consumed clearance.

@@ -23,8 +23,16 @@ const common=['-std=c++17','-O2','-Wall','-Wextra','-Werror',...inc,...def];
 const link=['-Wl,-z,relro,-z,now,-z,noexecstack,-z,defs,--as-needed,--allow-shlib-undefined',
     fw+'/libQt6Qml.so.6.10.3',fw+'/libQt6Gui.so.6.10.3',fw+'/libQt6Core.so.6.10.3','-ldl','-pthread'];
 const binary=module+'/libcompanionadmissionplugin.so', smoke=out+'/admission-smoke';
+const bootstrap=out+'/libcompanionbootstrap.so', child=out+'/admission-preload-child';
 run('aarch64-linux-gnu-g++',[...common,'-fPIC','-fvisibility=hidden','-shared',
-    src+'/admissiongate.cpp',src+'/preload.cpp',src+'/plugin.cpp',out+'/moc_admissiongate.cpp',...link,'-o',binary]);
+    src+'/admissiongate.cpp',src+'/plugin.cpp',out+'/moc_admissiongate.cpp',...link,'-o',binary]);
+// Link with the C driver: headers give the exact Qt tag ABI, but neither Qt nor
+// libstdc++ may be pulled into the preload bootstrap or its non-Qt exec child.
+const plainLink=['-Wl,-z,relro,-z,now,-z,noexecstack,-z,defs,--as-needed','-ldl'];
+run('aarch64-linux-gnu-gcc',[...common,'-x','c++','-DQT_NO_VERSION_TAGGING','-fno-exceptions','-fno-rtti',
+    '-fPIC','-fvisibility=hidden','-shared',src+'/preload.cpp',...plainLink,'-o',bootstrap]);
+run('aarch64-linux-gnu-gcc',['-std=c11','-O2','-Wall','-Wextra','-Werror','-fPIE','-pie',
+    src+'/preload-child.c',...plainLink,'-o',child]);
 run('aarch64-linux-gnu-g++',[...common,'-fPIE','-pie',src+'/smoke.cpp',...link,'-o',smoke]);
 fs.copyFileSync(src+'/qmldir',module+'/qmldir');
 const providers={
@@ -49,10 +57,18 @@ function verify(file) {
     return {sha256:sha(file),dependencies:needed,requiredSymbols:required,runtimeHashes:Object.fromEntries(needed.map(x=>[x,sha(providers[x])]))};
 }
 const moduleReceipt=verify(binary),smokeReceipt=verify(smoke);
+const bootstrapReceipt=verify(bootstrap),childReceipt=verify(child);
+for(const receipt of [bootstrapReceipt,childReceipt])
+    assert(receipt.dependencies.every(p=>['libc.so.6','libdl.so.2'].includes(p)), 'Bootstrap/child must remain Qt-free');
 const own=new Set(symbols(binary).filter(f=>f[6]!=='UND'&&f[4]==='GLOBAL'&&f[5]==='DEFAULT').map(f=>f[7]));
-for(const name of ['qt_plugin_instance','qt_plugin_query_metadata_v2','_ZN7QObject12moveToThreadEP7QThreadN2Qt15Disambiguated_tE']) assert(own.has(name),`Missing public export ${name}`);
+for(const name of ['qt_plugin_instance','qt_plugin_query_metadata_v2','companion_admission_observe_v1']) assert(own.has(name),`Missing public export ${name}`);
+assert(!own.has('_ZN7QObject12moveToThreadEP7QThreadN2Qt15Disambiguated_tE'), 'Only Qt-free bootstrap interposes');
+const bootstrapExports=symbols(bootstrap).filter(f=>f[6]!=='UND'&&['GLOBAL','WEAK','UNIQUE'].includes(f[4])&&f[5]==='DEFAULT').map(f=>f[7]);
+assert.deepEqual(bootstrapExports,['_ZN7QObject12moveToThreadEP7QThreadN2Qt15Disambiguated_tE']);
 assert.match(readelf(['-l',smoke]),/Requesting program interpreter: \/lib\/ld-linux-aarch64\.so\.1/);
 const receipt={status:'built-not-device-qualified',module:moduleReceipt,smoke:smokeReceipt,
-    sourceHashes:Object.fromEntries(['admissiongate.h','admissiongate.cpp','preload.cpp','plugin.cpp','qmldir','smoke.cpp'].map(x=>[x,sha(src+'/'+x)]))};
+    bootstrap:bootstrapReceipt,child:childReceipt,
+    sourceHashes:Object.fromEntries(['admissiongate.h','admissiongate.cpp','preload.cpp','preload-child.c','plugin.cpp','qmldir','smoke.cpp'].map(x=>[x,sha(src+'/'+x)]))};
 fs.writeFileSync(out+'/elf-review.json',JSON.stringify(receipt,null,2)+'\n');
-console.log(JSON.stringify({status:receipt.status,module:moduleReceipt.sha256,smoke:smokeReceipt.sha256}));
+console.log(JSON.stringify({status:receipt.status,module:moduleReceipt.sha256,smoke:smokeReceipt.sha256,
+    bootstrap:bootstrapReceipt.sha256,child:childReceipt.sha256}));

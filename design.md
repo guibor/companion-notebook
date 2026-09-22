@@ -1,13 +1,15 @@
 # Architecture and implementation status
 
-## Current result: admission startup failure, normal Pro restored (2026-09-23)
+## Current result: loader isolation fixed and standalone-tested; normal Pro unchanged (2026-09-23)
 
 Trial `20260922T221000Z-1` failed before any Companion host-ready, cold-worker,
 disposable-document or scripted-ink marker. The native UI aborted with
-`std::invalid_argument` / `stoi`. The throw site and cause are not established;
-neither the sidecar nor the last logged framebuffer extension is exonerated or
-implicated by message order alone. Do not treat local/standalone passes as a
-working tablet feature.
+`std::invalid_argument` / `stoi`. Subsequent read-only recovery of the Memfault
+stacktrace identifies the exact numeric parser and its native helper-output
+caller (details below). The old combined preload introduces a real child-process
+dependency leak; its precise contribution to the helper's bad stdout remains a
+hypothesis until measured. Log proximity alone is not attribution. Do not treat
+local/standalone passes as a working tablet feature.
 
 The independent watchdog restored the accepted base. A fresh read-only check
 again verified UI79742/Dates14463 active with zero restarts, all protected
@@ -18,14 +20,87 @@ that refusal happens before any evidence read or stage creation. No ordinary
 installation or native writing is enabled. See
 [the full receipt](playbook/log/admission_probe_2026-09-23.md).
 
-Next: local startup-cause isolation using the retained exact artifacts. A later
-device trial needs normal-input recovery confirmation and a newly reviewed,
-bounded payload; do not replay the failed stage or add it to update routines.
+The Qt-free bootstrap now passes the complete isolated target audit, including
+the old combined preload as a negative control. UI79742/Dates14463 stayed active
+with zero restarts; the test cgroup is gone, protected settings still match and
+root remains read-only. No UI restart, notebook/input access or permanent install
+occurred in this fix session. See [the fix receipt](playbook/log/bootstrap_fix_2026-09-23.md).
+
+Next: normal-input recovery confirmation and a freshly reviewed bounded UI
+payload, then actual native admission/visual qualification. Do not replay the
+failed stage, claim the full feature works, or add it to update routines.
 
 ## Native admission integration (2026-09-23, in development)
 
+### Process-scoped loading and startup diagnosis
+
+The retained crash's native build ID matches the exact cached executable.
+Frames at `0x4ae1cf` and `0x6e0803` locate the `stoi` helper and its pincode-setup
+caller. The latter parses stdout from a QProcess helper invoked with `query` and
+`current`. No security helper was invoked or security setting changed during this
+investigation. The old Qt-linked preload was inherited by every exec child. That
+made non-Qt helpers acquire Qt; XOVI's GUI-extension predicates inspect Qt symbol
+availability. The cached message-broker source both writes startup messages to
+stdout and recreates shared FIFOs. This supports a concrete pollution hypothesis,
+but no failed helper stdout was retained, so exact causal attribution is open.
+
+`native-admission/preload.cpp::initializeBootstrap()` now belongs to a separate
+Qt-free bootstrap DSO. It admits only canonical `/usr/bin/xochitl` or its exact
+adjacent standalone `admission-smoke` executable. Foreign executables return
+silently without resolving Qt or loading the core. Public Qt headers supply the
+exact empty-tag call ABI, with version tagging disabled. The bootstrap links with
+the C driver and has only libc/libdl dependencies. `companionMove()` transparently
+calls the original once, including when invoked before the constructor. It uses
+acquire/release publication and a process-ID check so forked children cannot call
+the parent's registry. No target decision uses argv, a basename or an environment
+opt-in.
+
+For an admitted process the constructor first resolves the original symbol, then
+loads the canonical adjacent QML module with LOCAL/NOW/NODELETE and publishes its
+versioned `companion_admission_observe_v1` bridge only after loading completes.
+The core no longer exports the interposer. QML imports the same file, preserving
+the single resident registry. Native ExecStart, argv, kernel executable identity,
+and the base XOVI environment are unchanged; direct invocation of `ld.so` was
+rejected because it changes executable identity.
+
+`ops/build-admission-cross.mjs` checks all four ELF products against exact target
+library exports, pins source/runtime hashes, and rejects Qt/C++ dependencies in
+the bootstrap and fake C child. `preload-child.c` requires both the exact inherited
+preload environment and its actual mapping; any Qt/core mapping is failure. It
+prints only a numeric result. `smoke.cpp` checks native executable identity,
+QProcess inheritance, exact hook binding and a shared preload/QML registry before
+its existing fake-worker transaction.
+
+`ops/stage-bootstrap-smoke.mjs` only prepares a fresh local hash-pinned capsule.
+`ops/test-admission-bootstrap.sh` checks exact target identity/libraries, executes
+bounded fake processes with no XOVI, compares UI/Dates PIDs and restart counts,
+and writes only its private temporary results. Its minimal child environment
+explicitly retains the native `en_US.UTF-8` locale, so the audit can require
+zero stderr without hiding Qt's locale warning. Its launch uses a separate
+45-second transient cgroup with forced group cleanup after at most two additional
+seconds to bound pre-main loading and every exec descendant;
+normal services and their policies are not changed. Positive tests include a foreign
+helper beside no core; the retained old combined DSO is a negative control. It
+does not invoke native security helpers, access input/display/notebooks, mutate
+existing services, authorize a UI retry or replace the consumed historical receipt.
+
+`ops/build-admission-controller.mjs` now emits a separate
+`build/admission-bootstrap-native` candidate, preserving the consumed combined
+controller. Its payload includes bootstrap/core/qmldir independently pinned;
+prepared-runtime and cleanup inventories include the bootstrap. Probe health
+requires exact mappings of both, while base/stock reject both. Only the Qt-free
+bootstrap is added ahead of the unchanged base XOVI preload. All restart budgets,
+recovery actions and native executable-identity checks are retained. No stager
+accepts this new candidate yet. `tests/admission-bootstrap.test.cjs` exercises
+policy rendering and build preservation, compares recovery functions, checks
+payload/health accounting and inspects actual bootstrap/child ELF dependencies.
+The independently reviewed controller preserves the original recovery and release
+actions; that local review does not authorize another native UI trial.
+
+### Worker admission transaction
+
 `native-admission` is a separate resident Qt/QML sidecar, leaving historical
-retirement artifacts unchanged. On Linux its preload wrapper calls the exact
+retirement artifacts unchanged. On Linux its Qt-free wrapper calls the exact
 public bool `QObject::moveToThread(QThread*, Qt::Disambiguated_t)` once and
 records only the successful self-move of the exact `PenInputThread` class.
 No private offsets, executable patching, or first-handwriting calibration is used.

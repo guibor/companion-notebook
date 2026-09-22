@@ -4,11 +4,15 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 const hash=p=>createHash('sha256').update(fs.readFileSync(p)).digest('hex');
-const prior='build/retirement-native/probe.sh', out='build/admission-native';
+// Never overwrite the consumed combined-preload capsule/controller.
+const prior='build/retirement-native/probe.sh', out='build/admission-bootstrap-native';
 assert.equal(hash(prior),'2fe7bdbaa4a7e9ad6b80ef417b02c3790d67be45fa9728267f6e60bac83177e4');
 const elf=JSON.parse(fs.readFileSync('build/admission-arm64/elf-review.json'));
 const plugin='build/admission-arm64/qml/Companion/Admission/libcompanionadmissionplugin.so';
+const bootstrap='build/admission-arm64/libcompanionbootstrap.so';
 assert.equal(hash(plugin),elf.module.sha256);
+assert.equal(hash(bootstrap),elf.bootstrap.sha256);
+assert(elf.bootstrap.dependencies.every(name=>['libc.so.6','libdl.so.2'].includes(name)));
 for(const [p,h] of Object.entries(elf.sourceHashes)) assert.equal(hash('native-admission/'+p),h);
 let result=fs.readFileSync(prior,'utf8');
 const once=(a,b)=>{assert.equal(result.split(a).length,2,'Controller anchor: '+a);result=result.replace(a,()=>b);};
@@ -18,18 +22,34 @@ result=result.replaceAll('Lifecycle','Admission').replaceAll('lifecycle','admiss
     .replaceAll('retirement','admission');
 once('native-handler admission/recreation diagnostic','native-worker admission/park diagnostic');
 once('        ! grep -Fq "$X/xovi.so" "/proc/$p/maps" || return 1',
-    '        ! grep -Fq "$X/xovi.so" "/proc/$p/maps" || return 1\n        ! grep -Fq libcompanionadmissionplugin.so "/proc/$p/maps" || return 1');
+    '        ! grep -Fq "$X/xovi.so" "/proc/$p/maps" || return 1\n        ! grep -Eq \'libcompanion(admissionplugin|bootstrap)\\.so\' "/proc/$p/maps" || return 1');
 once('Environment="XOVI_ROOT=%s/"\\n',
-    'Environment="LD_PRELOAD=/home/root/.local/lib/companion-notebook/qml/Companion/Admission/libcompanionadmissionplugin.so:/home/root/xovi/xovi.so"\\nEnvironment="XOVI_ROOT=%s/"\\n');
+    'Environment="LD_PRELOAD=/home/root/.local/lib/companion-notebook/libcompanionbootstrap.so:/home/root/xovi/xovi.so"\\nEnvironment="XOVI_ROOT=%s/"\\n');
 once('        printf \'%s\\n\' "$env" | grep -Fxq "LD_PRELOAD=$X/xovi.so" || return 1',
     `        expected="$X/xovi.so"
         if [ "$mode" = probe ]; then
-            expected="$H/qml/Companion/Admission/libcompanionadmissionplugin.so:$expected"
-            grep -Fq "$H/qml/Companion/Admission/libcompanionadmissionplugin.so" "/proc/$p/maps" || return 1
+            expected="$H/libcompanionbootstrap.so:$expected"
+            for item in "$H/libcompanionbootstrap.so" "$H/qml/Companion/Admission/libcompanionadmissionplugin.so"; do
+                awk -v p="$item" '$NF==p {f=1} END {exit !f}' "/proc/$p/maps" || return 1
+            done
         else
-            ! grep -Fq libcompanionadmissionplugin.so "/proc/$p/maps" || return 1
+            ! grep -Eq 'libcompanion(admissionplugin|bootstrap)\\.so' "/proc/$p/maps" || return 1
         fi
         printf '%s\\n' "$env" | grep -Fxq "LD_PRELOAD=$expected" || return 1`);
+once('    local h=$1\n',`    local h=$1
+    exact "$h/libcompanionbootstrap.so" ${elf.bootstrap.sha256} || return 1
+`);
+// The bootstrap is a peer of qml/, not an imported QML module or a shipped test.
+result=result.replaceAll('NativeHost.qml PairStore.js qml | sort)',
+    'NativeHost.qml PairStore.js libcompanionbootstrap.so qml | sort)');
+result=result.replaceAll('admission-qmldir libcompanionadmissionplugin.so | sort)',
+    'admission-qmldir libcompanionadmissionplugin.so libcompanionbootstrap.so | sort)');
+once('[ "$(wc -l <"$S/SHA256SUMS")" -eq 9 ]', '[ "$(wc -l <"$S/SHA256SUMS")" -eq 10 ]');
+once(`    exact "$S/libcompanionadmissionplugin.so" ${elf.module.sha256} || return 1`,
+    `    exact "$S/libcompanionadmissionplugin.so" ${elf.module.sha256} || return 1
+    exact "$S/libcompanionbootstrap.so" ${elf.bootstrap.sha256} || return 1`);
+once('    cp "$S/NativeHost.qml" "$S/PairStore.js" "$B/host-prepared/"',
+    '    cp "$S/NativeHost.qml" "$S/PairStore.js" "$S/libcompanionbootstrap.so" "$B/host-prepared/"');
 once('Companion admission: both native handlers retired; generation=1',
     'Companion admission: drained during stroke; submissions=2; generation=1');
 once('Companion admission: live geometry moved; steps=12;',
@@ -41,7 +61,7 @@ const providers={
     'libQt6Qml.so.6':'/usr/lib/libQt6Qml.so.6.10.3','libstdc++.so.6':'/usr/lib/libstdc++.so.6.0.36',
     'libgcc_s.so.1':'/usr/lib/libgcc_s.so.1','libc.so.6':'/usr/lib/libc.so.6',
     'libdl.so.2':'/usr/lib/libdl.so.2','libpthread.so.0':'/usr/lib/libpthread.so.0'};
-const extra=Object.entries(elf.module.runtimeHashes).filter(([name])=>
+const extra=Object.entries({...elf.module.runtimeHashes,...elf.bootstrap.runtimeHashes}).filter(([name])=>
     !result.includes('    exact '+providers[name]+' ')).map(([name,h])=>{
         assert(providers[name]); return `    exact ${providers[name]} ${h} || return 1`;
     }).join('\n');
@@ -67,7 +87,10 @@ done
 healthy probe`);
 fs.mkdirSync(out,{recursive:true});
 fs.copyFileSync(plugin,out+'/libcompanionadmissionplugin.so');
+fs.copyFileSync(bootstrap,out+'/libcompanionbootstrap.so');
 fs.copyFileSync('native-admission/qmldir',out+'/admission-qmldir');
+for(const name of ['NativeHost.qml','PairStore.js','companion-notebook.qmd','composition.json'])
+    fs.copyFileSync('build/admission-native/'+name,out+'/'+name);
 for(const [p,h] of Object.entries({
     'ink-events':'bfe83e745e82cbade565c49aa8b2dd18164aa9900be849739eada557697d2b7e',
     'ink-events-second':'f15bd56c67ced9b8ea28dd5f9a447f1ffe39f7f27aef28f0500c95125d611453'})) {
@@ -76,4 +99,4 @@ for(const [p,h] of Object.entries({
 }
 fs.writeFileSync(out+'/probe.sh',result,{mode:0o700});
 execFileSync('/bin/bash',['-n',out+'/probe.sh']);
-console.log('Admission controller built, not cleared for staging: '+hash(out+'/probe.sh'));
+console.log('Bootstrap admission controller built separately, not cleared for staging: '+hash(out+'/probe.sh'));

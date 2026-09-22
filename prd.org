@@ -52,6 +52,22 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. 2026-09-23 startup fix: recovered Memfault stacktrace matches the exact native
+   build and places the abort in numeric parsing of a QProcess helper's stdout.
+   The old combined preload leaks Qt into every exec child, making GUI-extension
+   activation/stdout pollution a concrete hypothesis. Replace it with a Qt-free,
+   canonical-executable-scoped bootstrap and a resident versioned core bridge.
+   Cross-ELF dependency checks and the bounded standalone target audit pass,
+   including inherited helper isolation, absent-core foreign process, old combined
+   preload negative control and full fake-worker/QML transaction. No XOVI or UI
+   restart was used. UI79742/Dates14463 and protected settings remained unchanged;
+   the independent postcheck found no audit cgroup or active Companion. This is
+   not a Companion installation or proof of native helper output. Preserve
+   the consumed UI-trial block, physical recovery confirmation requirement and
+   fresh exact-artifact review before another UI trial. The new controller builds
+   separately without changing consumed artifacts; 189 Node tests and the Qt
+   admission suite pass. Continue ordinary-host
+   integration only after native admission and visual gates pass.
 0. 2026-09-23: implement cold-start public Qt self-move observation plus queued
    native worker parking for preset transitions. Independent exact-binary review
    supports the corrected detach/cache-empty/final-publication ordering. Test the
@@ -64,8 +80,8 @@ Read and write without losing context or compromising native handwriting.
    zero restarts. New admission diagnostic composes in three orders with all
    30 resources. One independently reviewed UI trial20260922T221000Z-1 aborted
    at startup with std::invalid_argument/stoi before any Companion host-ready,
-   worker-ready, disposable creation or scripted-ink receipt. The cause is not
-   established. Watchdog recovery and fresh read-only verification restored
+   worker-ready, disposable creation or scripted-ink receipt. The cause was not
+   established then; see the later startup fix above. Watchdog recovery and fresh read-only verification restored
    UI79742/Dates14463 with zero restarts, exact protected settings/base/policies,
    read-only root and no active Companion runtime. Move remains untouched.
    Clearance is consumed and the stager refuses all further runs. Next: local

@@ -16,6 +16,7 @@ Item {
         anchors.fill: parent
         property var document: ({id: "11111111-1111-4111-8111-111111111111"})
         property bool cnGestureBusy: false
+        property var sceneController: ({})
         property bool cnSelected: !fixture.host || !fixture.host.secondarySelected
         property bool cnInkAllowed: fixture.host && !fixture.host.renderProbeOnly && !fixture.host.modalOpen
             && !fixture.host.dragging && !fixture.host.restoring
@@ -23,6 +24,8 @@ Item {
         readonly property var cnProbeViewport: primaryView
         readonly property var cnProbeScene: primaryView
         function cnCloseFoldout() {}
+        function cnProbePreparePen() { return true }
+        function cnProbeExpectedBounds(i) { return Qt.rect(10,20,300,50) }
         function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
         function cnInputGeometryReadiness() {
             if (cnInkAllowed) return "pen-gate-open"
@@ -38,12 +41,15 @@ Item {
             property var document: null
             property string currentPageId: "33333333-3333-4333-8333-333333333333"
             property bool cnGestureBusy: false
+            property var sceneController: ({})
             property bool cnSelected: !!cnHost && cnHost.secondarySelected && cnHost.paired
             property bool cnInkAllowed: false
             readonly property var cnProbeViewport: secondaryView
             readonly property var cnProbeScene: secondaryView
             property bool closed: false
             function cnCloseFoldout() {}
+            function cnProbePreparePen() { return true }
+            function cnProbeExpectedBounds(i) { return Qt.rect(10,20,300,50) }
             function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
             function cnInputGeometryReadiness() { return mockBridge.geometryLoading ? "loading" : "ready" }
             function cnNativeClose() { closed = true; mockBridge.closeCount++ }

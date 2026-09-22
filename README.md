@@ -19,9 +19,12 @@ correctness. A subsequent pen-disabled geometry trial proved full-page reachabil
 in both exposed panes at unchanged scale and refreshed both native input transforms.
 The accepted base was automatically restored. Actual handwriting, save durability,
 visual rendering and physical fluidity remain unqualified; the app is not installed.
-Hardware work is stopped before ink because safe stroke handoff across document
-and visibility transitions is unresolved with the inspected exposed APIs. The
-normal Pro setup is restored. See [the risk boundary](playbook/INK-QUALIFICATION.md).
+One bounded native-writing experiment has now passed: both panes accepted a
+stroke directly, without activation taps, in two new disposable notes. Each
+saved file contained its own expected stroke shape after automatic base recovery.
+Layout/document transitions were locked during this test, so dynamic handwriting
+and pull-out interaction remain unqualified. The normal Pro setup is restored;
+see [the ink qualification scope](playbook/INK-QUALIFICATION.md).
 
 ## Run locally
 
@@ -32,6 +35,9 @@ node build-native.mjs
 CN_PROBE=render node build-native.mjs # local diagnostic-driver tests only
 CN_PROBE=structural node build-native.mjs
 CN_PROBE=geometry node build-native.mjs # offline only; its one-run review is consumed
+CN_PROBE=ink node build-native.mjs # builds disposable diagnostic only, does not deploy
+aarch64-linux-gnu-gcc -std=c11 -Wall -Wextra -Werror -O2 -static -o build/ink-native/ink-events ops/ink-events.c
+CN_PROBE=ink node ops/build-render-controller.mjs
 npm test
 QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner -input tests
 QT_QUICK_CONTROLS_STYLE=Basic qml ui/Main.qml
@@ -75,6 +81,12 @@ The `geometry` profile additionally tests exposed-pane navigation and input mapp
 after native loading settles. Its successful on-device receipt is in the
 [direct-write log](playbook/log/direct_write_2026-09-22.md). Staging refuses any
 repeat until a separately reviewed need exists; rebuilding is not deployment clearance.
+
+The `ink` profile is a separate fixed-layout diagnostic, not an installation
+option. It admits only two exact freshly-created native notebooks, without a
+select-only pen tap. A bounded native marker helper and independent always-revert
+controller protect recovery. Native submission and saved-file verification are
+separate receipts; neither proves fluidity or qualifies a personal release.
 
 The native host keeps primary-document scale unchanged, uses a distinct native
 DocumentView for a recent local companion, and persists only pairing metadata

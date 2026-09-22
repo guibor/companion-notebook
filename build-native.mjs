@@ -8,11 +8,12 @@ const tool = process.env.QMLDIFF_BIN || '/Users/mdf/code/remarkable-beta-os/.cac
 const renderProbe = process.env.CN_PROBE === 'render';
 const structuralProbe = process.env.CN_PROBE === 'structural';
 const geometryProbe = process.env.CN_PROBE === 'geometry';
-const noCaptureProbe = structuralProbe || geometryProbe;
+const inkProbe = process.env.CN_PROBE === 'ink';
+const noCaptureProbe = structuralProbe || geometryProbe || inkProbe;
 const diagnostic = renderProbe || noCaptureProbe;
 // Preserve the previously reviewed diagnostic bytes. This new navigation
 // candidate is local-only until it receives a separately scoped native trial.
-const paneNavigation = !diagnostic || geometryProbe;
+const paneNavigation = !diagnostic || geometryProbe || inkProbe;
 assert(!process.env.CN_PROBE || diagnostic, 'Unknown probe profile');
 const output = diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
@@ -38,7 +39,7 @@ if (noCaptureProbe) {
     assert(!/probeCapture|grabToImage|saveToFile/.test(probeBridge));
 }
 const main = inc('main').replace('// PROBE_BRIDGE', probeBridge);
-q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagnostic ? 'enabled: false\n' : '') + main) + `
+q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagnostic && !inkProbe ? 'enabled: false\n' : '') + main) + `
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  LOCATE AFTER Loader#documentView
  INSERT {
@@ -81,6 +82,18 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
  ${insert('cnHost: root.cnHost')}
  END TRAVERSE
 `, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (diagnostic ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
+if (inkProbe) q += affect('qml/device/view/main/MainView.qml','Background#root',`
+ TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
+ ${insert(`MouseArea {
+     anchors.fill: parent; z: 9002; acceptedButtons: Qt.AllButtons
+     preventStealing: true
+     onWheel: function(event) { event.accepted = true }
+ }`)}
+ TRAVERSE Rectangle#cnProbeNotice
+ ${insert('visible: !cnHost || cnHost.probePhase < 3')}
+ END TRAVERSE
+ END TRAVERSE
+`);
 let document = inc('document');
 if (paneNavigation) {
     document = document.replace('!cnHost.dragging && !cnHost.restoring', '!cnHost.dragging && !cnHost.restoring && (!cnHost.secondary || !cnHost.inputGeometryPending)')
@@ -95,12 +108,32 @@ Connections {
 `;
 }
 if (diagnostic) {
-    document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, 'readonly property bool cnInkAllowed: false')
+    document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, inkProbe
+        ? 'readonly property bool cnInkAllowed: !!cnHost && cnHost.probeAllows(root)'
+        : 'readonly property bool cnInkAllowed: false')
         + '\nreadonly property var cnProbeViewport: sceneView.viewport\n';
     document += noCaptureProbe ? 'readonly property var cnProbeScene: sceneView.sceneView\n'
         : 'readonly property var cnProbeCaptureItem: sceneView.sceneView\nfunction cnProbeCaptureViewport(callback) { return !!cnProbeViewport && !!cnProbeCaptureItem && cnProbeCaptureItem.grabToImage(callback) }\n';
 }
 if (geometryProbe) document += '\nfunction cnProbePaneGeometry() { return sceneView.cnProbePaneGeometry() }\n';
+if (inkProbe) {
+    document += `
+function cnProbeExpectedBounds(i) {
+    var a = i === 0 ? Qt.point(550,450) : Qt.point(700,1500)
+    var b = i === 0 ? Qt.point(850,500) : Qt.point(1000,1570)
+    a = sceneView.tileManager.viewToScene(sceneView.mapFromItem(null,a.x,a.y))
+    b = sceneView.tileManager.viewToScene(sceneView.mapFromItem(null,b.x,b.y))
+    return Qt.rect(a.x,a.y,b.x-a.x,b.y-a.y)
+}
+function cnProbePreparePen() {
+    if (!cnHost || !cnHost.renderProbeOnly || cnHost.probeDocumentLocked || !cnHost.bridge.probeSeparate(cnHost)) return false
+    toolbar.selectPen("primary")
+    return documentViewTools.isWritingTool(documentViewTools.activePen.tool)
+}
+`;
+    document = document.replace('if (cnHost && cnHost.penDown) return', 'if (cnHost && (cnHost.penDown || cnHost.probeDocumentLocked)) return')
+        .replace('if (root.cnHost) root.cnHost.noteToolbarOwner(root)', 'if (root.cnHost && !root.cnHost.renderProbeOnly) root.cnHost.noteToolbarOwner(root)');
+}
 q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  RENAME close TO cnStockClose
  ${insert(document)}
@@ -112,13 +145,22 @@ q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  ${insert('when: root.cnOwnsGlobals; restoreMode: Binding.RestoreNone')}
  END TRAVERSE
  TRAVERSE DeviceSceneView#sceneView
- ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (diagnostic ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen || root.cnHost.inputGeometryPending)'))}
+ ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (inkProbe ? '!!root.cnHost && (!root.cnHost.probeWriting || root.cnHost.inputGeometryPending)' : diagnostic ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen || root.cnHost.inputGeometryPending)'))}
  END TRAVERSE
  TRAVERSE DocumentToolSettings#documentViewTools
  ${replace('onDocumentAboutToChange','Settings.setLastWritingTool(toolSettings());','if (root.cnOwnsGlobals) Settings.setLastWritingTool(toolSettings());')}
  END TRAVERSE
  TRAVERSE Item#_uiContainer > Toolbar#toolbar
  ${replace('visible','!inSuspend','!root.cnSecondary && root.cnSelected && !inSuspend')}
+ END TRAVERSE
+`);
+if (inkProbe) q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ REBUILD _open_helper
+ LOCATE BEFORE ALL
+ INSERT { if (cnHost && cnHost.probeDocumentLocked) return; }
+ END REBUILD
+ TRAVERSE DeviceSceneView#sceneView
+ ${insert('cnProbeDocumentLocked: !!root.cnHost && root.cnHost.probeDocumentLocked; onCnProbeSubmitted: function(stroke) { if (root.cnHost) root.cnHost.probeSubmitted(root,stroke) }')}
  END TRAVERSE
 `);
 q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert(`
@@ -155,7 +197,7 @@ q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root'
  END TRAVERSE
  TRAVERSE Item > SceneViewGestures#sceneViewGestures
  ${insert('anchors.bottomMargin: Math.max(0, parent.height - root.cnInputHeight)')}
- ${replace('enabled','gesturesEnabled','gesturesEnabled && !root.cnLayoutBusy')}
+ ${replace('enabled','gesturesEnabled',inkProbe ? 'false && gesturesEnabled' : 'gesturesEnabled && !root.cnLayoutBusy')}
  END TRAVERSE
 `);
 // String-valued Binding selectors in this QMLDiff revision can match too broadly.
@@ -167,6 +209,16 @@ q += `AFFECT /qml/device/view/documentview/DeviceSceneView.qml
  END REBUILD
 END AFFECT
 `;
+if (inkProbe) q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert(`
+property bool cnProbeDocumentLocked: false
+signal cnProbeSubmitted(var stroke)
+`) + `
+ ${replace('close','endItemSelection();','if (cnProbeDocumentLocked) return; endItemSelection();')}
+ ${replace('goToPageId','const pageIndex =','if (cnProbeDocumentLocked) return; const pageIndex =')}
+ TRAVERSE ScenePenInputHandler#strokeHandler
+ ${replace('onStrokeCompleted','controller.addDrawingLine(stroke);','controller.addDrawingLine(stroke); root.cnProbeSubmitted(stroke);')}
+ END TRAVERSE
+`);
 if (paneNavigation) {
     q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',`
  ${geometryProbe ? insert(inc('geometry-check')) : ''}
@@ -210,7 +262,7 @@ let host=fs.readFileSync('native/NativeHost.qml','utf8');
 if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
     .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
 if (diagnostic) {
-    let driver=inc(noCaptureProbe ? 'structural-probe' : 'render-probe');
+    let driver=inc(inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');
     if (geometryProbe) driver=driver
         .replace('property int probePhase: 0', 'property int probePhase: 0\nproperty bool probeInputRefreshed: false')
         .replace('case 5:', 'case 5:\n                if (!bridge.viewReady(bridge.primary) || !bridge.viewReady(host.secondary)) return')
@@ -234,6 +286,16 @@ if (diagnostic) {
     host=host.replace('property bool renderProbeOnly: false','property bool renderProbeOnly: true')
         .replace(/}\s*$/, driver+'\n}\n');
 }
+if (inkProbe) {
+    host = host.replace('function synchronizePrimary() {','function synchronizePrimary() {\n        if (probeDocumentLocked) { probeFail("primary changed after lock"); return }')
+        .replace('function hideWhenUnavailable() {','function hideWhenUnavailable() {\n        if (probeDocumentLocked) { if (!mayShow) probeFail("screen unavailable"); return }')
+        .replace('if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }','if (!penDown && !probeDocumentLocked) { hideWhenUnavailable(); scheduleInputGeometry() }')
+        .replace('function scheduleInputGeometry() {','function scheduleInputGeometry() {\n    if (probeDocumentLocked) return')
+        .replace('visible: !host.inkQualified || host.restoring','visible: host.restoring');
+    for (const signature of ['selectPane(secondaryPane)', 'tuck()', 'openSecondary()', 'pick(id)', 'beginDrag(y)'])
+        host = host.replace('function '+signature+' {', 'function '+signature+' {\n        if (probeDocumentLocked) return false');
+    host = host.replace('function closeSecondary(detach) {', 'function closeSecondary(detach) {\n        if (probeDocumentLocked) return');
+}
 if (noCaptureProbe) {
     for (const content of [q, host])
         assert(!/grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer\s*\./.test(content), 'Forbidden offscreen capture in structural profile');
@@ -245,4 +307,5 @@ const result = execFileSync(tool,['check-compatibility',path.join(firmware,'hash
 assert.match(result,/No compatibility errors found\./);
 process.stdout.write(result);
 fs.writeFileSync(output+'/SHA256SUMS', ['NativeHost.qml','PairStore.js','companion-notebook.qmd'].map(p=>hash(output+'/'+p)+'  '+p+'\n').join(''));
-console.log('Native rendering candidate built, pen disabled. Not deployed.');
+console.log(inkProbe ? 'Disposable-only fixed-layout ink diagnostic built. Not deployed; ordinary document ink remains disabled.'
+    : 'Native rendering candidate built, pen disabled. Not deployed.');

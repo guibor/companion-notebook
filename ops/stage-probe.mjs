@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const id = process.argv[2];
 const profile = process.argv[3] || 'load';
-assert(['load','render','structural','geometry'].includes(profile));
+assert(['load','render','structural','geometry','ink'].includes(profile));
 // Trial 20260921T205838Z-1 crashed the native e-ink renderer during grabToImage.
 // Keep offline builds/tests available, but do not package another hardware trial
 // until a replacement diagnostic has its own independent safety review.
@@ -12,6 +12,8 @@ assert.notEqual(profile, 'render',
     'Rendering probes suspended after native SIGSEGV; see playbook/RENDER-PROBE.md');
 assert.notEqual(profile, 'geometry',
     'Geometry review consumed by successful 20260921T224844Z-1; fresh review required');
+assert.notEqual(profile, 'ink',
+    'Ink review consumed by trial 20260922T043500Z-1; inspect its result before any new clearance');
 const payload = profile === 'load' ? 'build/native' : `build/${profile}-native`;
 const controller = profile === 'load' ? 'ops/probe-pro329.sh' : payload+'/probe.sh';
 assert.match(id || '', /^\d{8}T\d{6}Z-\d+$/);
@@ -42,12 +44,26 @@ if (profile === 'geometry') {
     for (const [name, sha] of Object.entries(reviewed))
         assert.equal(hash(`${payload}/${name}`), sha, 'Geometry review drift: '+name);
 }
+if (profile === 'ink') {
+    // Independent v2 review, 2026-09-22: ONE fixed-layout, two-disposable-note
+    // interior-ink diagnostic only. Always reverts; not a personal pilot.
+    const reviewed = {
+        'companion-notebook.qmd': '148b9b1b8adfbfbf8bd7e9511bd0692c366af5e74ee16b0c67f399ad9c3c0503',
+        'NativeHost.qml': '97956c1520daadc2e4c0aa085ccdbe67ae0fee2d8ba80239a9de7dff30b37772',
+        'PairStore.js': '44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19',
+        'probe.sh': 'b9b5fee626014bcdc0e45b421d9e4f50b53cecca0fe5b3fcfa263a94749c68f6',
+        'ink-events': 'bfe83e745e82cbade565c49aa8b2dd18164aa9900be849739eada557697d2b7e'
+    };
+    for (const [name, sha] of Object.entries(reviewed))
+        assert.equal(hash(`${payload}/${name}`), sha, 'Ink review drift: '+name);
+}
 const base = '/Users/mdf/code/.worktrees/smart-remarkable-pro-3290148/ops/pro-3.29-qmd.sha256';
 assert.equal(hash(base), '5fe7e2ec3291efa692c90df769ea521d9e399d3da6e7448f9a9071caca71652d');
 const receipt = JSON.parse(fs.readFileSync(payload+'/composition.json'));
 assert.equal(receipt.profile,profile);
 assert.equal(receipt.candidateSha256, hash(payload+'/companion-notebook.qmd'));
-assert.equal(receipt.penEnabled, false);
+assert.equal(receipt.penEnabled, profile === 'ink');
+if (profile === 'ink') assert.equal(receipt.ordinaryDocumentInk, false);
 for (const p of ['NativeHost.qml','PairStore.js']) assert.equal(receipt.payloadSha256[p],hash(`${payload}/${p}`));
 execFileSync('/bin/bash', ['-n', controller]);
 fs.mkdirSync(dir, {mode:0o700});
@@ -57,6 +73,10 @@ for (const p of ['NativeHost.qml', 'PairStore.js', 'companion-notebook.qmd']) {
 }
 fs.copyFileSync(base, `${dir}/base.sha256`);
 fs.copyFileSync(controller, `${dir}/probe.sh`);
+if (profile === 'ink') {
+    fs.copyFileSync(`${payload}/ink-events`, `${dir}/ink-events`);
+    fs.chmodSync(`${dir}/ink-events`,0o700);
+}
 fs.chmodSync(`${dir}/base.sha256`,0o600); fs.chmodSync(`${dir}/probe.sh`,0o700);
 const files = fs.readdirSync(dir).sort();
 fs.writeFileSync(`${dir}/SHA256SUMS`, files.map(p => `${hash(`${dir}/${p}`)}  ${p}\n`).join(''), {mode:0o600});

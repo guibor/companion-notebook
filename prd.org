@@ -30,6 +30,10 @@ Read and write without losing context or compromising native handwriting.
 - After the structural trial, the user explicitly requested continued work until
   usable unless technically infeasible or very risky. This supersedes the earlier
   overnight stop decision; it does not authorize unsafe pen routing or firmware edits.
+- On 2026-09-22 the user challenged the stroke-safety stop and explicitly asked
+  to try both panes writable without a selection tap. Continue with an isolated,
+  fixed-layout native-ink experiment on two new disposable notes; retain all
+  personal-document release gates and the no-firmware/no-bricking-risk boundary.
 
 * Validation and release decision
 - Desktop controller and QML tests must pass, including pointer drag before release.
@@ -104,6 +108,33 @@ Read and write without losing context or compromising native handwriting.
    per-stroke drain/save acknowledgement in inspected paths. Stop before enabling
    ink under the user's low-risk constraint; Pro base53104 remains restored.
    Future work needs a safe pre-mutation handoff design, not a longer quiet timer.
+7. New user authorization supersedes the blanket pre-ink stop for a disposable-only
+   fixed-layout test. The local ink diagnostic keeps both native panes eligible
+   simultaneously, locks all layout/document transitions, bounds event injection,
+   and independently releases the pen before base recovery. No personal pilot.
+   Complete local failure tests and narrow independent review, then run once
+   only on the freshly identified Pro with a verified backup. Inspect the two
+   exact saved test notebooks after recovery; a submission log is not durability.
+   Initial network discovery this turn did not find the expected Pro fingerprint.
+   The user subsequently woke the tablet: strict-key identity and exact base
+   rechecks succeeded (same UI53104/Dates14463, build20260911125116, all11QMDs and
+   three service policies unchanged, root read-only). Complete the isolated ink
+   run rather than stopping at local test preparation. ReManager is implementing
+   the bounded input helper while this task owns all device access/recovery.
+   Helper handback is complete: hard8s/2s alarms, bounded nonblocking IO, sticky
+   unexpected-event detection, actual-C failure tests; recovery now proves the
+   whole owner cgroup empty before pen release. Verify the revised frozen bytes,
+   then execute the one disposable-only test. No simulated tablet outcome.
+   Live run20260922T043500Z-1 PASSED native two-pane submissions without selection:
+   each31-point callback reached its own controller, helper released, automatic
+   recovery restored base60746/Dates14463 with all11QMD/10settings/3policies intact.
+   Both exact saved files contain one24-point stroke with matching shape/bounds.
+   Exact sample preservation, native reopen of both notes, visual clipping and
+   fluid dynamic use remain unqualified. One-run ink clearance is consumed.
+8. Continue toward safe live layout transitions. Investigate actual native handler
+   retirement/recreation using its synchronized destructor while keeping document
+   controllers alive; do not substitute a quiet timer for worker completion or
+   make opaque binary/firmware modifications. Fixed-layout native ink is feasible.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

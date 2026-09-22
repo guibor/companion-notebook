@@ -16,7 +16,7 @@ assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
 const profile=process.env.CN_PROBE||'load';
-assert(['load','render','structural','geometry'].includes(profile));
+assert(['load','render','structural','geometry','ink'].includes(profile));
 const payload=profile==='load'?'build/native':`build/${profile}-native`;
 const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
@@ -49,9 +49,22 @@ for(const [name,patches] of variants) {
   assert.match(main,/cnSecondary: true/); assert.match(main,/id: rmstreamShortcutLoader/);
   assert.match(main,/id: dispatchDocumentMenuLoader/);
   if (profile !== 'load') {
-    assert.match(doc,/readonly property\s+bool cnInkAllowed: false/);
+    if (profile === 'ink') {
+      assert(/readonlypropertyboolcnInkAllowed:!!cnHost&&cnHost.probeAllows\(root\)/.test(doc.replace(/\s/g,'')), 'Disposable-only ink gate missing');
+      assert(/function_open_helper\([^)]*\)\{if\(cnHost&&cnHost.probeDocumentLocked\)return;/.test(doc.replace(/\s/g,'')), 'Open lock must precede all mutation');
+      assert.match(doc,/cnHost.penDown \|\| cnHost.probeDocumentLocked/);
+      assert.match(doc,/onCnProbeSubmitted: function\(stroke\)/);
+      assert.match(scene,/controller.addDrawingLine\(stroke\); root.cnProbeSubmitted\(stroke\);/);
+      assert.match(scene,/enabled: false\s*&&\s*gesturesEnabled/);
+      assert.match(scene,/if \(cnProbeDocumentLocked\) return; endItemSelection/);
+      assert.match(scene,/if \(cnProbeDocumentLocked\) return; const pageIndex/);
+      assert.match(main,/acceptedButtons: Qt.AllButtons/);
+    } else {
+      assert.match(doc,/readonly property\s+bool cnInkAllowed: false/);
+      assert.match(doc,/cnLayoutBusy: true/);
+      assert.match(main,/enabled: false/);
+    }
     assert.match(doc,/shortcutsEnabled: false && visible/);
-    assert.match(doc,/cnLayoutBusy: true/);
     assert.match(doc,/readonly property\s+var cnProbeViewport: sceneView.viewport/);
     if (profile === 'render') {
       assert.match(doc,/function cnProbeCaptureViewport/);
@@ -66,14 +79,13 @@ for(const [name,patches] of variants) {
       for (const source of [doc,main,fs.readFileSync(candidate,'utf8'),fs.readFileSync(payload+'/NativeHost.qml','utf8')])
         assert.doesNotMatch(source,/grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer\s*\./);
     }
-    assert.match(main,/enabled: false/);
     assert.match(main,/id: cnProbeNotice/);
     assert.match(main,/Temporary test — writing and scrolling paused/);
     assert.doesNotMatch(main,/root\.content\.grabToImage/);
   } else {
     assert.doesNotMatch(main,/cnProbeNotice/);
   }
-  if (profile === 'load' || profile === 'geometry') {
+  if (profile === 'load' || profile === 'geometry' || profile === 'ink') {
     assert.match(scene,/limitScrollingToPaper: !root.cnPaired/);
     assert.match(scene,/cnPaired: root.cnPaired/);
     assert.match(scene,/root.height - root.cnInputHeight/);
@@ -95,5 +107,5 @@ assert.doesNotMatch(fs.readFileSync('native/NativeHost.qml','utf8'),/\bCanvas\b|
 assert.match(fs.readFileSync('native/NativeHost.qml','utf8'),/property bool inkQualified: false/);
 const payloadSha256=Object.fromEntries(['NativeHost.qml','PairStore.js'].map(p=>[p,sha(payload+'/'+p)]));
 execFileSync('qmlformat',['--ignore-settings',payload+'/NativeHost.qml'],{stdio:['ignore','ignore','pipe']});
-fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
+fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:profile==='ink',ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
 console.log(JSON.stringify(counts));

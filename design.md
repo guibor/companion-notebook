@@ -326,3 +326,76 @@ live visibility/size bindings are another transition boundary. See
 `playbook/INK-QUALIFICATION.md` for the evidence and risk stop. Native writing
 remains disabled and Companion uninstalled; no timer is treated as a save barrier.
 Final local checks:108 Node,42 Qt,normal and geometry three-order composition.
+
+## Fixed-layout direct-writing diagnostic
+
+The user's renewed try-it authorization is implemented as a separate `CN_PROBE=ink`
+profile, not by enabling `inkQualified` in the ordinary host. `ink-probe.qml.inc`
+creates two native disposable notebooks, waits for ready input mapping, captures
+their exact native object identities, and opens both pen regions simultaneously.
+`probeAllows(view)` admits only these two unchanged objects; `probeStable()` checks
+the fixed portrait geometry and document pairing. `probeSubmitted(view, stroke)`
+runs after native controller dispatch and checks attribution/count/mapped bounds.
+`probeFail()` closes future eligibility without moving, closing, destroying or
+rebinding the views. Native destruction synchronization remains intact.
+
+The builder adds pre-mutation open/close/page guards, blocks mouse/touch navigation,
+and freezes pane actions and input-transform updates once armed. It does not
+return to a personal document during the test; automatic base restoration ends
+the experiment. The stock native controller owns all strokes and saving.
+
+`ops/ink-events.c` is a fixed-purpose two-stroke marker helper. `open_marker()`
+validates the event device and ranges; `permitted()` checks the native gate, exact
+xochitl process lifetime and short deadline; `draw()` emits bounded native input
+with balanced release. There is no configurable target coordinate or generic
+injection API. The generated ink controller records injection intent before the
+first write; `release_injected_pen()` runs independently after owner termination
+and before base/stock restart. Stage verification also pins the helper binary.
+Submission receipts explicitly leave durable saving and visual correctness
+unverified. This work adds no release installer or persistent boot changes.
+
+The ink recovery now records the exact owner cgroup and uses cgroup-v2
+`populated` (including descendants), plus inactive/failed unit state, to establish
+that no writer can emit more events before independent release. Owner MainPID zero
+alone is deliberately insufficient. A failed/unknown emptiness check prevents
+release/restart. Focused shell tests cover surviving children and missing evidence.
+
+`ops/verify-disposable-ink.py` reads only locally copied files whose two IDs match
+both the native creation and arming receipts. It uses pinned `rmscene` 0.8.0 to
+account for blocks, require exactly one line in one page per labelled test note,
+and compare saved point counts/bounds/straightness to native submissions. It never
+writes native notebook files; persistence is separate from native reopen, visual
+clipping, interference provenance and general release qualification.
+
+The input helper has independent hard SIGALRM limits (8 seconds for draw,
+2 seconds for inspect/release), installed before device access, plus nonblocking
+IO and bounded retries. Cleanup attempts each release component even after errors
+or cooperative interruption. `drain_marker()` conservatively checks observed
+events against the ordered injected frame, allowing filtering of unchanged values;
+unexpected/extra events fail closed, including during inter-stroke pauses. This
+does not prove event provenance or physical exclusivity. Identical interleaving
+remains a test-validity limitation, contained to the two disposable notebooks.
+The actual C implementation is included in an isolated syscall-mocking harness;
+it covers failed/short/EINTR IO, unexpected frames, cleanup and a real child
+SIGALRM timeout without accessing any input device. Saved-file verifier tests use
+local synthetic `.rm` fixtures that are never deployed.
+
+Controller-generation replacements use a callback, preserving shell `$$` and
+other dollar sequences literally. An exact generated-owner assertion guards the
+PID/start-time record; replacement-string escaping must not silently turn it into
+a literal dollar and cause immediate watchdog recovery.
+
+The first live ink diagnostic produced31 native callback points but24 serialized
+points per stroke, with matching endpoints/bounds and near-straight trajectories.
+The readback verifier therefore reports both counts and tests geometry rather
+than assuming byte-identical sampling; persisted bounds must match within5 units.
+It explicitly does not establish exact sample preservation or native reopen.
+Any unparsed metadata extensions are reported, not hidden as complete format
+understanding. A successful stored-shape check is still not product acceptance.
+
+A local Qt lifetime experiment confirms that QML `destroy()` is deferred and
+`QObject::destroyed` is not exposed to ordinary QML Connections on this desktop
+Qt version. `Component.onDestruction` is not a post-native-destructor barrier.
+Do not use either to declare native worker quiescence; a handler-factory approach
+would need a real external post-retirement acknowledgement, plus null-safe native
+consumers and completed-stroke handoff. No such factory is deployed.

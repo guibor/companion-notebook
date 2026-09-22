@@ -52,6 +52,26 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. 2026-09-23: implement cold-start public Qt self-move observation plus queued
+   native worker parking for preset transitions. Independent exact-binary review
+   supports the corrected detach/cache-empty/final-publication ordering. Test the
+   resident sidecar locally and in a standalone target process before any UI
+   trial; then wire geometry transactions and qualify only on disposable notes.
+   Ordinary writing remains disabled until the complete path passes.
+   The hardened resident module passes 24 Qt test cases (including 11 isolated
+   failure cases), normal and address/undefined-sanitizer runs. Exact-target
+   standalone preload/QML smoke passed with UI76210/Dates14463 unchanged and
+   zero restarts. New admission diagnostic composes in three orders with all
+   30 resources. One independently reviewed UI trial20260922T221000Z-1 aborted
+   at startup with std::invalid_argument/stoi before any Companion host-ready,
+   worker-ready, disposable creation or scripted-ink receipt. The cause is not
+   established. Watchdog recovery and fresh read-only verification restored
+   UI79742/Dates14463 with zero restarts, exact protected settings/base/policies,
+   read-only root and no active Companion runtime. Move remains untouched.
+   Clearance is consumed and the stager refuses all further runs. Next: local
+   startup-cause isolation; obtain normal-input recovery confirmation and a fresh
+   exact-artifact review before another bounded device trial. No ordinary
+   installation is ready. See playbook/log/admission_probe_2026-09-23.md.
 0. Current direction: implement the tap-only preset ruler on the current Pro
    branch; preserve historical diagnostic builds. Qualify discrete pen handoff
    and native visuals before enabling the ordinary host's writing gate. Fixed

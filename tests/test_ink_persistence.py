@@ -151,6 +151,139 @@ class PersistenceVerifierTests(unittest.TestCase):
             with self.assertRaisesRegex(AssertionError, "Unqualified"):
                 verify(self.root)
 
+    def admission_fixture(self):
+        gate = "Companion ink: gate open; size=1620x2160; docs=" + ",".join(IDS)
+        lines = [
+            "Companion admission: cold native worker roundtrip passed",
+            "Companion probe: created disposable IDs " + " ".join(IDS),
+            gate,
+            "Companion ink: submitted pane=0; points=3; bounds=8,18,304,54; round=1",
+            "Companion admission: transition requested during second stroke",
+            "Companion ink: submitted pane=1; points=3; bounds=8,118,304,54; round=1",
+            "Companion admission: drained during stroke; submissions=2; generation=1",
+            "Companion admission: round=2; height=1440; fresh-candidates=true",
+            gate,
+            "Companion ink: submitted pane=0; points=3; bounds=8,218,304,54; round=2",
+            "Companion ink: submitted pane=1; points=3; bounds=8,318,304,54; round=2",
+            "Companion ink: gate closed",
+            "Companion probe: admission ink submissions completed; panes=2; strokes=4; durable=unverified",
+        ]
+        self.log.write_text("\n".join(lines) + "\n")
+        # Four distinct locations, with each page deliberately serialized in
+        # reverse round order. Receipt order must not depend on CRDT order.
+        self.write_lines(0, offsets=[200, 0])
+        self.write_lines(1, offsets=[300, 100])
+        return lines
+
+    def test_admission_matches_four_distinct_shapes_without_release_claims(self):
+        self.admission_fixture()
+        receipt = verify(self.root)
+        self.assertEqual(receipt["status"], "four-disposable-stroke-shapes-persisted-after-admission")
+        self.assertEqual([pane["document"] for pane in receipt["panes"]], IDS)
+        self.assertEqual([[stroke["bounds"][1] for stroke in pane["strokes"]]
+                          for pane in receipt["panes"]], [[20, 220], [120, 320]])
+        for flag in ("releaseQualified", "nativeReopenVerified",
+                     "exactSamplePreservationVerified", "visualClippingVerified"):
+            self.assertIs(receipt[flag], False)
+
+    def test_admission_missing_or_duplicate_each_receipt_refused(self):
+        lines = self.admission_fixture()
+        for index, marker in enumerate(lines):
+            for duplicate in (False, True):
+                with self.subTest(index=index, marker=marker, duplicate=duplicate):
+                    altered = lines[:index] + ([marker, marker] if duplicate else []) + lines[index + 1:]
+                    self.log.write_text("\n".join(altered) + "\n")
+                    with self.assertRaises(AssertionError):
+                        verify(self.root)
+
+    def test_admission_first_round_receipt_after_park_refused(self):
+        lines = self.admission_fixture()
+        for source in (3, 5):
+            with self.subTest(pane=0 if source == 3 else 1):
+                altered = lines.copy()
+                late = altered.pop(source)
+                parked = next(i for i, line in enumerate(altered) if "drained during stroke" in line)
+                altered.insert(parked + 1, late)
+                self.log.write_text("\n".join(altered) + "\n")
+                with self.assertRaises(AssertionError):
+                    verify(self.root)
+
+    def test_admission_wrong_handoff_height_or_freshness_refused(self):
+        self.admission_fixture()
+        original = self.log.read_text()
+        for old, new in (("height=1440", "height=1320"),
+                         ("height=1440", "height=1080"),
+                         ("fresh-candidates=true", "fresh-candidates=false"),
+                         ("fresh-candidates=true", "fresh-candidates=true-stale"),
+                         ("; fresh-candidates=true", ""),
+                         ("submissions=2; generation=1", "submissions=1; generation=1"),
+                         ("submissions=2; generation=1", "submissions=2; generation=2")):
+            with self.subTest(replacement=new):
+                self.log.write_text(original.replace(old, new))
+                with self.assertRaises(AssertionError):
+                    verify(self.root)
+
+    def test_admission_mixed_successful_profiles_refused(self):
+        self.admission_fixture()
+        original = self.log.read_text()
+        for success in ("Companion probe: fixed ink submissions completed; panes=2; durable=unverified",
+                        "Companion probe: retirement ink submissions completed; panes=2; strokes=4; durable=unverified"):
+            with self.subTest(success=success):
+                self.log.write_text(original + success + "\n")
+                with self.assertRaises(AssertionError):
+                    verify(self.root)
+
+    def test_admission_malformed_missing_or_extra_round_refused(self):
+        lines = self.admission_fixture()
+        for index in (3, 5, 9, 10):
+            round_suffix = "; round=1" if index < 9 else "; round=2"
+            for replacement in ("", "; round=0", "; round=3", "; round=garbage", "; round=2x"):
+                with self.subTest(index=index, round=replacement):
+                    altered = lines.copy()
+                    altered[index] = altered[index].replace(round_suffix, replacement)
+                    self.log.write_text("\n".join(altered) + "\n")
+                    with self.assertRaises(AssertionError):
+                        verify(self.root)
+        extra = "Companion ink: submitted pane=0; points=3; bounds=8,418,304,54; round=3"
+        self.log.write_text("\n".join(lines[:11] + [extra] + lines[11:]) + "\n")
+        with self.assertRaises(AssertionError):
+            verify(self.root)
+
+    def test_admission_extra_or_missing_saved_ink_refused(self):
+        for pane in (0, 1):
+            for offsets in ([], [0], [0, 200, 400]):
+                with self.subTest(pane=pane, offsets=offsets):
+                    self.admission_fixture()
+                    self.write_lines(pane, offsets=[offset + pane * 100 for offset in offsets])
+                    with self.assertRaises(AssertionError):
+                        verify(self.root)
+
+    def test_admission_incorrect_document_identities_refused(self):
+        lines = self.admission_fixture()
+        original = "\n".join(lines) + "\n"
+        for index in (2, 8):
+            for pair in ((IDS[1], IDS[0]), (IDS[0], IDS[0]), (IDS[0], PAGE)):
+                with self.subTest(gate=index, pair=pair):
+                    altered = lines.copy()
+                    altered[index] = altered[index].replace(",".join(IDS), ",".join(pair))
+                    self.log.write_text("\n".join(altered) + "\n")
+                    with self.assertRaises(AssertionError):
+                        verify(self.root)
+        self.log.write_text(original.replace(" ".join(IDS), " ".join(reversed(IDS))))
+        with self.assertRaises(AssertionError):
+            verify(self.root)
+        self.log.write_text(original.replace(IDS[1], IDS[0]))
+        with self.assertRaises(AssertionError):
+            verify(self.root)
+
+    def test_admission_stale_first_round_shapes_cannot_impersonate_new_ink(self):
+        for pane in (0, 1):
+            with self.subTest(pane=pane):
+                self.admission_fixture()
+                self.write_lines(pane, offsets=[pane * 100, pane * 100])
+                with self.assertRaises(AssertionError):
+                    verify(self.root)
+
 
 if __name__ == "__main__":
     unittest.main()

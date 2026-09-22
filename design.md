@@ -1,5 +1,96 @@
 # Architecture and implementation status
 
+## Current result: admission startup failure, normal Pro restored (2026-09-23)
+
+Trial `20260922T221000Z-1` failed before any Companion host-ready, cold-worker,
+disposable-document or scripted-ink marker. The native UI aborted with
+`std::invalid_argument` / `stoi`. The throw site and cause are not established;
+neither the sidecar nor the last logged framebuffer extension is exonerated or
+implicated by message order alone. Do not treat local/standalone passes as a
+working tablet feature.
+
+The independent watchdog restored the accepted base. A fresh read-only check
+again verified UI79742/Dates14463 active with zero restarts, all protected
+settings/base files/service policies matching, root read-only, and no active
+Companion host/data/drop-in/lock. Move was untouched. The one-run clearance is
+consumed: `ops/stage-admission.mjs` refuses immediately, and a regression proves
+that refusal happens before any evidence read or stage creation. No ordinary
+installation or native writing is enabled. See
+[the full receipt](playbook/log/admission_probe_2026-09-23.md).
+
+Next: local startup-cause isolation using the retained exact artifacts. A later
+device trial needs normal-input recovery confirmation and a newly reviewed,
+bounded payload; do not replay the failed stage or add it to update routines.
+
+## Native admission integration (2026-09-23, in development)
+
+`native-admission` is a separate resident Qt/QML sidecar, leaving historical
+retirement artifacts unchanged. On Linux its preload wrapper calls the exact
+public bool `QObject::moveToThread(QThread*, Qt::Disambiguated_t)` once and
+records only the successful self-move of the exact `PenInputThread` class.
+No private offsets, executable patching, or first-handwriting calibration is used.
+`AdmissionGate.initialize()` performs a worker-to-UI roundtrip after construction;
+startup observation by itself is not readiness. Resident relay QObjects avoid
+posting through a potentially destroyed native object; epochs fail closed on
+duplicate discovery, worker finish, destruction, or application shutdown.
+
+`pause(manager, generation)` emits an empty producer region, blocks ambient
+manager signals, and queues a real worker event-loop callback. That callback
+parks on our condition variable (not a native mutex), after normal earlier stroke
+delivery. The UI must leave native geometry/controllers unchanged until `parked`.
+It then detaches every old input, updates the cache empty and prepares final
+geometry. `permitPublication()` refuses a nonempty old cache, lifts the signal
+blocker, and permits only final-geometry attachment. `finish()` synchronously
+refreshes final native regions/candidates before releasing the worker. Wrong
+generations cannot release it. Destruction or timeout never automatically resumes
+partially changed geometry; a separately bounded recovery process is required.
+
+This module is not wired into the ordinary host and does not enable
+`inkQualified`. The one UI trial preloaded it but failed during startup; no real
+native admission transaction was reached.
+
+The first standalone Pro smoke passed with actual ELF interposition and a shared
+preload/QML registry, leaving the normal UI PID unchanged. Follow-up review added
+resident failed-transaction ownership, destruction-safe call guards, affinity
+invalidation and a sticky nested-publication detector. Signal suppression is
+manual and UI-owned: no signal-blocker destructor can unblock during teardown.
+`finish()` requires a fresh direct `activeInputsChanged` notification after
+publication is permitted. Calling `updateRegions()` alone is insufficient: its
+cache may contain a change whose notification was suppressed. Fakes now model
+that cache/signal distinction; destructive tests run in isolated processes.
+
+`CN_PROBE=admission` is a separate disposable diagnostic preserving all
+historical profile bytes. `native/admission-probe.qml.inc` requests a transition
+while the second stroke is down, checks both submissions before moving from ½
+to ⅔, then requires fresh candidates before two more controlled strokes. Final
+input stays sealed/parked through autosave grace and external recovery; it never
+reopens personal documents. `ops/build-admission-controller.mjs` derives a new
+always-reverting controller from frozen retirement bytes, adding the resident
+preload, exact dependencies and new markers. Its final 25-second observation
+uses light PID/restart checks bracketed by full runtime checks to avoid the prior
+deadline overrun. Its single reviewed trial is now consumed and further staging
+is blocked, regardless of a build or standalone-smoke pass.
+The locked admission diagnostic suppresses Navigation's deferred pane clamps;
+it explicitly constrains each pane while parked and input-detached, immediately
+before refreshing its native transform on a later ready tick (clamping can load
+new tiles). This prevents the busy-to-ready callback
+from moving the tile manager after worker release. This is diagnostic isolation,
+not qualification of ordinary user navigation or an ordinary-host change.
+Independent exact-artifact review cleared only trial `20260922T221000Z-1` with
+fresh identity/base/settings/backup gates. `ops/stage-admission.mjs` pins that
+single trial, all eight payload hashes, the accepted base manifest, composition
+and target-smoke evidence. It refuses another ID or an existing stage. This is
+not ordinary-host or persistent-install clearance. That trial failed and is
+consumed; the historical pins remain solely for reproducibility.
+
+`ops/verify-disposable-ink.py` recognizes admission as a distinct saved-shape
+profile. It requires one cold-worker receipt before document creation, an exact
+two-round pane order, transition request during round one, worker-drain and fresh
+candidate receipts in order, and final closure before completion. Missing,
+duplicate, reordered or mixed-profile receipts fail. Twenty-three synthetic
+saved-file tests pass; the failed startup log has no qualifying receipts and
+cannot provide an admission persistence result.
+
 ## Current product revision: fixed sizes (2026-09-22)
 
 The user superseded live dragging with a tap-only ruler at ⅓, ½ and ⅔. The
@@ -33,7 +124,7 @@ ruler implementation. Current local regression coverage includes actual ruler
 taps, rejected drags and invalid sizes, independent scroll retention, per-pair
 size restoration across host recreation, and unchanged historical host hashes.
 
-Latest hardware result (2026-09-22): the v2 retirement diagnostic completed four
+Earlier hardware result (2026-09-22): the v2 retirement diagnostic completed four
 correctly attributed native submissions across destruction, actual sheet motion,
 and handler recreation. Its final shell observation exceeded the owner deadline;
 the watchdog restored the exact base76210/Dates14463 and all protected settings.
@@ -55,7 +146,7 @@ device-local pairing settings and a composable QMD. Native writing remains
 disabled. The load-only probe has passed on the Pro
 and automatically returned to the accepted base; no Companion remains active.
 No qualified installer or release exists yet.
-The current user-driven transition blocker is documented in
+The earlier user-driven transition investigation is documented in
 `playbook/ADMISSION-HANDOFF.md`: public-Qt worker acknowledgement is viable for
 prior normal strokes, but producer admission closure remains unresolved. This
 distinguishes controller handoff from disk persistence and rejects both queued
@@ -69,7 +160,10 @@ transition protocol remains unresolved, not the narrower ability to close admiss
 Final bounded audit also found no public startup route to the parentless worker
 before a genuine native completion; a never-annotated PDF cannot be assumed to
 have a discoverable worker context. No synthetic setup stroke or private-pointer
-fallback was added.
+fallback was added. The newer public-symbol sidecar above addresses this with a
+cold-start observation design, but its failed UI startup leaves the complete
+native path unqualified. These older audit limits are historical, not evidence
+that the new implementation has passed or is impossible.
 The separately generated two-document diagnostic passed independent local review.
 Its first trial timed out at readiness; its second opened both native documents
 then failed on a native argument error. The third passed programmed movement/focus

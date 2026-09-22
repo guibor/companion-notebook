@@ -16,7 +16,7 @@ assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
 const profile=process.env.CN_PROBE||'load';
-assert(['load','render','structural','geometry','ink','retirement','visual'].includes(profile));
+assert(['load','render','structural','geometry','ink','retirement','visual','admission'].includes(profile));
 const payload=profile==='load'?'build/native':`build/${profile}-native`;
 const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
@@ -54,7 +54,7 @@ for(const [name,patches] of variants) {
       assert.match(main,/reopening saved disposable IDs/);
       assert.match(main,/entry.pageForId\(pages\[i\]\) !== 0/);
     }
-    if (profile === 'ink' || profile === 'retirement') {
+    if (profile === 'ink' || profile === 'retirement' || profile === 'admission') {
       assert(/readonlypropertyboolcnInkAllowed:!!cnHost&&cnHost.probeAllows\(root\)/.test(doc.replace(/\s/g,'')), 'Disposable-only ink gate missing');
       assert(/function_open_helper\([^)]*\)\{if\(cnHost&&cnHost.probeDocumentLocked\)return;/.test(doc.replace(/\s/g,'')), 'Open lock must precede all mutation');
       assert.match(doc,/cnHost.penDown \|\| cnHost.probeDocumentLocked/);
@@ -102,7 +102,7 @@ for(const [name,patches] of variants) {
   } else {
     assert.doesNotMatch(main,/cnProbeNotice/);
   }
-  if (profile === 'load' || profile === 'geometry' || profile === 'ink' || profile === 'retirement') {
+  if (profile === 'load' || profile === 'geometry' || profile === 'ink' || profile === 'retirement' || profile === 'admission') {
     assert.match(scene,/limitScrollingToPaper: !root.cnPaired/);
     assert.match(scene,/cnPaired: root.cnPaired/);
     assert.match(scene,/root.height - root.cnInputHeight/);
@@ -112,6 +112,7 @@ for(const [name,patches] of variants) {
     assert.match(scene,/visible: !root.cnGeometryHidden/);
     if (profile === 'load') assert.match(doc,/!cnHost.inputGeometryPending/);
     const nav=read('qml/device/view/documentview/Navigation.qml');
+    if (profile === 'admission') fs.writeFileSync(payload+'/Navigation.composed.qml',nav);
     assert.match(nav,/function cnConstrainToPane/);
     assert.match(nav,/if \(cnJump\(-1\)\) return/);
     assert.match(nav,/cnConstrainToPane\(\); updateScrollbars\(\)/);
@@ -126,5 +127,5 @@ const payloadFiles=['NativeHost.qml','PairStore.js',...(profile === 'load' ? ['S
 const payloadSha256=Object.fromEntries(payloadFiles.map(p=>[p,sha(payload+'/'+p)]));
 if (profile === 'load') execFileSync('qmlformat',['--ignore-settings',payload+'/SizeRuler.qml'],{stdio:['ignore','ignore','pipe']});
 execFileSync('qmlformat',['--ignore-settings',payload+'/NativeHost.qml'],{stdio:['ignore','ignore','pipe']});
-fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:profile==='ink'||profile==='retirement',ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
+fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:['ink','retirement','admission'].includes(profile),ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
 console.log(JSON.stringify(counts));

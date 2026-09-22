@@ -9,8 +9,9 @@ const renderProbe = process.env.CN_PROBE === 'render';
 const structuralProbe = process.env.CN_PROBE === 'structural';
 const geometryProbe = process.env.CN_PROBE === 'geometry';
 const retirementProbe = process.env.CN_PROBE === 'retirement';
+const admissionProbe = process.env.CN_PROBE === 'admission';
 const visualProbe = process.env.CN_PROBE === 'visual';
-const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe;
+const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe || admissionProbe;
 const noCaptureProbe = structuralProbe || geometryProbe || inkProbe || visualProbe;
 const diagnostic = renderProbe || noCaptureProbe;
 // Preserve the previously reviewed diagnostic bytes. This new navigation
@@ -149,6 +150,12 @@ function cnRetireHandler() { return sceneView.cnRetireHandler() }
 function cnCreateHandler() { return sceneView.cnCreateHandler() }
 `;
     }
+    if (admissionProbe) {
+        document = document.replace('a = sceneView.tileManager.viewToScene(',
+            'if (cnHost.probeRound === 2) { a = Qt.point(a.x,a.y+200); b = Qt.point(b.x,b.y+200) }\n    a = sceneView.tileManager.viewToScene(');
+        document += '\nfunction cnAdmissionInputsDetached() { return sceneView.cnAdmissionInputsDetached() }\n';
+        document += '\nfunction cnAdmissionConstrainToPane() { return sceneView.cnAdmissionConstrainToPane() }\n';
+    }
     document = document.replace('if (cnHost && cnHost.penDown) return', 'if (cnHost && (cnHost.penDown || cnHost.probeDocumentLocked)) return')
         .replace('if (root.cnHost) root.cnHost.noteToolbarOwner(root)', 'if (root.cnHost && !root.cnHost.renderProbeOnly) root.cnHost.noteToolbarOwner(root)');
 }
@@ -249,11 +256,15 @@ if (paneNavigation) {
  ${replace('limitScrollingToPaper','true','!root.cnPaired')}
  END TRAVERSE
  TRAVERSE Navigation#sceneNavigation
- ${insert('cnPaired: root.cnPaired; cnLayoutBusy: root.cnLayoutBusy; anchors.bottomMargin: root.cnPaired ? Math.max(0, root.height - root.cnInputHeight) : 0')}
+ ${insert('cnPaired: root.cnPaired; cnLayoutBusy: root.cnLayoutBusy; anchors.bottomMargin: root.cnPaired ? Math.max(0, root.height - root.cnInputHeight) : 0' + (admissionProbe ? '; cnAdmissionLocked: root.cnProbeDocumentLocked' : ''))}
  END TRAVERSE
  ${replace('availableSceneRect','root.height - root.keyboardMargin','(root.cnPaired ? root.cnInputHeight : root.height) - root.keyboardMargin')}
 `);
-    q += affect('qml/device/view/documentview/Navigation.qml','Item#root',insert(inc('navigation')) + `
+    let navigation=inc('navigation');
+    if (admissionProbe) navigation='property bool cnAdmissionLocked: false\n'+navigation
+        .replace('function cnConstrainToPane() {','function cnConstrainToPane(whileParked) {\n    if (cnAdmissionLocked && whileParked !== true) return')
+        .replace('!cnPaired || cnLayoutBusy ||', '!cnPaired || (cnLayoutBusy && whileParked !== true) ||');
+    q += affect('qml/device/view/documentview/Navigation.qml','Item#root',insert(navigation) + `
  ${replace('scrollDown','const nearestAlignment = function()','if (cnJump(-1)) return; const nearestAlignment = function()')}
  ${replace('scrollUp','const nearestAlignment = function()','if (cnJump(1)) return; const nearestAlignment = function()')}
  ${replace('updateDragAndZoom','updateScrollbars();','cnConstrainToPane(); updateScrollbars();')}
@@ -273,6 +284,27 @@ q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
  }`)}
  END TRAVERSE
 `, ' IMPORT common 1.0');
+if (admissionProbe) {
+    q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert(`
+property var cnProbeReceive: null
+function cnAdmissionInputsDetached() { return inputSurface.handler === null }
+function cnAdmissionConstrainToPane() {
+    if (root.cnInkAllowed || !root.cnLayoutBusy || !root.cnProbeDocumentLocked) return false
+    sceneNavigation.cnConstrainToPane(true)
+    return true
+}
+`) + `
+ TRAVERSE ScenePenInputHandler#strokeHandler
+ ${replace('gestureMode','const quickSwitch =','if (root.cnPaired) return 0; const quickSwitch =')}
+ ${replace('onStrokeCompleted','completedStroke();','if (!root.cnProbeReceive || !root.cnProbeReceive(stroke,controller,strokeHandler)) return; completedStroke();')}
+ END TRAVERSE
+`);
+    q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ TRAVERSE DeviceSceneView#sceneView
+ ${insert('cnProbeReceive: function(stroke, targetController, inputHandler) { return !!root.cnHost && root.cnHost.probeBeforeSubmit(root, stroke, targetController, inputHandler) }')}
+ END TRAVERSE
+`);
+}
 if (retirementProbe) {
     assert.equal(fs.readFileSync(path.join(firmware,'resources/qml/device/view/documentview/DeviceSceneView.qml'),'utf8')
         .split('activeTool: penHandler.lineTool').length,2,'Exact ScreenDriver active-tool preimage drifted');
@@ -327,10 +359,20 @@ fs.writeFileSync(output+'/companion-notebook.qmd',q);
 if (diagnostic) exact('native/DiagnosticHost.qml','7b76db63188dfc4065cf88301fb0591e0b2213e4483285061c9b08e9f10621e7');
 let host=fs.readFileSync(diagnostic ? 'native/DiagnosticHost.qml' : 'native/NativeHost.qml','utf8');
 if (retirementProbe) host = 'import Companion.Lifecycle 1.0 as Lifecycle\n'+host;
+if (admissionProbe) host = 'import Companion.Admission 1.0 as Admission\n'+host;
 if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
     .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
 if (diagnostic) {
-    let driver=inc(visualProbe ? 'visual-reopen' : retirementProbe ? 'retirement-probe' : inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');
+    let driver=inc(admissionProbe ? 'admission-probe' : visualProbe ? 'visual-reopen' : retirementProbe ? 'retirement-probe' : inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');
+    if (admissionProbe) {
+        const prior=inc('retirement-probe');
+        const start=prior.indexOf('function probeBeforeSubmit('),end=prior.indexOf('function probePanesReady(');
+        assert(start>0 && end>start);
+        const receipts=prior.slice(start,end)
+            .replace('(probePhase !== 4 && probePhase !== 10)', '(probePhase !== 4 && probePhase !== 5 && probePhase !== 10)')
+            .replace('Companion retirement: received', 'Companion admission: received');
+        driver=driver.replace('// RECEIPT_FUNCTIONS',receipts);
+    }
     if (geometryProbe) driver=driver
         .replace('property int probePhase: 0', 'property int probePhase: 0\nproperty bool probeInputRefreshed: false')
         .replace('case 5:', 'case 5:\n                if (!bridge.viewReady(bridge.primary) || !bridge.viewReady(host.secondary)) return')

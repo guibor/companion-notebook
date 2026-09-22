@@ -1,5 +1,17 @@
 # User-driven pen handoff: current technical boundary
 
+## Latest checkpoint (2026-09-23)
+
+The sections below retain the earlier static audit. A new public-Qt self-move
+observer and worker-parking sidecar now exists in `native-admission/`; its local
+tests and standalone target smoke pass. Its sole reviewed native UI trial
+aborted at startup with `std::invalid_argument` / `stoi` before host readiness,
+so real native cold-start/parking remains unqualified. Automatic recovery and a
+fresh independent read-only check verified the accepted Pro setup restored.
+The consumed stager is blocked; the ordinary host remains pen-disabled.
+See [the exact trial and recovery receipt](log/admission_probe_2026-09-23.md)
+and the current `design.md` before relying on the older findings below.
+
 ## New fixed-size direction
 
 The user replaced continuous dragging with a tap-only ⅓ / ½ / ⅔ ruler on

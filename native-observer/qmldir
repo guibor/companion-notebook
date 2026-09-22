@@ -1,0 +1,3 @@
+module Companion.Lifecycle
+plugin companionlifecycleplugin
+classname CompanionLifecyclePlugin

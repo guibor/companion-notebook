@@ -33,12 +33,14 @@ class PersistenceVerifierTests(unittest.TestCase):
             directory.with_suffix(".metadata").write_text(json.dumps({"visibleName": "Companion test " + ("Reference " if i == 0 else "Notes ") + "fixture"}))
             self.write_lines(i)
 
-    def write_lines(self, pane, count=1, bend=0, endpoints_only=False):
-        points = [Point(10, 20, 1, 0, 4, 100), Point(160, 45 + bend, 1, 0, 4, 100), Point(310, 70, 1, 0, 4, 100)]
-        if endpoints_only:
-            points = [points[0], points[-1]]
-        line = Line(PenColor.BLACK, Pen.FINELINER_2, points, 1, 0)
-        blocks = [SceneLineItemBlock(CrdtId(0, 1), CrdtSequenceItem(CrdtId(1, 2+i), CrdtId(0, 0), CrdtId(0, 0), 0, line)) for i in range(count)]
+    def write_lines(self, pane, count=1, bend=0, endpoints_only=False, offsets=None):
+        blocks = []
+        for i, offset in enumerate(offsets if offsets is not None else [0] * count):
+            points = [Point(10, 20 + offset, 1, 0, 4, 100), Point(160, 45 + bend + offset, 1, 0, 4, 100), Point(310, 70 + offset, 1, 0, 4, 100)]
+            if endpoints_only:
+                points = [points[0], points[-1]]
+            line = Line(PenColor.BLACK, Pen.FINELINER_2, points, 1, 0)
+            blocks.append(SceneLineItemBlock(CrdtId(0, 1), CrdtSequenceItem(CrdtId(1, 2+i), CrdtId(0, 0), CrdtId(0, 0), 0, line)))
         with (self.root / "documents" / IDS[pane] / (PAGE + ".rm")).open("wb") as stream:
             write_blocks(stream, blocks)
 
@@ -87,6 +89,44 @@ class PersistenceVerifierTests(unittest.TestCase):
         self.log.write_text(self.log.read_text().replace("bounds=10,20,300,50", "bounds=20,20,290,50"))
         with self.assertRaisesRegex(AssertionError, "coordinates"):
             verify(self.root)
+
+    def retirement_fixture(self):
+        data = self.log.read_text().replace("bounds=10,20,300,50", "bounds=10,20,300,50; round=1")
+        data = data[:data.index("Companion probe: fixed ink submissions")]
+        data += ("Companion retirement: both native handlers retired; generation=1\n"
+                 "Companion retirement: live geometry moved; steps=12; elapsed-ms=200; visual=unverified\n"
+                 "Companion retirement: round=2; height=1320\n"
+                 "Companion ink: gate open; size=1620x2160; docs=" + ",".join(IDS) + "\n"
+                 "Companion ink: submitted pane=0; points=3; bounds=10,220,300,50; round=2\n"
+                 "Companion ink: submitted pane=1; points=3; bounds=10,220,300,50; round=2\n"
+                 "Companion probe: retirement ink submissions completed; panes=2; strokes=4; durable=unverified\n")
+        self.log.write_text(data)
+        for pane in [0, 1]:
+            self.write_lines(pane, offsets=[200, 0])  # Do not assume CRDT order.
+
+    def test_retirement_matches_four_distinct_shapes_not_crdt_order(self):
+        self.retirement_fixture()
+        receipt = verify(self.root)
+        self.assertEqual(receipt["status"], "four-disposable-stroke-shapes-persisted-after-retirement")
+        self.assertEqual([s["bounds"][1] for s in receipt["panes"][0]["strokes"]], [20, 220])
+        self.assertFalse(receipt["releaseQualified"])
+
+    def test_duplicate_first_round_cannot_impersonate_post_move_ink(self):
+        self.retirement_fixture()
+        self.write_lines(0, count=2)
+        with self.assertRaises(AssertionError):
+            verify(self.root)
+
+    def test_retirement_requires_two_rounds_same_notes_and_native_ack(self):
+        self.retirement_fixture()
+        original = self.log.read_text()
+        for altered in [original.replace("generation=1", "generation=2"),
+                        original.replace("round=2", "round=1"),
+                        original.replace("height=1320", "height=1080"),
+                        original.replace("bounds=10,220", "bounds=10,20")]:
+            self.log.write_text(altered)
+            with self.assertRaises(AssertionError):
+                verify(self.root)
 
 
 if __name__ == "__main__":

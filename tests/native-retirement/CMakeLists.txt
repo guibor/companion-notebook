@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.21)
+project(companion_retirement_test LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml)
+add_executable(retirement-test main.cpp)
+target_link_libraries(retirement-test PRIVATE Qt6::Core Qt6::Qml)
+target_compile_options(retirement-test PRIVATE -Wall -Wextra -Werror)

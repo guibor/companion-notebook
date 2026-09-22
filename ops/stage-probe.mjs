@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const id = process.argv[2];
 const profile = process.argv[3] || 'load';
-assert(['load','render','structural','geometry','ink'].includes(profile));
+assert(['load','render','structural','geometry','ink','retirement'].includes(profile));
 // Trial 20260921T205838Z-1 crashed the native e-ink renderer during grabToImage.
 // Keep offline builds/tests available, but do not package another hardware trial
 // until a replacement diagnostic has its own independent safety review.
@@ -20,6 +20,38 @@ assert.match(id || '', /^\d{8}T\d{6}Z-\d+$/);
 const dir = `build/probe-${id}`;
 assert(!fs.existsSync(dir), 'Never reuse a probe stage');
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+if (profile === 'retirement') {
+    // Independent frozen-artifact review, 2026-09-22. ONE disposable-only,
+    // always-revert test; conditional on the actual target ABI/import preflight.
+    const reviewed = {
+        'companion-notebook.qmd':'aa83acff2d6e3aee2647e670b9a45c13c868b8123b3ae11dcd55715e2370991c',
+        'NativeHost.qml':'d319e032a80cf1d45585e8f10b88934b7dfbc5654a45e10bb75eb99c52b5d31d',
+        'PairStore.js':'44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19',
+        'probe.sh':'aa2ad0a4ee720f83ac97fdce3e0a3f3bd48db93e4a59cca4bb8d78526f8d5b41',
+        'ink-events':'bfe83e745e82cbade565c49aa8b2dd18164aa9900be849739eada557697d2b7e',
+        'ink-events-second':'f15bd56c67ced9b8ea28dd5f9a447f1ffe39f7f27aef28f0500c95125d611453',
+        'lifecycle-qmldir':'fbc4c0fd3629f913f04dc6a2c56599074631e6a232d9bab770da811b4c3e23ae',
+        'libcompanionlifecycleplugin.so':'ad1b1d17a857908250d73f076064d0e0e9e047df644e35527b899529f55e65ef'
+    };
+    for (const [p,h] of Object.entries(reviewed)) assert.equal(hash(payload+'/'+p),h,'Retirement review drift: '+p);
+    const smokePath='build/observer-arm64/target-smoke.json';
+    assert(fs.existsSync(smokePath),'Reviewed retirement profile requires actual target module smoke PASS');
+    const smoke=JSON.parse(fs.readFileSync(smokePath));
+    assert.equal(smoke.status,'target-observer-smoke-passed');
+    assert.equal(smoke.model,'reMarkable Ferrari');
+    assert.equal(smoke.firmware,'3.29.0.148');
+    assert.equal(smoke.hostFingerprint,'SHA256:dByHweKZkjDlZRBHdBisT5VD2kV85lClgtJExnDaTeE');
+    assert.equal(smoke.moduleSha256,reviewed['libcompanionlifecycleplugin.so']);
+    assert.equal(smoke.executableSha256,'2d3d21f352fc4570b9433389d8641ae46ed8535464bcfaa476609abe88e8d2cd');
+    assert.equal(smoke.exitCode,0);
+    assert.match(smoke.stdout,/^OBSERVER_SMOKE_PASS:/m);
+    assert.doesNotMatch(smoke.stdout,/OBSERVER_SMOKE_FAIL|OBSERVER_SMOKE_IMPORT/);
+    for(const service of ['ui','dates']) {
+        assert(Number.isInteger(smoke[service+'PidBefore'])&&smoke[service+'PidBefore']>1);
+        assert.equal(smoke[service+'PidAfter'],smoke[service+'PidBefore']);
+        assert.equal(smoke[service+'RestartsBefore'],0);assert.equal(smoke[service+'RestartsAfter'],0);
+    }
+}
 if (profile === 'structural') {
     // Independent local review, 2026-09-22. Only these frozen bytes are cleared
     // for preparation of one bounded always-revert trial, never a release.
@@ -62,8 +94,8 @@ assert.equal(hash(base), '5fe7e2ec3291efa692c90df769ea521d9e399d3da6e7448f9a9071
 const receipt = JSON.parse(fs.readFileSync(payload+'/composition.json'));
 assert.equal(receipt.profile,profile);
 assert.equal(receipt.candidateSha256, hash(payload+'/companion-notebook.qmd'));
-assert.equal(receipt.penEnabled, profile === 'ink');
-if (profile === 'ink') assert.equal(receipt.ordinaryDocumentInk, false);
+assert.equal(receipt.penEnabled, profile === 'ink' || profile === 'retirement');
+if (profile === 'ink' || profile === 'retirement') assert.equal(receipt.ordinaryDocumentInk, false);
 for (const p of ['NativeHost.qml','PairStore.js']) assert.equal(receipt.payloadSha256[p],hash(`${payload}/${p}`));
 execFileSync('/bin/bash', ['-n', controller]);
 fs.mkdirSync(dir, {mode:0o700});
@@ -73,9 +105,15 @@ for (const p of ['NativeHost.qml', 'PairStore.js', 'companion-notebook.qmd']) {
 }
 fs.copyFileSync(base, `${dir}/base.sha256`);
 fs.copyFileSync(controller, `${dir}/probe.sh`);
-if (profile === 'ink') {
+if (profile === 'ink' || profile === 'retirement') {
     fs.copyFileSync(`${payload}/ink-events`, `${dir}/ink-events`);
     fs.chmodSync(`${dir}/ink-events`,0o700);
+}
+if (profile === 'retirement') {
+    for(const p of ['ink-events-second','lifecycle-qmldir','libcompanionlifecycleplugin.so']) {
+        fs.copyFileSync(`${payload}/${p}`,`${dir}/${p}`);
+        fs.chmodSync(`${dir}/${p}`,p==='ink-events-second'?0o700:0o600);
+    }
 }
 fs.chmodSync(`${dir}/base.sha256`,0o600); fs.chmodSync(`${dir}/probe.sh`,0o700);
 const files = fs.readdirSync(dir).sort();

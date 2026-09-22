@@ -135,6 +135,24 @@ Read and write without losing context or compromising native handwriting.
    retirement/recreation using its synchronized destructor while keeping document
    controllers alive; do not substitute a quiet timer for worker completion or
    make opaque binary/firmware modifications. Fixed-layout native ink is feasible.
+   Local C++/QML negative regression confirms Component.onDestruction precedes
+   native derived destruction. An observer-only public-Qt module is being built
+   with ReManager; it will acknowledge two native QObject destructions without
+   owning/deleting handlers or touching worker internals. An acknowledgement is
+   not a save or general input-queue drain. No new tablet payload is deployed.
+   Implemented a separate dynamic-handler retirement diagnostic with independent
+   public-Qt observer, exact Linux ELF checks, two distinguishable stroke rounds,
+   native lifetime acknowledgement before movement, and four-shape readback.
+   Local state-machine,35C++ observer,11Python saved-file,50Qt UI and three-order
+   full-stack composition checks pass. The Pro went offline during local work;
+   normal base60746/Dates14463 was last verified unchanged. Standalone target
+   module import and then the separately reviewed UI trial are next. Keep the
+   prepared files local until fresh target identity/base checks succeed.
+   The immediate-install retry found the Mac on a new192.168.86.0/24 network,
+   no SSH endpoints after two scans, and no USB network interface. Current Pro
+   IP was requested; no target smoke or UI trial has run. Resume directly at the
+   standalone import preflight when its host key is found; do not rebuild or
+   repeat the already passed frozen-code review without a source change.
 
 * Implementation evidence
 - Local native adapter, pairing store, picker and exact-version QMD exist.

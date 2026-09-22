@@ -4,27 +4,24 @@ A portrait pull-out writing margin for reMarkable: keep a source open and slide
 a separate notebook over its lower edge. Write directly in either visible pane;
 scroll either document independently. Pairings are specific to a notebook/PDF.
 
-**Status: desktop prototype plus native rendering candidate; not a tablet release.**
-Native pen/save integration and e-ink fluidity are not qualified. The initial
-hardware target is Paper Pro 3.29.0.148; Move and landscape are deferred.
-The native candidate keeps writing disabled. A guarded load-only trial passed on
-the Pro and automatically restored its accepted base. No Companion remains active;
-two-document rendering, native ink and physical UX still require qualification.
-The historical capture diagnostic crashed the native e-ink rendering path and
-is blocked from staging. Its no-capture replacement is locally implemented;
-see [structural diagnostic](playbook/STRUCTURAL-PROBE.md) for current limits.
-The replacement completed one native structural trial and restored the normal
-Pro setup automatically. It did not qualify handwriting, scrolling or visual
-correctness. A subsequent pen-disabled geometry trial proved full-page reachability
-in both exposed panes at unchanged scale and refreshed both native input transforms.
-The accepted base was automatically restored. Actual handwriting, save durability,
-visual rendering and physical fluidity remain unqualified; the app is not installed.
-One bounded native-writing experiment has now passed: both panes accepted a
-stroke directly, without activation taps, in two new disposable notes. Each
-saved file contained its own expected stroke shape after automatic base recovery.
-Layout/document transitions were locked during this test, so dynamic handwriting
-and pull-out interaction remain unqualified. The normal Pro setup is restored;
-see [the ink qualification scope](playbook/INK-QUALIFICATION.md).
+**Status: native two-pane writing demonstrated; not yet a tablet release.**
+The initial hardware target is Paper Pro **3.29.0.148**. Move and landscape remain
+out of scope. The normal Pro setup was restored after each bounded experiment;
+no Companion is left active and ordinary-document ink remains gated off.
+
+| Capability | Evidence |
+| --- | --- |
+| Two distinct native views, independent controllers | Passed bounded on-device structural test |
+| Reach page edges in both exposed panes at unchanged scale | Passed on-device geometry test |
+| Write in either pane without selecting it first | Passed on-device fixed-layout test |
+| Native saving of those two strokes | Both exact disposable files contained their expected shapes after UI restart |
+| Move the sheet, then continue writing | Separate retirement/recreation diagnostic built and locally tested; hardware qualification pending |
+| Visual clipping, rapid transitions, physical drag fluidity | Not yet qualified |
+
+The historical Qt capture diagnostic crashed the native e-ink rendering path and
+remains blocked. No capture/layer workaround is part of the new experiment. See
+[ink scope](playbook/INK-QUALIFICATION.md) and the
+[retirement diagnostic](playbook/RETIREMENT-PROBE.md) before any further device use.
 
 ## Run locally
 
@@ -87,6 +84,14 @@ option. It admits only two exact freshly-created native notebooks, without a
 select-only pen tap. A bounded native marker helper and independent always-revert
 controller protect recovery. Native submission and saved-file verification are
 separate receipts; neither proves fluidity or qualifies a personal release.
+
+The `retirement` profile adds a small public-Qt observer and a factory around the
+existing native handler. It submits two different fixed strokes per disposable
+note, with a real native destruction acknowledgement and live sheet movement
+between them. The normal host and historical reviewed ink bytes are unchanged.
+The module has a standalone import test that needs no UI restart or input access;
+actual target loading must pass before the UI diagnostic. These are qualification
+tools, not an installer. Build/review details are in the retirement playbook.
 
 The native host keeps primary-document scale unchanged, uses a distinct native
 DocumentView for a recent local companion, and persists only pairing metadata

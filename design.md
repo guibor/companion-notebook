@@ -399,3 +399,89 @@ Qt version. `Component.onDestruction` is not a post-native-destructor barrier.
 Do not use either to declare native worker quiescence; a handler-factory approach
 would need a real external post-retirement acknowledgement, plus null-safe native
 consumers and completed-stroke handoff. No such factory is deployed.
+
+`tests/native-retirement/` is an actual desktop C++/QML ordering experiment (never
+a tablet payload). It instruments a native derived destructor, the attached
+Component callback, and a queued function owned by a surviving parent. It tests
+ordinary dynamic deletion separately from whole-engine teardown. The attached
+callback precedes the native destructor even during ordinary deletion. A queued
+callback happens later on that tested path, but this does not establish a general
+barrier across GC, delayed deletion, invalidation or nested event processing.
+Whole-engine teardown announces attached destruction without immediately deleting
+the native child and suppresses the queued callback. This negative regression
+explains why the adapter needs an external native retirement observer; it is not
+by itself firmware/worker qualification.
+
+`ops/prepare-observer-headers.mjs` downloads two official, checksum-pinned Debian
+Qt6.8.2 ARM64 development archives into the ignored build tree and extracts only
+their headers. It never installs a package, executes a package script or contacts
+the tablet. This avoids mixing macOS-generated Qt configuration with Linux ABI
+headers; any eventual plugin still needs exact target symbol/dependency checks
+and a separately bounded native load test.
+
+`ops/build-observer-cross.mjs` uses host Qt6.8.2 moc with Linux ARM64 headers and
+the aarch64 GCC toolchain, linking only existing target Qt libraries. Its ELF
+gate rejects other architectures, host rpaths, text relocations, unknown direct
+dependencies and required symbols/version tags missing from the read-back target
+libraries. The receipt pins sources, binary and providers. It has no deployment
+path, and passing it does not establish native module loading or factory safety.
+
+The separate `CN_PROBE=retirement` profile wraps the unchanged stock handler body
+in a dynamic QML Component. `handler-factory.qml.inc` holds the current typed
+handler, rejects active gestures/selections, detaches both input and viewport
+consumers, then requests normal destruction. `retirement-probe.qml.inc` observes
+both old handlers from the surviving host before moving the sheet and recreating
+fresh handlers. It keeps the same two disposable native documents/controllers,
+submits a controlled stroke in each before and after movement, and never opens a
+personal document. Its event-loop movement receipt is not visual fluidity proof.
+The ordinary and frozen historical profiles do not use this factory or module.
+
+`native-observer/` implements the observer-only `Companion.Lifecycle` QML module.
+`arm()` accepts exactly two distinct UI-thread native handler objects and an
+immutable generation; `cancel()` and rearm invalidate a private epoch. Direct
+native destruction callbacks capture slots without dereferencing the dying
+objects. `acknowledge()` emits a queued signal only after both derived handlers
+retire, with cancellation/reentry/thread guards. It never deletes a handler or
+calls any private Qt/worker API. Thirty-five local C++ tests include actual module
+loading and nested destructor event processing, explicitly distinguishing native
+derived retirement from whole QObject-stack unwinding.
+
+`native-observer/smoke.cpp` is a separate five-second process-bounded import/ABI
+check using fake local QObject handlers. It uses Core/Qml only, resolves modules
+only from its own adjacent `qml` directory and cannot access a display, input
+device or native notebook. The cross-builder verifies this executable separately.
+Running it successfully would qualify module loading, not pen or factory behavior.
+
+`ops/build-retirement-controller.mjs` derives a separate bounded experiment from
+the frozen successful ink controller. It preserves independent cgroup termination,
+release/recovery and settings checks, adds an exact module subtree and temporary
+QML import path, verifies target runtime-library hashes, and allows exactly two
+fixed two-stroke helper invocations. Before round two it requires native retirement
+and movement receipts and invalidates the old release marker, so watchdog recovery
+cannot mistake the first round's release for a second round's release. The whole
+module subtree is retained with the experimental host during restoration; no
+shared library, base plugin or boot configuration is installed or replaced.
+The second helper is generated from the hash-pinned, previously tested C helper
+with exactly one coordinate-expression change: both lines move 200 screen pixels
+down. Bounds are still fixed, no generic injection API is added, and all deadline,
+echo/interference and release code is byte-for-byte source-identical. Distinct
+first/second-round shapes let saved-file readback detect duplicate first-round
+ink being mistaken for successful post-movement input.
+The local readback verifier recognizes the separate retirement receipt and
+requires the same two created IDs for both rounds, one native retirement and
+movement acknowledgement, exactly two distinct native shapes and saved lines per
+note, and a one-to-one geometric match independent of CRDT serialization order.
+Synthetic test pages exercise missing, duplicate, unlabelled and misdirected ink;
+they are never deployed to a tablet.
+`ops/stage-observer-smoke.mjs` packages only the independently built smoke
+executable and its adjacent verified QML module into a fresh private local stage.
+It pins all source and binary hashes, rejects reuse and symlinks, and performs no
+remote actions. UI-trial staging pins the independently reviewed profile and
+separately requires a real target module-import receipt with exact identities and
+unchanged UI/Dates processes. Synthetic stager receipts are confined to temporary
+unit-test copies; they never populate the real workspace's missing target receipt.
+The complete local Node suite now passes152tests with7historical-clearance skips;
+14staging tests specifically enforce those pins and the target-evidence boundary.
+Network discovery is read-only and host-key-first. An offline target or changed
+LAN does not create a receipt, activate a package, or consume a trial clearance;
+the next action remains the actual standalone target import preflight.

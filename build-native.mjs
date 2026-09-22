@@ -8,7 +8,8 @@ const tool = process.env.QMLDIFF_BIN || '/Users/mdf/code/remarkable-beta-os/.cac
 const renderProbe = process.env.CN_PROBE === 'render';
 const structuralProbe = process.env.CN_PROBE === 'structural';
 const geometryProbe = process.env.CN_PROBE === 'geometry';
-const inkProbe = process.env.CN_PROBE === 'ink';
+const retirementProbe = process.env.CN_PROBE === 'retirement';
+const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe;
 const noCaptureProbe = structuralProbe || geometryProbe || inkProbe;
 const diagnostic = renderProbe || noCaptureProbe;
 // Preserve the previously reviewed diagnostic bytes. This new navigation
@@ -131,6 +132,15 @@ function cnProbePreparePen() {
     return documentViewTools.isWritingTool(documentViewTools.activePen.tool)
 }
 `;
+    if (retirementProbe) {
+        document = document.replace('a = sceneView.tileManager.viewToScene(',
+            'if (cnHost.probeRound === 2) { a = Qt.point(a.x,a.y+200); b = Qt.point(b.x,b.y+200) }\n    a = sceneView.tileManager.viewToScene(');
+        document += `
+function cnRetirementReadiness() { return sceneView.cnRetirementReadiness() }
+function cnRetireHandler() { return sceneView.cnRetireHandler() }
+function cnCreateHandler() { return sceneView.cnCreateHandler() }
+`;
+    }
     document = document.replace('if (cnHost && cnHost.penDown) return', 'if (cnHost && (cnHost.penDown || cnHost.probeDocumentLocked)) return')
         .replace('if (root.cnHost) root.cnHost.noteToolbarOwner(root)', 'if (root.cnHost && !root.cnHost.renderProbeOnly) root.cnHost.noteToolbarOwner(root)');
 }
@@ -255,14 +265,55 @@ q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
  }`)}
  END TRAVERSE
 `, ' IMPORT common 1.0');
+if (retirementProbe) {
+    assert.equal(fs.readFileSync(path.join(firmware,'resources/qml/device/view/documentview/DeviceSceneView.qml'),'utf8')
+        .split('activeTool: penHandler.lineTool').length,2,'Exact ScreenDriver active-tool preimage drifted');
+    q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert(inc('handler-factory')) + `
+ TRAVERSE PenInputSurface#inputSurface
+ ${replace('handler','sceneView &&','!root.cnHandlerDetached && sceneView &&')}
+ END TRAVERSE
+ TRAVERSE ScreenDriver#screenDriver
+ REBUILD activeTool
+ LOCATE BEFORE ALL
+ REMOVE UNTIL END
+ INSERT { penHandler ? penHandler.lineTool : documentViewTools.activePen.tool }
+ END REBUILD
+ END TRAVERSE
+ TRAVERSE ScenePenInputHandler#strokeHandler
+ ${replace('gestureMode','const quickSwitch =','if (root.cnPaired) return 0; const quickSwitch =')}
+ END TRAVERSE
+ REDEFINE ScenePenInputHandler#strokeHandler
+ LOCATE BEFORE ALL
+ INSERT STREAM / Component { id: cnStrokeHandlerComponent /
+ LOCATE AFTER ALL
+ INSERT STREAM / } /
+ END REDEFINE
+`);
+    q += `AFFECT /qml/device/view/documentview/DeviceSceneView.qml
+ REBUILD FocusScope#root
+ LOCATE BEFORE ALL
+ REPLACE { readonly property alias strokeHandler: strokeHandler } WITH { property ScenePenInputHandler strokeHandler: null }
+ LOCATE BEFORE ALL
+ REPLACE { value: strokeHandler } WITH { value: root.cnHandlerDetached ? null : strokeHandler }
+ LOCATE BEFORE ALL
+ REPLACE { const stillSelecting = strokeHandler.lineTool } WITH { const stillSelecting = strokeHandler && strokeHandler.lineTool }
+ LOCATE BEFORE ALL
+ REPLACE { strokeHandler.setSelectionActive } WITH { strokeHandler?.setSelectionActive }
+ LOCATE BEFORE ALL
+ REPLACE { if (strokeHandler.timeSincePenUp() < 100) } WITH { if (!strokeHandler || strokeHandler.timeSincePenUp() < 100) }
+ END REBUILD
+END AFFECT
+`;
+}
 fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
 fs.writeFileSync(output+'/companion-notebook.qmd',q);
 let host=fs.readFileSync('native/NativeHost.qml','utf8');
+if (retirementProbe) host = 'import Companion.Lifecycle 1.0 as Lifecycle\n'+host;
 if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
     .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
 if (diagnostic) {
-    let driver=inc(inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');
+    let driver=inc(retirementProbe ? 'retirement-probe' : inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');
     if (geometryProbe) driver=driver
         .replace('property int probePhase: 0', 'property int probePhase: 0\nproperty bool probeInputRefreshed: false')
         .replace('case 5:', 'case 5:\n                if (!bridge.viewReady(bridge.primary) || !bridge.viewReady(host.secondary)) return')

@@ -16,7 +16,7 @@ assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
 const profile=process.env.CN_PROBE||'load';
-assert(['load','render','structural','geometry','ink'].includes(profile));
+assert(['load','render','structural','geometry','ink','retirement'].includes(profile));
 const payload=profile==='load'?'build/native':`build/${profile}-native`;
 const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
@@ -42,14 +42,14 @@ for(const [name,patches] of variants) {
   assert.match(scene,/value: root.cnPaired\?null:EPFramebuffer/);
   assert.match(scene,/value: !root.cnPaired&&root.textMode/);
   assert.match(scene,/when: root.cnSelected&&root.viewBehavior/);
-  assert(/handler:sceneView&&(?:root.cnInkAllowed|\(root.cnGeometryAttached)/.test(scene.replace(/\s/g,'')),'Native handler gate missing');
+  assert(/handler:(?:!root.cnHandlerDetached&&)?sceneView&&(?:root.cnInkAllowed|\(root.cnGeometryAttached)/.test(scene.replace(/\s/g,'')),'Native handler gate missing');
   assert(/height:Math.max\(0,root.cnInputHeight\)/.test(scene.replace(/\s/g,'')),'Native input clipping height missing');
   assert.match(scene,/PenInputBlocker/);
   const main=read('qml/device/view/main/MainView.qml');
   assert.match(main,/cnSecondary: true/); assert.match(main,/id: rmstreamShortcutLoader/);
   assert.match(main,/id: dispatchDocumentMenuLoader/);
   if (profile !== 'load') {
-    if (profile === 'ink') {
+    if (profile === 'ink' || profile === 'retirement') {
       assert(/readonlypropertyboolcnInkAllowed:!!cnHost&&cnHost.probeAllows\(root\)/.test(doc.replace(/\s/g,'')), 'Disposable-only ink gate missing');
       assert(/function_open_helper\([^)]*\)\{if\(cnHost&&cnHost.probeDocumentLocked\)return;/.test(doc.replace(/\s/g,'')), 'Open lock must precede all mutation');
       assert.match(doc,/cnHost.penDown \|\| cnHost.probeDocumentLocked/);
@@ -59,6 +59,15 @@ for(const [name,patches] of variants) {
       assert.match(scene,/if \(cnProbeDocumentLocked\) return; endItemSelection/);
       assert.match(scene,/if \(cnProbeDocumentLocked\) return; const pageIndex/);
       assert.match(main,/acceptedButtons: Qt.AllButtons/);
+      if (profile === 'retirement') {
+        assert.match(scene,/property\s+ScenePenInputHandler strokeHandler: null/);
+        assert.match(scene,/id: cnStrokeHandlerComponent/);
+        assert.match(scene,/root\.cnHandlerDetached\?null:strokeHandler/);
+        assert.match(scene,/if \(root.cnPaired\) return 0/);
+        assert.match(scene,/root\.strokeHandler = null;?\s*prior.destroy\(\)/);
+        assert.match(scene,/if \(!strokeHandler \|\| strokeHandler.timeSincePenUp/);
+        assert.doesNotMatch(scene,/readonly property alias strokeHandler/);
+      }
     } else {
       assert.match(doc,/readonly property\s+bool cnInkAllowed: false/);
       assert.match(doc,/cnLayoutBusy: true/);
@@ -85,7 +94,7 @@ for(const [name,patches] of variants) {
   } else {
     assert.doesNotMatch(main,/cnProbeNotice/);
   }
-  if (profile === 'load' || profile === 'geometry' || profile === 'ink') {
+  if (profile === 'load' || profile === 'geometry' || profile === 'ink' || profile === 'retirement') {
     assert.match(scene,/limitScrollingToPaper: !root.cnPaired/);
     assert.match(scene,/cnPaired: root.cnPaired/);
     assert.match(scene,/root.height - root.cnInputHeight/);
@@ -107,5 +116,5 @@ assert.doesNotMatch(fs.readFileSync('native/NativeHost.qml','utf8'),/\bCanvas\b|
 assert.match(fs.readFileSync('native/NativeHost.qml','utf8'),/property bool inkQualified: false/);
 const payloadSha256=Object.fromEntries(['NativeHost.qml','PairStore.js'].map(p=>[p,sha(payload+'/'+p)]));
 execFileSync('qmlformat',['--ignore-settings',payload+'/NativeHost.qml'],{stdio:['ignore','ignore','pipe']});
-fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:profile==='ink',ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
+fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:profile==='ink'||profile==='retirement',ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
 console.log(JSON.stringify(counts));

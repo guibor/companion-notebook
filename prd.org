@@ -27,6 +27,12 @@ Read and write without losing context or compromising native handwriting.
 - Pro only initially; no changes to Move or shared servers.
 
 * Requirements changed
+- Replace the original custom notebook drawing with the actual native notebook
+  icon plus a small companion badge. Picker tabs are Recent and Favorites;
+  favorites are independently queried, not restricted to recent documents.
+- User requested public repository publication and a Reddit announcement after
+  this update. Review public history for secrets/firmware; preview post text per
+  the Reddit posting workflow before submission.
 - User accepted210500 and requested commit/push. Next refinement reverses the
   endpoint arrows; switching to the companion truly swaps document roles, so
   subsequent small/medium/half panes show the previous primary. This replaces

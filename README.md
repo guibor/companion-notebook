@@ -1,21 +1,40 @@
 # Companion Notebook
 
-A portrait writing margin for reMarkable: keep a source open and place
-a separate notebook over its lower edge at **⅓, ½ or ⅔** of the screen. Write directly in either visible pane;
-scroll either document independently. Pairings are specific to a notebook/PDF.
+A writable companion pane for reMarkable Paper Pro: keep your reading in view
+while taking notes in a second document. Two native document views, shared pen
+controls, independent scrolling, and just a thin line between the pages.
 
-**Status: user-driven experimental pilot installed on Paper Pro3.29.0.148.**
-On2026-09-23 the user explicitly stopped further automated trials and requested
-hands-on use. The separate `CN_USER_PILOT=1` build is active, with native writing
-enabled and no scripted document creation or synthetic input. This is not a
-fully qualified release. Move and landscape remain out of scope.
+**Experimental source release — developed on Paper Pro firmware 3.29.0.148.**
+This is a working personal pilot, not a general-purpose or one-click installer.
+Do not run the device-specific deployment scripts blindly or change the version
+guard to force a different firmware. Back up your documents before experimenting.
+
+## What it does
+
+- Write directly in either pane without a tap-to-select step.
+- Choose a small, medium or half-height companion; medium is the default.
+- Switch the companion to the main view and invert the two documents' roles.
+- Pick from **Recent** or **Favorites** in a centered popup above the toolbar.
+- Remember notebook/PDF pairings and stable page positions locally.
+- Use the native notebook icon, with a small companion badge.
+
+| Target | Status |
+| --- | --- |
+| Paper Pro,3.29.0.148, portrait | Personal pilot; hands-on feedback ongoing |
+| Other firmware, Paper Pro Move, reMarkable2 | Not qualified; do not assume compatibility |
+| Landscape, same-document dual locations | Not supported |
+| Generic installer / binary release | Not available |
+
+Inspired by [rm-hacks' split-document workflow](https://github.com/mb1986/rm-hacks/wiki/Split-Document-0.0.10).
+This project uses XOVI/QMLDiff integration; it does not install old rm-hacks patches.
+It is an independent project, not affiliated with reMarkable.
 
 ## Use the installed pilot
 
 1. Open a notebook or PDF in portrait.
 2. Tap **Companion notebook** on the full toolbar, above Dates.
-3. Choose a different local portrait notebook or PDF from the centered recent
-   picker. The list scrolls; tap × or outside the popup to cancel.
+3. Choose a different local portrait notebook or PDF from **Recent** or
+   **Favorites**. The list scrolls; tap × or outside the popup to cancel.
 4. Write directly in either pane. Only a hairline separates the pages. The native
    toolbar stays above both canvases, with shared writing-tool settings.
 5. In the three-dot menu, layout pictures select source-only,
@@ -37,11 +56,41 @@ It is a fallback, not a guarantee against losing an in-progress stroke.
 Activation is runtime-only; reboot does not automatically reactivate Companion.
 Your existing app payloads, notebook files, firmware and boot configuration are
 not replaced. See [the installation record](playbook/log/user_pilot_2026-09-23.md).
-Current revision:220100, with a popup picker and symmetric document roles.
-Pair settings carried forward through210500. This adopts RMHacks' separation of split controls from the writing area;
-it does not install RMHacks' older firmware patches.
+The native notebook icon is referenced from the tablet's own resources, not
+copied into this repository. Firmware resources, device backups and binaries
+are excluded. No license grant has been selected yet; public visibility alone
+does not imply a permissive software license.
+
+## For developers
+
+Start with [design.md](design.md), [requirements](prd.org), and the
+[native safety boundaries](playbook/NATIVE-GATES.md). `native/` contains the
+QML host and integration snippets; `native-admission/` contains the native
+input handoff module; `build-native.mjs` generates exact-firmware patches.
+The `ops/` controllers are operator-specific engineering tools, **not install
+instructions**. They depend on private firmware caches, previously prepared
+artifacts, pinned device identities and the surrounding extension inventory.
+
+Local UI/orchestration checks (Node plus Qt Quick/Qt Test):
+
+```sh
+node --test tests/pilot-layout.test.cjs
+node tests/pilot-menu.mjs
+node tests/pilot-picker.mjs
+```
+
+These tests do not connect to a tablet or establish native handwriting safety.
+There is no promise that the historical full test suite describes today's UI:
+some tests intentionally retain prior prototype/diagnostic contracts.
+
+Useful feedback: pane ownership and navigation, picker ergonomics, reproducible
+firmware compatibility observations, and recovery design. Please include model,
+exact firmware and relevant redacted logs; never upload personal notebooks or keys.
 
 ## Qualification history (before the hands-on pilot)
+
+<details>
+<summary>Historical engineering notes and local diagnostic commands (not installation steps)</summary>
 
 The tap-only size ruler is implemented; the filled mark shows the selected
 size. There is no drag interaction. A real native **during-stroke handoff and
@@ -174,6 +223,8 @@ Their payloads remain reproducible independently of the ordinary ruler UI.
 The old load-probe packaging is blocked for the revised normal payload: its
 controller does not yet install the added ruler file. A new reviewed capsule
 must account for the complete file inventory; rebuilding is not deployment.
+
+</details>
 
 ## Why a separate project?
 

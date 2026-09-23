@@ -31,7 +31,6 @@ exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb
 exact(path.join(firmware,'hashtab'),'1f2a0f7177dac3cdfc030ff32b4643170dd2ef6e2f6c6369b4c4168513ce01f0');
 exact(tool,'5d48704b2b55702bf553f65e0fac46bc2eacd72d3d995ac52b379df7e0ce973d');
 const inc = p => fs.readFileSync('native/'+p+'.qml.inc','utf8');
-const companionIcon = 'data:image/svg+xml;base64,' + fs.readFileSync('assets/companion.svg').toString('base64');
 const affect = (file, root, body, imports='') => `AFFECT /${file}\n${imports}\n TRAVERSE ${root}\n${body}\n END TRAVERSE\nEND AFFECT\n`;
 const insert = text => ` LOCATE BEFORE ALL\n INSERT {\n${text}\n }\n`;
 const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL\n REPLACE { ${before} } WITH { ${after} }\n END REBUILD\n`;
@@ -607,13 +606,14 @@ if (userPilot) q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScop
  type: ToolbarTool.Type.ToolbarButton
  property bool _isExtensionButton: true
  label: "Companion notebook"
- iconSource: ""
- Image {
- anchors.centerIn: parent
- width: parent.width * 0.52
- height: width
- source: "${companionIcon}"
- fillMode: Image.PreserveAspectFit
+ iconSource: "qrc:/ark/icons/notebook"
+ Rectangle {
+ z: 2
+ x: parent.width * 0.57; y: parent.height * 0.56
+ width: parent.width * 0.24; height: parent.height * 0.22
+ color: "white"; border.color: "black"; border.width: Math.max(1, parent.width * 0.016)
+ radius: 1
+ Rectangle { anchors.centerIn: parent; width: parent.width * 0.55; height: 1; color: "black" }
  }
  visible: shouldShow && root.expanded
  shouldShow: root.documentType === "note" || root.documentType === "pdf"

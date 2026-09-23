@@ -1,5 +1,26 @@
 # User-controlled Companion pilot
 
+## Revision230000 — native icon, favorites, public source
+
+Requested native notebook icon restored through qrc:/ark/icons/notebook, with a
+small QML companion-page badge. No stock artwork copied into this repository.
+Picker has Recent/Favorites tabs; Favorites queries LibraryNavigator with
+Documents|Pinned and ignoreParent, matching the stock document drawer rather
+than filtering the recent40 list. Local popup/tab tests and5 layout tests pass;
+full plugin composition and changed-QML parsing pass.
+
+User authorized public GitHub publication and approved the Reddit draft with
+explicit portrait-only wording. Public history pattern scan found no private
+keys or common GitHub/OpenAI/AWS/Google token matches, and no tracked firmware
+binary, notebook, archive or credential paths. README now leads with compatibility,
+limitations and developer entry points rather than historical diagnostics.
+
+- Package:20260923T230000Z-1; retained pairs from220100.
+- Manifest:546c8d82db617a0372b473943a03a5c33df9009e922326ed4d7d6d984334e834.
+- Controller:93a62cd8050c814c1fb16dacd80e087b72156bc34e788a26bb31fbe90ee61abb.
+- Backup:76bc39eb44fad770173cfc961fc5b0c2148ce60748d926712b19ad23788d9a64.
+- Previous session restored base175105 before preparation. No injected input.
+
 ## Revision220100 — accepted-pilot follow-up
 
 User called210500 awesome and requested commit/push; saved that working state

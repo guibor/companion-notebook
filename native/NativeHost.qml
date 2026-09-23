@@ -17,6 +17,7 @@ Item {
     property var secondary: null
     property bool secondarySelected: false
     property bool choosing: false
+    property int pickerTab: 0
     readonly property bool dragging: false // Shared bridge compatibility; no live dragging.
     property bool closing: false
     property real revealHeight: 0
@@ -264,16 +265,30 @@ Item {
             }
             Text {
                 x: 48 * host.unit; y: 112 * host.unit; width: parent.width - 96 * host.unit
-                text: host.error || "Choose a recent notebook or PDF to open alongside this one."
+                text: host.error || "Choose a notebook or PDF to open alongside this one."
                 font.pixelSize: 28 * host.unit; color: "#555"; wrapMode: Text.Wrap
             }
-            Rectangle { x: 48 * host.unit; y: 205 * host.unit; width: parent.width - 96 * host.unit; height: host.unit; color: "#ccc" }
+            Row {
+                visible: !host.error
+                x: 48 * host.unit; y: 178 * host.unit; width: parent.width - 96 * host.unit; height: 78 * host.unit
+                Repeater {
+                    model: ["Recent", "Favorites"]
+                    Item {
+                        required property int index
+                        required property string modelData
+                        width: (pickerCard.width - 96 * host.unit) / 2; height: 78 * host.unit
+                        Text { anchors.centerIn: parent; text: modelData; font.pixelSize: 29 * host.unit; font.bold: host.pickerTab === index }
+                        Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: host.pickerTab === index ? 3 * host.unit : host.unit; color: host.pickerTab === index ? "black" : "#ccc" }
+                        MouseArea { anchors.fill: parent; onClicked: { host.pickerTab = index; recentList.positionViewAtBeginning() } }
+                    }
+                }
+            }
             ListView {
                 id: recentList
-                x: 32 * host.unit; y: 225 * host.unit
-                width: parent.width - 64 * host.unit; height: parent.height - 345 * host.unit
+                x: 32 * host.unit; y: 275 * host.unit
+                width: parent.width - 64 * host.unit; height: parent.height - 395 * host.unit
                 clip: true; boundsBehavior: Flickable.StopAtBounds
-                model: host.choosing && !host.error ? bridge.documents : []
+                model: host.choosing && !host.error ? (host.pickerTab === 0 ? bridge.documents : bridge.favorites) : []
                 delegate: Rectangle {
                     required property var modelData
                     width: recentList.width; height: 122 * host.unit
@@ -297,7 +312,7 @@ Item {
             Text {
                 visible: !host.error && recentList.count === 0
                 anchors.centerIn: recentList; width: recentList.width - 80 * host.unit
-                text: "No eligible recent documents.\nOpen a portrait notebook, then return here."
+                text: host.pickerTab === 0 ? "No eligible recent documents.\nOpen a portrait notebook, then return here." : "No eligible favorites.\nFavorite a portrait notebook or PDF to find it here."
                 font.pixelSize: 28 * host.unit; color: "#555"; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap
             }
             Rectangle {

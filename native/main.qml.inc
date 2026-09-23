@@ -7,6 +7,13 @@ LibrarySearch {
     showRecentsIfTermEmpty: false
     maximumResults: 40
 }
+LibraryNavigator {
+    id: cnFavorites
+    library: Library
+    sortOrder: LibraryView.RecentlyOpenedDate
+    filter: (LibraryView.Documents | LibraryView.Pinned)
+    ignoreParent: true
+}
 Item {
     id: cnBridge
     readonly property var primary: documentView.item
@@ -17,6 +24,7 @@ Item {
     readonly property bool portrait: root.orientation.isPortraitOrientation
     readonly property bool sharingActive: ScreenShareServer.active || Values.rmstreamPhase !== "off"
     property var documents: []
+    property var favorites: []
     // PROBE_BRIDGE
     function canOpen(id) {
         var entry = Library.entryForId(id)
@@ -27,7 +35,11 @@ Item {
     }
     function refreshDocuments() {
         cnRecent.updateNow()
-        documents = cnRecent.entryIds.filter(function(id) { return canOpen(String(id)) })
+        documents = describeDocuments(cnRecent.entryIds)
+        favorites = describeDocuments(cnFavorites.entryIds)
+    }
+    function describeDocuments(ids) {
+        return ids.filter(function(id) { return canOpen(String(id)) })
             .map(function(id) { var e = Library.entryForId(id); return {id: String(id), title: e.visibleName, isPdf: e.fileType === Document.Pdf} })
     }
     function createView(parent, host) {

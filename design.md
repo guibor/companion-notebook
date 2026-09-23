@@ -1,5 +1,15 @@
 # Architecture and implementation status
 
+## Native icon and favorites
+
+The toolbar now uses reMarkable's own qrc:/ark/icons/notebook through its native
+icon renderer, with a small QML companion-page badge above it. No copied stock
+icon or replacement notebook SVG is bundled. The picker has Recent/Favorites
+tabs; cnRecent queries recent documents, while cnFavorites uses the stock
+LibraryNavigator Documents|Pinned filter, independent of the recent40 limit.
+describeDocuments applies the same local/portrait/unlocked eligibility rules to
+both lists. The selected tab is remembered for the current UI session.
+
 ## Popup picker and symmetric document roles
 
 The right endpoint now opens the companion as the new native primary and stores

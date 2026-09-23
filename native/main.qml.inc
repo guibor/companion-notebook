@@ -21,14 +21,14 @@ Item {
     function canOpen(id) {
         var entry = Library.entryForId(id)
         return !!entry && String(entry.id) !== String(primary?.document?.id || "")
-            && entry.fileType === Document.Notebook && !entry.archived
+            && (entry.fileType === Document.Notebook || entry.fileType === Document.Pdf) && !entry.archived
             && !entry.lockedByPassword && !entry.loadError && entry.pageCount > 0
             && entry.orientation === Qt.Vertical
     }
     function refreshDocuments() {
         cnRecent.updateNow()
         documents = cnRecent.entryIds.filter(function(id) { return canOpen(String(id)) })
-            .slice(0, 12).map(function(id) { var e = Library.entryForId(id); return {id: String(id), title: e.visibleName} })
+            .map(function(id) { var e = Library.entryForId(id); return {id: String(id), title: e.visibleName, isPdf: e.fileType === Document.Pdf} })
     }
     function createView(parent, host) {
         return cnViewComponent.createObject(parent, {cnHost: host})

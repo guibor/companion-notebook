@@ -14,17 +14,20 @@ fully qualified release. Move and landscape remain out of scope.
 
 1. Open a notebook or PDF in portrait.
 2. Tap **Companion notebook** on the full toolbar, above Dates.
-3. Choose a different local portrait notebook from the recent-notebook list.
+3. Choose a different local portrait notebook or PDF from the centered recent
+   picker. The list scrolls; tap × or outside the popup to cancel.
 4. Write directly in either pane. Only a hairline separates the pages. The native
    toolbar stays above both canvases, with shared writing-tool settings.
 5. In the three-dot menu, layout pictures select source-only,
    small, medium (default), half, or companion-only. Source-only hides the
-   companion without forgetting the pair. A split picture returns from full
-   companion view to the original source and companion. No controls or labels
+   companion without forgetting the pair. Companion-only swaps roles: the lower
+   document becomes the main document, and split pictures now reveal the previous
+   main document below it. No controls or labels
    sit between the pages. Split sizes are25%,37.5%,50%; no fractions in the UI.
 6. You can also start with a size picture: if unpaired, the picker opens directly.
-   The companion gets a default pairing back to the original notebook, without
-   replacing an existing explicit pair. There is no separate menu off switch;
+   Choosing a partner creates a reverse default without replacing an existing
+   pair; explicitly swapping makes the previous main document its partner.
+   There is no separate menu off switch;
    the independent recovery controller remains available to the operator.
 
 Start with a disposable notebook: mid-stroke sleep, boundary/eraser edge cases
@@ -34,8 +37,8 @@ It is a fallback, not a guarantee against losing an in-progress stroke.
 Activation is runtime-only; reboot does not automatically reactivate Companion.
 Your existing app payloads, notebook files, firmware and boot configuration are
 not replaced. See [the installation record](playbook/log/user_pilot_2026-09-23.md).
-Current revision:210500, with suspend-aware supervision.
-Pair settings carried forward through210000. This adopts RMHacks' separation of split controls from the writing area;
+Current revision:220100, with a popup picker and symmetric document roles.
+Pair settings carried forward through210500. This adopts RMHacks' separation of split controls from the writing area;
 it does not install RMHacks' older firmware patches.
 
 ## Qualification history (before the hands-on pilot)

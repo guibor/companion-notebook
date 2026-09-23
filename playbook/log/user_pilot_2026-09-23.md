@@ -1,5 +1,32 @@
 # User-controlled Companion pilot
 
+## Revision220100 — accepted-pilot follow-up
+
+User called210500 awesome and requested commit/push; saved that working state
+in d37e5c4 before this follow-up. The repository initially had no remote.
+
+Reversed endpoint arrows; full-companion now performs a true role swap and
+persists the previous primary as the reverse partner with its stable page.
+Subsequent splits stay in the new primary. Replaced the full-screen tiled picker
+with a centered recent-document popup above the toolbar, clipped scrolling,
+selection mark, close/dismiss and a quiet unpair action. Recent capacity40;
+full-library browser deferred. PDFs eligible for reverse source pairing.
+Original paired-notebook SVG is embedded in a standard toolbar Image (not Ark's
+private icon resolver). No new remote file or firmware/boot change.
+
+- Package:20260923T220100Z-1, seed210500.
+- Manifest:bc2a471af0d0425a3be920aa25c6d23fe24c1d2e45ccf9c549d72056c5bbcd96.
+- Controller:3a3b40b91541800ad83f2bf5971d19e24af32c5877f2c8d4a0842afab583aedf.
+- Mac-verified backup:3c50863a69cb720fce987e4b78102886585cd33e70694d7776f64caaec8c125f.
+- Invocation:e98773a702f94dd7aa83c97cc183fab6. Prior session restored base169340.
+- Startup16:37:27UTC: host ready ink/settings true, UI171584,
+  owner170517/watch171280 active/NRestarts0. No matching QML/image errors in
+  startup scan. User UX acceptance is separate from this startup receipt.
+- Local:5 orchestration tests,3 popup/icon Qt checks; full base/AppLoad QMD
+  composition and changed-QML parsing passed. No tablet pen tests.
+-220000 was built locally but never uploaded/activated; icon handling was
+  corrected before deployment after reading Ark's private image resolver.
+
 ## Correction210500
 
 210000 reached host-ready onUI162794 but reported TypeError for stackBefore in

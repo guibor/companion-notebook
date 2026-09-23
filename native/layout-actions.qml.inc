@@ -1,9 +1,6 @@
-property var fullReturn: null
-property real returnRatio: -1
 property real pendingLayout: -1
 property string pendingLayoutSource: ""
 property real pickerLayout: -1
-readonly property bool isFullCompanion: !!fullReturn && primaryId === fullReturn.notes
 function layoutChoice(ratio) {
     if (!mayShow || [0, 0.25, 0.375, 0.5, 1].indexOf(ratio) < 0) return false
     pendingLayoutSource = primaryId
@@ -12,11 +9,6 @@ function layoutChoice(ratio) {
 }
 function applyLayoutChoice(ratio) {
     if (!idle || !mayShow) return false
-    if (isFullCompanion) {
-        if (ratio === 1) return true
-        returnRatio = ratio
-        return requestTransition("document", function() { bridge.openPrimary(fullReturn.source, fullReturn.page) })
-    }
     if (ratio === 0) return tuck()
     if (!companionId) {
         pickerLayout = ratio
@@ -26,12 +18,17 @@ function applyLayoutChoice(ratio) {
     }
     if (ratio === 1) {
         if (!companionId) return false
-        rememberReversePair()
-        var target = {source:primaryId, notes:companionId, page:String(bridge.primary.currentPageId)}
+        var target = {source:primaryId, notes:companionId,
+            sourcePage:String(bridge.primary.currentPageId || ""),
+            page:secondary ? String(secondary.currentPageId || "") : String(pairs.pairs[primaryId]?.pageId || ""),
+            ratio:savedRatio}
         return requestTransition("document", function() {
             closeSecondaryParked(false)
-            fullReturn = target
-            bridge.openPrimary(target.notes, "")
+            // An explicit swap establishes the reverse pair, even if this
+            // notebook previously had a different default companion.
+            pairs = Store.set(pairs, target.notes, target.source, target.ratio, target.sourcePage)
+            if (!persist()) throw new Error("Could not retain reverse pairing")
+            bridge.openPrimary(target.notes, target.page)
         })
     }
     if (secondary) return chooseSize(ratio)
@@ -60,15 +57,5 @@ Timer {
         var ratio = host.pickerLayout
         host.pickerLayout = -1
         if (host.secondary && ratio === 1) host.layoutChoice(1)
-    }
-}
-Timer {
-    interval: 100; repeat: true; running: host.returnRatio >= 0 && !!host.fullReturn
-    onTriggered: {
-        if (!host.idle || host.primaryId !== host.fullReturn.source) return
-        var ratio = host.returnRatio
-        host.companionId = host.fullReturn.notes
-        host.fullReturn = null; host.returnRatio = -1
-        if (ratio > 0) { host.savedRatio = ratio; host.openSecondary() }
     }
 }

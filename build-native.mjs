@@ -31,6 +31,7 @@ exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb
 exact(path.join(firmware,'hashtab'),'1f2a0f7177dac3cdfc030ff32b4643170dd2ef6e2f6c6369b4c4168513ce01f0');
 exact(tool,'5d48704b2b55702bf553f65e0fac46bc2eacd72d3d995ac52b379df7e0ce973d');
 const inc = p => fs.readFileSync('native/'+p+'.qml.inc','utf8');
+const companionIcon = 'data:image/svg+xml;base64,' + fs.readFileSync('assets/companion.svg').toString('base64');
 const affect = (file, root, body, imports='') => `AFFECT /${file}\n${imports}\n TRAVERSE ${root}\n${body}\n END TRAVERSE\nEND AFFECT\n`;
 const insert = text => ` LOCATE BEFORE ALL\n INSERT {\n${text}\n }\n`;
 const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL\n REPLACE { ${before} } WITH { ${after} }\n END REBUILD\n`;
@@ -104,7 +105,7 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
    Loader {
      id: cnHostLoader
      ${userPilot ? 'parent: documentView.item || viewRoot\n     anchors.fill: parent' : 'anchors.fill: documentView'}
-     z: 8000
+     z: ${userPilot ? 'item && item.modalOpen ? 10000 : 8000' : '8000'}
      Component.onCompleted: setSource("file:///home/root/.local/lib/companion-notebook/NativeHost.qml", {bridge: cnBridge})
      onStatusChanged: { if (status === Loader.Error) console.warn("Companion: host load failed") }
    }
@@ -115,12 +116,12 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
    }
    Connections {
      target: Values
-     function onCnChooseRequested() { if (cnHost && cnBridge.available) { ${userPilot ? 'cnHost.fullReturn = null; cnHost.pickerLayout = -1;' : ''} cnHost.choose() } }
+     function onCnChooseRequested() { if (cnHost && cnBridge.available) { ${userPilot ? 'cnHost.pickerLayout = -1;' : ''} cnHost.choose() } }
      ${userPilot ? 'function onCnPilotStopRequested() { if (cnHost) cnHost.pilotStop() }' : ''}
      ${userPilot ? 'function onCnLayoutRequested(sizeIndex) { if (cnHost && sizeIndex >= 0 && sizeIndex < 5) cnHost.layoutChoice([0, 0.25, 0.375, 0.5, 1][sizeIndex]) }' : ''}
    }
-   ${userPilot ? `Binding { target: Values; property: "cnHasCompanion"; value: !!cnHost && (!!cnHost.companionId || cnHost.isFullCompanion) }
-   Binding { target: Values; property: "cnLayoutRatio"; value: !cnHost ? 0 : cnHost.isFullCompanion ? 1 : cnHost.paired ? cnHost.savedRatio : 0 }` : ''}
+   ${userPilot ? `Binding { target: Values; property: "cnHasCompanion"; value: !!cnHost && !!cnHost.companionId }
+   Binding { target: Values; property: "cnLayoutRatio"; value: cnHost && cnHost.paired ? cnHost.savedRatio : 0 }` : ''}
  }
  END TRAVERSE
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot > Component#documentViewComponent > DocumentView#documentViewItem
@@ -606,7 +607,14 @@ if (userPilot) q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScop
  type: ToolbarTool.Type.ToolbarButton
  property bool _isExtensionButton: true
  label: "Companion notebook"
- iconSource: "qrc:/ark/icons/notebook"
+ iconSource: ""
+ Image {
+ anchors.centerIn: parent
+ width: parent.width * 0.52
+ height: width
+ source: "${companionIcon}"
+ fillMode: Image.PreserveAspectFit
+ }
  visible: shouldShow && root.expanded
  shouldShow: root.documentType === "note" || root.documentType === "pdf"
  onPressed: { Values.cnChooseRequested(); root.closeFoldout() }
@@ -711,7 +719,7 @@ if (userPilot) {
     host = host.replace('property bool inkQualified: false',
         '// Explicit user-driven pilot; this flag enables native input, NOT a release qualification.\n    property bool inkQualified: true')
         .replace(/}\s*$/, inc('pilot')+'\n'+inc('layout-actions')+'\n}\n');
-    host = host.replace('companionId = id; choosing = false', 'companionId = id; choosing = false; fullReturn = null; rememberReversePair()');
+    host = host.replace('companionId = id; choosing = false', 'companionId = id; choosing = false; rememberReversePair()');
     host = host.replace('if (typeof view.cnNormalizeTools !== "function") continue;',
         'if (view === secondary || typeof view.cnNormalizeTools !== "function") continue;');
     const toolsEnd = '        return transitionPhase !== "failed"\n    } catch (e) {\n        return pageOperationFailed("normalization failed: " + String(e))';

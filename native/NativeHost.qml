@@ -240,33 +240,77 @@ Item {
         TapHandler { onTapped: host.openSecondary() }
     }
     Rectangle {
-        visible: host.choosing; anchors.fill: parent; color: "white"
-        MouseArea { anchors.fill: parent }
-        Column {
-            x: 90 * host.unit; y: 100 * host.unit; width: parent.width - 180 * host.unit; spacing: 30 * host.unit
-            Text { text: host.error ? "Companion unavailable" : "Choose a companion notebook"; font.pixelSize: 48 * host.unit; font.bold: true }
-            Text { width: parent.width; wrapMode: Text.Wrap; text: host.error || "Choose a local notebook. Your source remains open behind it."; font.pixelSize: 32 * host.unit }
-            Repeater {
-                model: host && host.choosing && !host.error ? bridge.documents : []
-                Rectangle {
+        id: pickerOverlay
+        visible: host.modalOpen; anchors.fill: parent; color: "#b3ffffff"
+        MouseArea { anchors.fill: parent; onClicked: host.dismissChooser() }
+        Rectangle {
+            id: pickerCard
+            anchors.centerIn: parent
+            width: Math.min(parent.width - 280 * host.unit, 1120 * host.unit)
+            height: Math.min(parent.height - 320 * host.unit, 1360 * host.unit)
+            radius: 18 * host.unit; color: "white"; border.color: "#555"; border.width: host.unit
+            MouseArea { anchors.fill: parent }
+            Text {
+                x: 48 * host.unit; y: 48 * host.unit
+                width: parent.width - 170 * host.unit
+                text: host.error ? "Companion unavailable" : "Companion notebook"
+                font.pixelSize: 42 * host.unit; font.bold: true; elide: Text.ElideRight
+            }
+            Item {
+                anchors.top: parent.top; anchors.right: parent.right
+                width: 110 * host.unit; height: 130 * host.unit
+                Text { anchors.centerIn: parent; text: "×"; font.pixelSize: 44 * host.unit }
+                MouseArea { anchors.fill: parent; onClicked: host.dismissChooser() }
+            }
+            Text {
+                x: 48 * host.unit; y: 112 * host.unit; width: parent.width - 96 * host.unit
+                text: host.error || "Choose a recent notebook or PDF to open alongside this one."
+                font.pixelSize: 28 * host.unit; color: "#555"; wrapMode: Text.Wrap
+            }
+            Rectangle { x: 48 * host.unit; y: 205 * host.unit; width: parent.width - 96 * host.unit; height: host.unit; color: "#ccc" }
+            ListView {
+                id: recentList
+                x: 32 * host.unit; y: 225 * host.unit
+                width: parent.width - 64 * host.unit; height: parent.height - 345 * host.unit
+                clip: true; boundsBehavior: Flickable.StopAtBounds
+                model: host.choosing && !host.error ? bridge.documents : []
+                delegate: Rectangle {
                     required property var modelData
-                    readonly property real rowUnit: host ? host.unit : 0
-                    width: parent ? parent.width : 0; height: 100 * rowUnit; color: "#f4f4f0"
-                    Text { x: parent ? 20 * parent.rowUnit : 0; anchors.verticalCenter: parent.verticalCenter; width: parent ? Math.max(0, parent.width - 40 * parent.rowUnit) : 0; elide: Text.ElideRight; text: modelData.title; font.pixelSize: parent ? Math.max(1, 34 * parent.rowUnit) : 1 }
-                    MouseArea { anchors.fill: parent; onClicked: host.pick(modelData.id) }
+                    width: recentList.width; height: 122 * host.unit
+                    color: pickArea.pressed ? "#eee" : "white"
+                    Rectangle {
+                        x: 20 * host.unit; anchors.verticalCenter: parent.verticalCenter
+                        width: 34 * host.unit; height: 44 * host.unit
+                        color: "white"; border.color: "black"; border.width: 2 * host.unit
+                        Rectangle { x: 7 * host.unit; y: 0; width: host.unit; height: parent.height; color: "black" }
+                    }
+                    Text {
+                        x: 80 * host.unit; y: 25 * host.unit; width: parent.width - 145 * host.unit
+                        elide: Text.ElideRight; text: modelData.title; font.pixelSize: 32 * host.unit
+                    }
+                    Text { x: 80 * host.unit; y: 72 * host.unit; text: modelData.isPdf ? "PDF" : "Notebook"; font.pixelSize: 23 * host.unit; color: "#666" }
+                    Text { anchors.right: parent.right; anchors.rightMargin: 18 * host.unit; anchors.verticalCenter: parent.verticalCenter; text: modelData.id === host.companionId ? "✓" : "›"; font.pixelSize: 34 * host.unit }
+                    Rectangle { x: 80 * host.unit; anchors.bottom: parent.bottom; width: parent.width - x - 16 * host.unit; height: host.unit; color: "#ddd" }
+                    MouseArea { id: pickArea; anchors.fill: parent; onClicked: host.pick(modelData.id) }
                 }
             }
-            Row {
-                spacing: 40 * host.unit
-                Repeater {
-                    model: host.error ? ["Close"] : ["Cancel", "Remove pairing"]
-                    Rectangle {
-                        required property string modelData
-                        width: 360 * host.unit; height: 100 * host.unit; color: "#e9e9e4"; radius: 14 * host.unit
-                        Text { anchors.centerIn: parent; text: modelData; font.pixelSize: 32 * host.unit }
-                        MouseArea { anchors.fill: parent; onClicked: { if (modelData === "Remove pairing") host.detach(); else host.dismissChooser() } }
-                    }
-                }
+            Text {
+                visible: !host.error && recentList.count === 0
+                anchors.centerIn: recentList; width: recentList.width - 80 * host.unit
+                text: "No eligible recent documents.\nOpen a portrait notebook, then return here."
+                font.pixelSize: 28 * host.unit; color: "#555"; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap
+            }
+            Rectangle {
+                visible: recentList.contentHeight > recentList.height
+                x: parent.width - 17 * host.unit
+                y: recentList.y + recentList.visibleArea.yPosition * recentList.height
+                width: 3 * host.unit; height: Math.max(30 * host.unit, recentList.visibleArea.heightRatio * recentList.height); color: "#777"
+            }
+            Item {
+                visible: !!host.companionId && !host.error
+                x: 40 * host.unit; anchors.bottom: parent.bottom; width: parent.width - 80 * host.unit; height: 100 * host.unit
+                Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; text: "Unpair notebooks"; font.pixelSize: 26 * host.unit; color: "#555" }
+                MouseArea { anchors.fill: parent; onClicked: host.detach() }
             }
         }
     }

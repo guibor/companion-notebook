@@ -1,5 +1,25 @@
 # Architecture and implementation status
 
+## Popup picker and symmetric document roles
+
+The right endpoint now opens the companion as the new native primary and stores
+the old primary as its partner, including stable page positions. No fullReturn
+session override remains: subsequent split presets reveal the previous primary
+below the new one. Explicit swaps update the reverse pair; merely choosing a
+partner still creates only a missing reverse default. Native open/close and
+owned-park handling are unchanged. The endpoint arrows are inverted.
+
+NativeHost's picker is a centered card above a light scrim, with a clipped,
+scrollable recent list, selected-partner mark, close control and understated
+unpair action. The host loader rises above the toolbar only while modalOpen;
+native input is already parked before choosing becomes visible. The list uses
+up to40 recent eligible portrait documents, not an unbounded library browser.
+PDFs are eligible as well so a PDF source can become the lower pane after swap.
+assets/companion.svg is an original monochrome notebook with a smaller paired
+page badge; the builder embeds it as a data URI in a standard Image over the
+native toolbar button, with no additional device file. It bypasses Ark's private
+icon resolver rather than assuming that resolver accepts data URLs.
+
 ## Layout and pairing refinement
 
 The pilot toolbar now has Companion above Dates; the settings menu holds an
@@ -45,9 +65,9 @@ not a zero-height input surface, and retains a session-local source/page return.
 view waits for the original primary to be ready before reopening its companion.
 `build-pilot.mjs` can seed the next session from the prior retained pairs.ini;
 neither notebook contents nor independent app settings are overwritten.
-Revision210500 is now installed: native UI166334 reported host-ready with ink and
-settings enabled; owner165260/fallback166027 active, zero automatic restarts.
-Pair metadata was carried forward through210000. Only local package composition/QML
+Revision220100 is now installed: native UI171584 reported host-ready with ink and
+settings enabled; owner170517/fallback171280 active, zero automatic restarts.
+Pair metadata was carried forward through210500. Only local package composition/QML
 parsing and the installation-startup receipt were read; no tablet interaction
 tests were run. Hands-on behavior remains for the user's feedback.
 

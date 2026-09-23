@@ -27,6 +27,13 @@ Read and write without losing context or compromising native handwriting.
 - Pro only initially; no changes to Move or shared servers.
 
 * Requirements changed
+- User accepted210500 and requested commit/push. Next refinement reverses the
+  endpoint arrows; switching to the companion truly swaps document roles, so
+  subsequent small/medium/half panes show the previous primary. This replaces
+  the old fullReturn behavior that kept original source roles fixed.
+- Replace the full-screen chooser with a polished popup above the toolbar, a
+  scrollable recent list and a dedicated monochrome paired-notebook icon.
+  Full-library browsing is lower priority and remains deferred.
 - Subsequent size refinement: splits are quarter, three-eighths (default), half;
   no three-quarter pane. Source-only and full-companion endpoints remain. Existing
   three-quarter settings normalize to half. Icons remain unlabeled by fractions.
@@ -84,6 +91,10 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0.220100 installed: popup picker, dedicated icon, reversed arrows and true role
+  swap. Host ready onUI171584; owner170517/watch171280 active. User feedback next.
+  Working210500 checkpoint committed asd37e5c4; GitHub remote creation awaits
+  destination confirmation (proposed private guibor/companion-notebook).
 0. Revised210500 is active onUI166334: full-toolbar pairing, size-first picker,
    source/quarter/three-eighths/half/companion spectrum and reverse pair defaults.
    Host ready with ink/settings true; user feedback next, no input automation.

@@ -56,3 +56,18 @@ test('reverse pairing is a default, not an overwrite of another saved pair', () 
   const before=JSON.stringify(s.pairs); s.savedRatio=.75; s.rememberReversePair();
   assert.equal(JSON.stringify(s.pairs),before);
 });
+test('full switch swaps roles and subsequent sizes keep the new main document', () => {
+  const s=fixture(); s.Store=require('../src/PairStore.js'); s.storeReady=true;
+  const a='11111111-1111-4111-8111-111111111111', b='22222222-2222-4222-8222-222222222222';
+  s.primaryId=a; s.companionId=b; s.pairs=s.Store.empty();
+  s.bridge={primary:{currentPageId:''}, openPrimary(id,page) {
+    s.primaryId=id; s.companionId=s.pairs.pairs[id].companion;
+  }};
+  s.closeSecondaryParked=()=>{s.secondary=null;}; s.persist=()=>true;
+  assert.equal(s.applyLayoutChoice(1),true); s.apply();
+  assert.equal(s.primaryId,b); assert.equal(s.companionId,a);
+  assert.equal(s.applyLayoutChoice(.25),true);
+  assert.equal(s.primaryId,b); assert.equal(s.savedRatio,.25); assert.equal(s.opened,true);
+  assert.equal(s.applyLayoutChoice(1),true); s.apply();
+  assert.equal(s.primaryId,a); assert.equal(s.companionId,b);
+});

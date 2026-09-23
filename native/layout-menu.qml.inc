@@ -20,7 +20,7 @@ RowLayout {
                     anchors.margins: 3
                     y: modelData === 0 ? 3 : parent.height - height - 3
                     height: (parent.height - 6) * (modelData === 0 ? 1 : modelData); color: modelData === 0 ? "white" : "#444"
-                    Text { anchors.centerIn: parent; visible: modelData === 0 || modelData === 1; text: modelData === 0 ? "↑" : "↓"; color: modelData === 0 ? "black" : "white"; font.pixelSize: 23 }
+                    Text { anchors.centerIn: parent; visible: modelData === 0 || modelData === 1; text: modelData === 0 ? "↓" : "↑"; color: modelData === 0 ? "black" : "white"; font.pixelSize: 23 }
                 }
             }
             MouseArea { anchors.fill: parent; onClicked: { const choice = index; Values.cnLayoutRequested(choice); root.toolbar.closeFoldout() } }

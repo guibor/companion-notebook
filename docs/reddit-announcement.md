@@ -1,4 +1,6 @@
-# Reddit announcement draft
+# Reddit announcement — published 2026-09-23
+
+Published: https://www.reddit.com/r/RemarkableTablet/comments/1wobgko/i_built_a_writable_splitscreen_companion_for/
 
 Destination: r/RemarkableTablet. Required flair: Self-Promotion.
 

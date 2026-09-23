@@ -20,6 +20,17 @@ limitations and developer entry points rather than historical diagnostics.
 - Controller:93a62cd8050c814c1fb16dacd80e087b72156bc34e788a26bb31fbe90ee61abb.
 - Backup:76bc39eb44fad770173cfc961fc5b0c2148ce60748d926712b19ad23788d9a64.
 - Previous session restored base175105 before preparation. No injected input.
+- Active UI177343, owner176282, watchdog177031; all active with NRestarts0.
+- Invocation:b95f306cd09b4a6b996e2604a6bef21d; host ready16:51:58.676UTC,
+  ink=true and settings=true. Startup scan found no matching QML errors.
+- Matching backup copied to local build/receipts/20260923T230000Z-1/preimages.tgz.
+- Implementation d4b0290 pushed to https://github.com/guibor/companion-notebook;
+  repository PUBLIC, default branch beta/pro/3.29.0.148.
+- Approved announcement published with Self-Promotion flair and explicit
+  portrait-only wording:
+  https://www.reddit.com/r/RemarkableTablet/comments/1wobgko/i_built_a_writable_splitscreen_companion_for/
+- No native input tests, notebook creation, firmware/boot/root writes or Move
+  changes. Hands-on acceptance of this revision remains with the user.
 
 ## Revision220100 — accepted-pilot follow-up
 

@@ -97,10 +97,13 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
-0.220100 installed: popup picker, dedicated icon, reversed arrows and true role
-  swap. Host ready onUI171584; owner170517/watch171280 active. User feedback next.
-  Working210500 checkpoint committed asd37e5c4; GitHub remote creation awaits
-  destination confirmation (proposed private guibor/companion-notebook).
+0.230000 installed: native notebook icon with badge, Recent/Favorites popup,
+  reversed arrows and true role swap. Host ready onUI177343;
+  owner176282/watch177031 active. User hands-on feedback next; no input automation.
+  Implementation committed asd4b0290 and pushed to the public repository
+  https://github.com/guibor/companion-notebook (current branch is default).
+  Approved portrait-only announcement published with Self-Promotion flair:
+  https://www.reddit.com/r/RemarkableTablet/comments/1wobgko/i_built_a_writable_splitscreen_companion_for/
 0. Revised210500 is active onUI166334: full-toolbar pairing, size-first picker,
    source/quarter/three-eighths/half/companion spectrum and reverse pair defaults.
    Host ready with ink/settings true; user feedback next, no input automation.

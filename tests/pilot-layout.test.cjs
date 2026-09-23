@@ -7,6 +7,7 @@ test('Companion icon uses the native notebook at both sizes, with no minus badge
   const icon=builder.slice(builder.indexOf('id: cnCompanionButton'),builder.indexOf('visible: shouldShow && root.expanded',builder.indexOf('id: cnCompanionButton')));
   assert.equal((icon.match(/qrc:\/ark\/icons\/notebook/g)||[]).length,2);
   assert.match(icon,/ArkControls\.Icon/);
+  assert.match(icon,/size: 48\s+scale: parent.width \/ 48/);
   assert.doesNotMatch(icon,/border\.color|height: 1;/);
 });
 function functions(path) {

@@ -1,5 +1,34 @@
 # User-controlled Companion pilot
 
+## Revision233000 — icon-only refinement and public illustrations
+
+User requested replacing the square/minus badge with a baby notebook overlapping
+the normal native notebook. Both sizes now resolve qrc:/ark/icons/notebook through
+the native renderer; a plain white backing separates the outlines. No input,
+picker, pairing, geometry or Move changes. Six local icon/layout checks and full
+base/AppLoad composition plus changed-toolbar parsing pass.
+
+README includes clearly labeled schematic UI mockups with fictional content.
+Source SVG and rendered PNG are public in docs/images. These are not tablet
+screenshots or physical acceptance evidence. Reddit image/caption approval pending.
+
+- Package20260923T233000Z-1 seeded from230000; source commit3b72bdc.
+- Manifest955bce6fb0b5650446479a5e10aa7a7d1f5893c359a6fd08d945dd79328b545b.
+- Controllerb6beaf8cdde43fe28ed0aa2d8f7f29a7ea305f26ed35d3b8b68489c126c5eb04.
+- Base recovered as179994 before prepare; first early prepare refused while
+  recovery was still completing, then successful prepare after the base receipt.
+- Backup5901463ef2bd897957395d6cf1270ad51f5b7a225d5d2445d28c49cce8294352
+  copied to local build/receipts/20260923T233000Z-1/preimages.tgz and verified.
+- Activation invocation41c735294dd6405c8a84dcc3b707f8d1; UI182428 reached
+  host-ready but the baby icon's arbitrary size20 was rejected by Ark's image
+  provider. Native Companion functionality was active; this was an icon warning.
+- Follow-up234000 uses supported native size48 and a visual scale transform.
+  Manifest697a8464d5bdeb4f321718305e86e62aaf3df288da81cbaf0e72e5d5a863e618;
+  controller69f47fdd9a1e29b89153b2bd51ff6afbe1e00952eee9398e32b61318987d4d98.
+  Prior session recovered base183578; verified Mac backup
+  48f6a4e97384bda285ad3a7bc6fd793e17e9d43ea0313e9100365e475e748fdb.
+  Activation invocation429190f8df03466e9118dced356ff26a.
+
 ## Revision230000 — native icon, favorites, public source
 
 Requested native notebook icon restored through qrc:/ark/icons/notebook, with a

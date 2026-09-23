@@ -614,7 +614,8 @@ if (userPilot) q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScop
  color: "white"
  ArkControls.Icon {
  anchors.centerIn: parent
- size: parent.width
+ size: 48
+ scale: parent.width / 48
  source: "qrc:/ark/icons/notebook"
  color: "black"
  }

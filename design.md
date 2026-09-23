@@ -5,8 +5,9 @@
 The toolbar now uses reMarkable's own qrc:/ark/icons/notebook through its native
 icon renderer, with a smaller instance of that same native icon overlapping its
 bottom-right corner. A white backing separates the two notebook outlines; there
-is no border or minus mark on the backing. No copied stock
-icon or replacement notebook SVG is bundled. The picker has Recent/Favorites
+is no border or minus mark on the backing. The baby icon resolves at native size48 and is visually
+scaled down; the provider rejected an arbitrary size20 on the first attempt.
+No copied stock icon or replacement notebook SVG is bundled. The picker has Recent/Favorites
 tabs; cnRecent queries recent documents, while cnFavorites uses the stock
 LibraryNavigator Documents|Pinned filter, independent of the recent40 limit.
 describeDocuments applies the same local/portrait/unlocked eligibility rules to

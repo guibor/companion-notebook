@@ -29,8 +29,11 @@ function pageOperationFailed(reason) {
     return false
 }
 function pageMayMutate(view) {
+    var stockOpen = view === bridge.primary && !secondary && !pagePendingAdd
+        && transitionIntent && transitionIntent.name === "document"
     return !!pageOwner(view) && transitionApplying && transitionOwnsPark()
-        && inputGeometryPending && transitionPhase !== "failed" && mayShow && !transitionAvailabilityLost
+        && inputGeometryPending && transitionPhase !== "failed"
+        && ((mayShow && !transitionAvailabilityLost) || stockOpen)
         && (!pagePendingAdd || (pagePendingAdd.completing && pagePendingAdd.view === view))
 }
 function pageOperation(view, operation) {

@@ -41,7 +41,7 @@ function fixture() {
         permitPublication(){assert(!host.pagePendingAdd);this.phase='publishing';events.push('publish');return true;},
         finish(){this.phase='ready';events.push('finish');return true;}};
     const timer = {running:false, restart(){this.running=true;}, stop(){this.running=false;}};
-    const bridge = {primary, viewReady:v=>v.ready, penInput:{surfaceManager:{updateRegions(){}}}, endAnimation(){}};
+    const bridge = {primary, inputAvailable:true, viewReady:v=>v.ready, penInput:{surfaceManager:{updateRegions(){}}}, endAnimation(){}};
     const context = {host, bridge, admissionGate:gate, transitionTimer:timer,
         console:{warn:s=>events.push(s), log:s=>events.push(s)}};
     for (const key of Object.getOwnPropertyNames(host))
@@ -73,6 +73,17 @@ function fixture() {
     const complete = (v=secondary) => {insert(v);return callback(v);};
     return {host,primary,secondary,bridge,gate,timer,events,ack,finish,select,start,insert,callback,complete,view};
 }
+test('hidden stock primary initialization is limited to its applying document-open park',()=>{
+    const f=fixture(),h=f.host;
+    h.secondary=null;h.mayShow=false;h.transitionAvailabilityLost=true;
+    h.transitionIntent={name:'document'};h.transitionApplying=true;
+    h.inputGeometryPending=true;f.gate.phase='parked';
+    assert(h.pageMayMutate(f.primary));assert(!h.pageMayMutate(f.secondary));
+    h.transitionIntent={name:'page'};assert(!h.pageMayMutate(f.primary));
+    h.transitionIntent={name:'document'};h.transitionApplying=false;assert(!h.pageMayMutate(f.primary));
+    h.transitionApplying=true;f.gate.phase='draining';assert(!h.pageMayMutate(f.primary));
+    f.gate.phase='parked';h.inputGeometryPending=false;assert(!h.pageMayMutate(f.primary));
+});
 test('synchronous page navigation drains first, keeps both documents, and publishes only the new controller',()=>{
     const f=fixture(), old=f.secondary.sceneController, main=f.primary.sceneController;
     assert(f.host.pageOperation(f.secondary,()=>f.select(f.secondary,1)));

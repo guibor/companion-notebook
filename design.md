@@ -6,9 +6,9 @@ Corrected trial `20260923T052500Z-1` passed the actual ordinary host controls on
 native UI97653: two new disposable notes, four correctly attributed submissions,
 half/two-thirds sizing, tuck/reveal and chooser cancellation. The independent
 controller reported its machine-pass marker and automatic recovery to normal
-base UI99661/Dates14463. The tablet then became unreachable during the separate
-saved-file readback and independent recovery postcheck. Those two checks remain
-pending; no saved-file or everyday-release success is inferred from that marker.
+base UI99661/Dates14463. After a temporary connectivity gap, independent saved-file
+readback and full recovery checks both passed. All four shapes are persisted in
+the correct disposable notes; this is not an everyday-release qualification.
 The frozen trial bytes remain unchanged. See the exact hashes and remaining
 checks in [the controls receipt](playbook/log/ordinary_controls_2026-09-23.md).
 
@@ -20,13 +20,20 @@ preserving them in the desktop source. All five fail-fast scans now recognize
 host/type-load failures. The subsequent corrected trial is the pass above; the
 earlier transient approval-service error is resolved, not a current blocker.
 
+The next lifecycle capsule103000 passed exact independent review and was staged
+locally with manifest `1d0bd6381c25f8c2d8787f8cc13b0556fa31ebd155b31e7ee03a8c6c7a0b53b9`.
+The Pro then stopped answering before the first upload SSH connection. No remote
+prepare, backup or activation ran. Local staging clearance is consumed; the
+unchanged unused capsule may proceed once reachable, with fresh live/backup gates.
+Later source changes for hidden-primary handling are not in this frozen capsule.
+
 Current source also guards page/add-page operations, secondary close and grouped
 tool/history changes. These changes are newer than the frozen passing diagnostic
 and are **local only**. Normal Companion remains pen-disabled and is not installed
 for personal notebooks. Native page/tool/boundary/sleep tests and a successful
 saved-file/readback check still precede ordinary deployment.
-The current local source passes359 Node cases (7 historical skips),67 Qt cases,
-26 saved-file fixtures and three-order composition with33 resources per order.
+The current local source passes387 Node cases (7 historical skips),68 Qt cases,
+31 saved-file fixtures and three-order composition with33 resources per order.
 The frozen passing ordinary diagnostic had30; its files/manifest were not changed.
 
 Trial `20260922T233500Z-1` now completes the real native cold-start, during-stroke
@@ -57,6 +64,17 @@ geometry timers are not included in the ordinary build.
 `applyTransition()` preserves a failure reported by a synchronous native callback;
 returning from that callback must never overwrite `failed` with `loading` and
 resume a partially completed operation.
+
+New local-only availability handling retains the owned worker park in
+`suspended` when the primary is hidden or absent. It stops the readiness timer
+and never attempts empty-candidate publication. `resumeAvailableInput()` resumes
+the same validated refresh/publication path once stock input is actually visible,
+including landscape. Only a stock primary document-open operation may continue
+the suspended park; its nested initial page selection gets a narrow parked-only
+allowance. The pointer shield releases for library interaction, except for its
+own outstanding pressed grab. No power state, sleep policy or native core is
+changed. Actual sleep ordering and native wake qualification remain open; this
+change is NOT part of the frozen reviewed lifecycle trial103000.
 
 `NativeHost.qml` routes its controls through that adapter. `nativeOperation()`
 also protects the stock open/close path while a companion is retained. The builder
@@ -147,6 +165,27 @@ checks read the C++ getter at the call boundary: its notification is queued and
 must not be mistaken for the immediate parked acknowledgement.
 
 ### Actual-control disposable qualification
+
+The separate `lifecycle` profile adds `native/lifecycle-probe.qml.inc` to the
+current ordinary host. `probeLifecycleTick()` performs undo/redo in both panes,
+switches the companion eraser/pen, adds and returns from a new page in each note,
+then closes and reopens the actual secondary view. It preserves the original
+four-stroke receipts and checks exact document/page ownership through controller
+replacement. No extra ink, personal documents, file mutations or power controls
+are added. This new profile needs its own reviewed bounded trial; it is not an
+installer and does not replace the frozen passing ordinary profile.
+`build-lifecycle-controller.mjs` derives from the exact successful controller;
+only completion receipts and the post-ink completion poll allowance differ.
+Its overall watchdog, release helpers, hashes and restore logic stay unchanged.
+The saved-file verifier requires ordered history/tool/page/reopen receipts, both
+original page IDs and exactly one new page per note, with all four original
+shapes retained and no ink on either new page. This is still not a release claim.
+Review found two defects before device activation: the bar Redo insertion missed
+its source anchor, and the diagnostic refused a sole primary after closing the
+secondary. The builder now asserts the exact Undo anchor before adding Redo;
+the lifecycle test uses the actual bar Redo. `probeSolePrimary()` admits only the
+created primary view/document/scene/controller during the close/reopen interval,
+allowing normal fresh-candidate publication without relaxing the native fence.
 
 The next separate `CN_ORDINARY_PROBE=1` profile runs the actual ordinary host
 and ruler/transaction code on two new labelled disposable notebooks. Its driver

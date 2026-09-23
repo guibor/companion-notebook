@@ -34,7 +34,7 @@ function fixture() {
         permitPublication(){this.phase='publishing';events.push('publish');return true;},
         finish(){this.phase='ready';events.push('finish');return true;}};
     const timer={running:false,restart(){this.running=true;},stop(){this.running=false;}};
-    const bridge={primary,viewReady:v=>v.ready,penInput:{surfaceManager:{updateRegions(){}}},endAnimation(){}};
+    const bridge={primary,inputAvailable:true,viewReady:v=>v.ready,penInput:{surfaceManager:{updateRegions(){}}},endAnimation(){}};
     const context={host,bridge,admissionGate:gate,transitionTimer:timer,
         console:{warn:s=>events.push(s),log:s=>events.push(s)}};
     for(const key of Object.getOwnPropertyNames(host))Object.defineProperty(context,key,

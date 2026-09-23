@@ -56,10 +56,12 @@ def verify(directory):
     retirement_success = "Companion probe: retirement ink submissions completed; panes=2; strokes=4; durable=unverified"
     admission_success = "Companion probe: admission ink submissions completed; panes=2; strokes=4; durable=unverified"
     ordinary_success = "Companion probe: ordinary ink submissions completed; panes=2; strokes=4; durable=unverified"
+    lifecycle_success = "Companion probe: lifecycle ink submissions completed; panes=2; strokes=4; durable=unverified"
     retirement = retirement_success in log
     admission = admission_success in log
-    ordinary = ordinary_success in log
-    assert sum((retirement, admission, ordinary, fixed_success in log)) == 1, "Require exactly one successful profile"
+    lifecycle_profile = lifecycle_success in log
+    ordinary = ordinary_success in log or lifecycle_profile
+    assert sum((retirement, admission, ordinary_success in log, lifecycle_profile, fixed_success in log)) == 1, "Require exactly one successful profile"
     multiple_rounds = retirement or admission or ordinary
     rounds = 2 if multiple_rounds else 1
     if retirement:
@@ -87,7 +89,7 @@ def verify(directory):
         reopened = unique_position("Companion ordinary: preset completed; height=1440; fresh-candidates=true" if ordinary
                                    else "Companion admission: round=2; height=1440; fresh-candidates=true")
         closed = unique_position("Companion ink: gate closed")
-        completed = unique_position(ordinary_success if ordinary else admission_success)
+        completed = unique_position(lifecycle_success if lifecycle_profile else ordinary_success if ordinary else admission_success)
         ordered_submissions = list(re.finditer(
             r"Companion ink: submitted pane=([01]); points=(\d+); bounds=("
             + ",".join([NUMBER] * 4) + r"); round=([12])(?=\s|$)", log))
@@ -104,6 +106,18 @@ def verify(directory):
         else:
             lifecycle = unique_position("Companion ordinary: lifecycle completed; tuck=true; reveal=true; cancel=true")
             assert fourth < lifecycle < closed, "Ordinary lifecycle receipts are out of order"
+            if lifecycle_profile:
+                history = unique_position("Companion lifecycle: history passed; panes=2; undo=true; redo=true")
+                tools = unique_position("Companion lifecycle: tools passed; eraser=true; pen=true")
+                page_receipts = list(re.finditer(r"Companion lifecycle: pages passed; original=(" + UUID + "),(" + UUID
+                                               + "); added=(" + UUID + "),(" + UUID + r")(?=\s|$)", log))
+                assert len(page_receipts) == 1 and log.count("Companion lifecycle: pages passed;") == 1, "Require one exact page receipt"
+                page_receipt = page_receipts[0]
+                original_pages = page_receipt.groups()[:2]
+                added_pages = page_receipt.groups()[2:]
+                assert len(set(page_receipt.groups())) == 4, "Lifecycle pages must have distinct UUIDs"
+                reopened_native = unique_position("Companion lifecycle: native close/reopen passed; pairing=true; original-page=true")
+                assert fourth < history < tools < page_receipt.start() < reopened_native < lifecycle, "Native page/tool receipts are out of order"
     reports = []
     for pane, document_id in enumerate(created[0]):
         pattern = r"submitted pane=" + str(pane) + r"; points=(\d+); bounds=(" + ",".join([NUMBER]*4) + r")"
@@ -127,6 +141,19 @@ def verify(directory):
         assert metadata["visibleName"].startswith(label), "Not a labelled disposable notebook"
         assert directory.is_dir() and not directory.is_symlink()
         files = list(directory.glob("*.rm"))
+        if lifecycle_profile:
+            content_path = directory.with_suffix(".content")
+            assert content_path.is_file() and not content_path.is_symlink()
+            content = json.loads(content_path.read_text())
+            assert content["pageCount"] == 2, "Expected two pages after native page addition"
+            assert [item["id"] for item in content["cPages"]["pages"]] == [original_pages[pane], added_pages[pane]], "Saved page UUID/order mismatch"
+            assert all(file.stem in (original_pages[pane], added_pages[pane]) and not file.is_symlink() for file in files), "Unexpected page file"
+            for blank in [file for file in files if file.stem == added_pages[pane]]:
+                with blank.open("rb") as stream:
+                    blank_blocks = list(read_blocks(stream))
+                assert not any(isinstance(block, UnreadableBlock) for block in blank_blocks), "Unreadable new-page data"
+                assert not any(isinstance(block, SceneLineItemBlock) and block.item.value is not None for block in blank_blocks), "Unexpected ink on the added blank page"
+            files = [file for file in files if file.stem == original_pages[pane]]
         assert len(files) == 1, "Expected one saved native page in each new notebook"
         page = files[0]
         assert re.fullmatch(UUID + r"\.rm", page.name) and not page.is_symlink()
@@ -153,11 +180,13 @@ def verify(directory):
                   "sha256": hashlib.sha256(page.read_bytes()).hexdigest()}
         report.update({"strokes": matched} if multiple_rounds else matched[0])
         reports.append(report)
-    status = ("four-disposable-stroke-shapes-persisted-after-ordinary-lifecycle" if ordinary
+    status = ("four-disposable-stroke-shapes-and-native-page-lifecycle-persisted" if lifecycle_profile
+              else "four-disposable-stroke-shapes-persisted-after-ordinary-lifecycle" if ordinary
               else "four-disposable-stroke-shapes-persisted-after-admission" if admission
               else "four-disposable-stroke-shapes-persisted-after-retirement" if retirement
               else "two-disposable-stroke-shapes-persisted")
     return {"status": status, "nativeReopenVerified": False,
+            "nativePageLifecycleReceiptVerified": lifecycle_profile,
             "exactSamplePreservationVerified": False,
             "visualClippingVerified": False, "releaseQualified": False, "panes": reports}
 

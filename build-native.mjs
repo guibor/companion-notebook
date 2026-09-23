@@ -11,16 +11,17 @@ const geometryProbe = process.env.CN_PROBE === 'geometry';
 const retirementProbe = process.env.CN_PROBE === 'retirement';
 const admissionProbe = process.env.CN_PROBE === 'admission';
 const visualProbe = process.env.CN_PROBE === 'visual';
-const ordinaryProbe = process.env.CN_ORDINARY_PROBE === '1';
+const lifecycleProbe = process.env.CN_PROBE === 'lifecycle';
+const ordinaryProbe = process.env.CN_ORDINARY_PROBE === '1' || lifecycleProbe;
 const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe || admissionProbe;
 const noCaptureProbe = structuralProbe || geometryProbe || inkProbe || visualProbe;
 const diagnostic = renderProbe || noCaptureProbe;
 // Preserve the previously reviewed diagnostic bytes. This new navigation
 // candidate is local-only until it receives a separately scoped native trial.
 const paneNavigation = !diagnostic || geometryProbe || inkProbe;
-assert(!process.env.CN_PROBE || diagnostic, 'Unknown probe profile');
+assert(!process.env.CN_PROBE || diagnostic || lifecycleProbe, 'Unknown probe profile');
 assert(!ordinaryProbe || !diagnostic, 'Ordinary lifecycle probe is separate from historical profiles');
-const output = ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
+const output = lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
@@ -54,6 +55,13 @@ if (visualProbe) {
     assert(!probeBridge.includes('createDocument('));
 }
 let main = inc('main').replace('// PROBE_BRIDGE', probeBridge);
+if (!diagnostic) {
+    const portrait = 'readonly property bool portrait: root.orientation.isPortraitOrientation';
+    assert.equal(main.split(portrait).length, 2, 'Input visibility anchor drift');
+    // Effective Item visibility includes the deep-sleep ancestor. Stock input
+    // can resume in landscape; historical diagnostic bytes stay unchanged.
+    main = main.replace(portrait, portrait + '\n    readonly property bool inputAvailable: available && !!primary && primary.visible');
+}
 if (!diagnostic) main = main.replace('cnHost.closeSecondary(false); cnHost.error = "The companion could not load."',
     'cnHost.transitionFail("native document failed to load")');
 q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagnostic && !inkProbe ? 'enabled: false\n' : '') + main) + `
@@ -125,9 +133,11 @@ Connections {
 `;
 }
 if (!diagnostic) {
+    const undoAction = 'case "Undo": sceneController.undo(); break';
+    assert.equal(document.split(undoAction).length, 2, 'Native bar Undo anchor drift');
     document = document.replace('if (!cnHost || !cnHost.idle || !cnHost.inkQualified || !cnSelected || !document) return',
         'if (!cnHost || !cnHost.transitionApplying || !cnHost.transitionOwnsPark() || !cnHost.inkQualified || !cnSelected || !document) return')
-        .replace('case "Undo": sceneController.undo(); break;', 'case "Undo": sceneController.undo(); break;\n    case "Redo": sceneController.redo(); break;');
+        .replace(undoAction, undoAction + '\n    case "Redo": sceneController.redo(); break');
     document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/,
         'readonly property bool cnInkAllowed: (!cnHost || !cnHost.inputGeometryPending) && ((!cnPaired && !cnSecondary) || (!!cnHost && cnHost.inkQualified && cnPaired))');
     const start = document.indexOf('function cnNativeClose() {');
@@ -180,6 +190,22 @@ function cnProbeExpectedBounds(i) {
 }
 `;
 }
+if (lifecycleProbe) document += `
+function cnProbeState() {
+    return {page: String(root.currentPageId), index: root.currentPage,
+        pages: root.document.pageCount, undo: !!sceneController.undoAvailable,
+        redo: !!sceneController.redoAvailable, tool: String(documentViewTools.activeTool),
+        writing: documentViewTools.isWritingTool(documentViewTools.activePen.tool)}
+}
+function cnProbeHistory(action) {
+    if (action === "undo") toolbar.undoSelected()
+    else if (action === "redo") toolbar.redoSelected()
+    else throw new Error("unknown history test action")
+}
+function cnProbePage(index) { root.openPage(index) }
+function cnProbeAdd() { root.addPage(root.document) }
+function cnProbeClose() { root.close() }
+`;
 if (diagnostic) {
     document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, inkProbe
         ? 'readonly property bool cnInkAllowed: !!cnHost && cnHost.probeAllows(root)'
@@ -622,7 +648,22 @@ if (ordinaryProbe) {
     const start=prior.indexOf('function probeBeforeSubmit('), end=prior.indexOf('function probePanesReady(');
     assert(start>0 && end>start);
     const receipts=prior.slice(start,end).replace('Companion retirement: received','Companion ordinary: received');
-    const driver=inc('ordinary-probe').replace('// RECEIPT_FUNCTIONS',receipts);
+    let driver=inc('ordinary-probe').replace('// RECEIPT_FUNCTIONS',receipts);
+    if (lifecycleProbe) {
+        const replaceDriver=(before,after)=>{
+            assert.equal(driver.split(before).length,2,'Lifecycle driver anchor drift: '+before);
+            driver=driver.replace(before,()=>after);
+        };
+        replaceDriver('host.probeDocumentLocked && !host.probeIdentities()',
+            'host.probeDocumentLocked && !host.probeLifecycleBusy && !host.probeIdentities()');
+        replaceDriver('probeDocuments.length === 2 && bridge.probeSeparate(host)\n        && ((view',
+            'probeDocuments.length === 2 && (bridge.probeSeparate(host) || probeSolePrimary(view))\n        && ((view');
+        replaceDriver('if (!host.tuck()) throw new Error("ordinary tuck refused")',
+            'if (!host.probeLifecycleDone && !host.probeLifecycleTick()) return\n                if (!host.tuck()) throw new Error("ordinary tuck refused")');
+        replaceDriver('ordinary ink submissions completed; panes=2; strokes=4; durable=unverified',
+            'lifecycle ink submissions completed; panes=2; strokes=4; durable=unverified');
+        driver=inc('lifecycle-probe')+'\n'+driver;
+    }
     host=host.replace('property bool inkQualified: false','property bool inkQualified: true')
         .replace(/}\s*$/,driver+'\n}\n');
 }

@@ -98,6 +98,28 @@ do not activate or replay its capsule.
 
 ## Newer local safeguards, not yet native-qualified
 
+### Reconnection closes the pending readback gap
+
+The Pro subsequently reconnected at its known-key address. Fresh independent
+verification passed exact device/base/runtime/policies/settings, root read-only,
+normal UI99661/Dates14463 with zero restarts, absent host/data/lock and absent
+owner/watch cgroups. Both specifically labelled disposable notebooks were copied.
+The strict verifier passed all four actual saved shapes, two per original page:
+
+- Reference page `ec0b7fef-30f1-4faf-92fa-7649ba492019`, SHA256
+  `f4c9ea5f063a83ba33ba2d1736f270bbdd1c690d471ee5c70baed6ae9e83fd8e`.
+- Notes page `744c13ac-ce16-495c-a2ce-9c4d2e757813`, SHA256
+  `4ec4156e42b98dcb31a15edbe34213fa72a4c05db84954ffbe158fa6775c0114`.
+
+Each native31-point stroke is represented by24 saved samples and matches the
+qualified geometric bounds/shape constraints. The parser reports111 unparsed
+SceneInfo metadata bytes per page, not unreadable line blocks. Its status is
+`four-disposable-stroke-shapes-persisted-after-ordinary-lifecycle`; visual,
+exact-sample, new native reopen and release flags remain false. The preceding
+connectivity gap is now resolved; no new runtime activation occurred for readback.
+
+### Local implementation after that frozen cohort
+
 The normal builder now protects whole native page/tool operations, async page
 addition, secondary close, tool selection and history. Review caught that native
 WritingTool/EraserMenu callbacks keep executing after `requestPenSelect`: guarding

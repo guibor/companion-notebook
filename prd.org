@@ -52,29 +52,23 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
-0. Corrected trial20260923T052500Z-1 passed actual ordinary controls on native
-   UI97653: pair at720, resize1080, two strokes, resize1440, two strokes, tuck,
-   reveal and cancel, final park and full controller stability marker. Controller
-   reported automatic normal recovery to UI99661/Dates14463. SSH then stopped
-   responding during independent postcheck/saved-file copying; a full subnet
-   port scan found only a nonmatching host. Await Pro wake/reconnection for exact
-   saved-file verification and the fresh independent recovery check. Do not claim
-   persisted ink or an everyday installation from the controller marker alone.
-   Local next implementation is ready for qualification: secondary close clears
-   its retained slot; page operations and asynchronous additions hold the worker
-   parked and reject stale identities/callbacks; toolbar/keyboard/touch history
-   and whole tool-setting groups now use owner-checked edits. Native undo/redo,
-   page addition, close/reopen, boundary/eraser and sleep coverage remain to test;
-   virtual-keyboard and delayed HWC edit entry points remain to guard or scope.
-   Review found and corrected native multi-signal caller continuations: intercept
-   whole WritingTool/EraserMenu/SelectionButton pressed groups and erase-all,
-   not only requestPenSelect. Normalize the current pen as one parked group before
-   input publication, retaining delayed native color/thickness validation.
-1. After reconnection, finish the READ-ONLY checks on this consumed trial first.
-   Do not replay it. Then prepare one distinct bounded native page/tool/lifecycle
-   cohort from the current source, with exact artifact review and recovery backup.
-2. Keep ordinary/personal-document ink off until the remaining native gates pass.
-   No Move port, firmware changes or recurring-install inclusion in this slice.
+1. Pro became unreachable before the first upload connection for lifecycle trial
+   20260923T103000Z-1. Full LAN scan found no alternative Pro endpoint. No remote
+   preparation or activation occurred. Resume the already reviewed, unused local
+   capsule only after fresh strict-key identity/base checks and a Mac-verified
+   recovery backup. Manifest1d0bd6381c25f8c2d8787f8cc13b0556fa31ebd155b31e7ee03a8c6c7a0b53b9.
+   Staging clearance is consumed; do not regenerate or reuse a different payload.
+2. Run its combined native history, tool, page-add/return and close/reopen sequence,
+   automatic recovery and saved-file verification. Review corrected the sole-
+   primary diagnostic gate and actual bar Redo before this capsule was frozen.
+3. Qualify the later local sleep/library publication fix separately. It retains
+   an owned park without an invisible input candidate; visible wake/stock open
+   resumes the normal fresh-publication path. No power policy or core change.
+   Native sleep ordering, boundary/eraser, delayed HWC/keyboard and extension
+   coverage still precede personal-notebook release.
+4. Ordinary trial052500 readback is COMPLETE: four correctly attributed saved
+   shapes and exact recovery to UI99661/Dates14463. Do not replay that old test.
+   Keep personal-document ink off, Move untouched and no recurring-install entry.
 
 * Qualification history (not current next actions)
 0. Latest stopping point2026-09-23: ordinary-control cohort passed independent

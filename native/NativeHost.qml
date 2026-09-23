@@ -148,6 +148,7 @@ Item {
         else if (!transitionBusy) error = ""
     }
     function nativeOperation(view, operation) {
+        if (transitionPhase === "suspended" && (secondary || view !== bridge.primary)) return false
         if (transitionApplying || (!secondary && (transitionPhase === "cold" || transitionPhase === "idle"))) { operation(); return true }
         return requestTransition("document", function() {
             if (view === bridge.primary) closeSecondaryParked(false)
@@ -177,7 +178,7 @@ Item {
         })
     }
     function hideWhenUnavailable() {
-        if (mayShow) return
+        if (mayShow) { resumeAvailableInput(); return }
         if (secondary || transitionBusy || choosing) transitionAvailabilityLost = true
         if ((secondary || choosing) && (transitionPhase === "idle" || transitionPhase === "choosing"))
             requestTransition("unavailable", function() { choosing = false; closeSecondaryParked(false) })

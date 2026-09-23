@@ -49,7 +49,8 @@ function transitionFail(reason) {
 }
 function requestTransition(name, apply) {
     if (typeof apply !== "function") return false
-    if (transitionPhase === "choosing" && transitionOwnsPark()) {
+    if ((transitionPhase === "choosing" || (transitionPhase === "suspended" && name === "document" && !secondary))
+            && transitionOwnsPark()) {
         transitionIntent = {name: name, apply: apply}
         applyTransition()
         return transitionPhase !== "failed"
@@ -104,6 +105,21 @@ function transitionVisibleViews() {
     if (paired && secondary && secondary.document) views.push(secondary)
     return views
 }
+function resumeAvailableInput() {
+    if (transitionPhase !== "suspended" || !bridge.inputAvailable) return
+    if (!transitionOwnsPark() || !inputGeometryPending || secondary) {
+        transitionFail("suspended input lost its owned park"); return
+    }
+    transitionAvailabilityLost = false
+    transitionAfter = transitionSnapshot()
+    transitionTicks = 0
+    transitionPhase = "loading"
+    transitionTimer.restart()
+}
+Connections {
+    target: bridge
+    function onInputAvailableChanged() { host.resumeAvailableInput() }
+}
 function transitionAdvance() {
     if (transitionPhase !== "loading" && transitionPhase !== "settling") return
     try {
@@ -119,6 +135,15 @@ function transitionAdvance() {
             transitionApplying = false
             transitionAvailabilityLost = false
             transitionAfter = transitionSnapshot()
+        }
+        if (!bridge.inputAvailable) {
+            // No visible primary can publish a fresh candidate. Retain the
+            // owned park without polling through sleep/library; stock document
+            // open can continue in this same park, and wake resumes validation.
+            // Never pretend that updateRegions on an empty cache is a fence.
+            transitionPhase = "suspended"
+            transitionTimer.stop()
+            return
         }
         // Controller construction may complete asynchronously; freeze identities
         // only once every expected native view is actually ready.
@@ -172,7 +197,7 @@ Timer { id: transitionTimer; interval: 100; repeat: true; onTriggered: host.tran
 MouseArea {
     id: transitionShield
     anchors.fill: parent; z: 10000
-    enabled: (host.transitionBusy && host.transitionPhase !== "choosing") || pressed
+    enabled: (host.transitionBusy && host.transitionPhase !== "choosing" && host.transitionPhase !== "suspended") || pressed
     acceptedButtons: Qt.AllButtons
     preventStealing: true
     propagateComposedEvents: false

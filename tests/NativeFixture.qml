@@ -76,6 +76,7 @@ Item {
         property var primary: primaryView
         property var penInput: mockPen
         property bool available: true
+        readonly property bool inputAvailable: available && !!primary && !!primary.document && primary.visible
         property bool portrait: true
         property bool sharingActive: false
         property bool failCreate: false

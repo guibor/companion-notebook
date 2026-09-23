@@ -33,7 +33,7 @@ function fixture() {
     pause(manager,g){assert.equal(this.phase,'ready');this.phase='draining';calls.push('pause:'+g);return true;},
     permitPublication(g){assert(host.inputGeometryPending);assert.equal(this.phase,'parked');this.phase='publishing';calls.push('permit:'+g);return true;},
     finish(g){assert(!host.inputGeometryPending);assert.equal(this.phase,'publishing');calls.push('finish:'+g);if(this.refuseFinish)return false;this.phase='ready';return true;}};
-  const bridge={primary,viewReady:v=>v.ready,penInput:{surfaceManager:{updateRegions(){calls.push('regions');}}},
+  const bridge={primary,inputAvailable:true,viewReady:v=>v.ready,penInput:{surfaceManager:{updateRegions(){calls.push('regions');}}},
     endAnimation(){calls.push('repaint');}};
   const timer={running:false,restart(){this.running=true;},stop(){this.running=false;}};
   const c={host,bridge,admissionGate:gate,transitionTimer:timer,console:{warn:s=>calls.push(s),log:s=>calls.push(s)}};
@@ -41,7 +41,7 @@ function fixture() {
   vm.createContext(c);
   for(const [name,args] of [['transitionOwnsPark',''],['transitionSnapshot',''],['transitionSame','records'],['transitionFail','reason'],
     ['requestTransition','name,apply'],['transitionPark','generation'],['applyTransition',''],
-    ['transitionVisibleViews',''],['transitionAdvance',''],['transitionComplete','generation']]) {
+    ['transitionVisibleViews',''],['resumeAvailableInput',''],['transitionAdvance',''],['transitionComplete','generation']]) {
     host[name]=vm.runInContext('(function('+args+'){'+body(source,'function '+name+'(')+'})',c);
     Object.defineProperty(c,name,{get:()=>host[name],configurable:true});
   }
@@ -130,8 +130,32 @@ test('ordinary head interception preserves upstream open helper anchors and cove
   assert.doesNotMatch(builder,/RENAME _open_helper TO/);
   assert.match(builder,/REBUILD _open_helper\n\+? LOCATE BEFORE ALL/);
   assert.match(builder,/cnHost\.nativeOperation\(root, function\(\) \{ root\._open_helper\(documentToOpen, pageToOpen, highlightDetails\)/);
-  assert.match(source,/enabled: \(host\.transitionBusy && host\.transitionPhase !== "choosing"\) \|\| pressed/);
+  assert.match(source,/enabled: \(host\.transitionBusy && host\.transitionPhase !== "choosing" && host\.transitionPhase !== "suspended"\) \|\| pressed/);
   assert.doesNotMatch(source,/onPenDownChanged.*enabled|setFilterEvents|\/dev\/input|grabToImage/);
+});
+test('hidden primary holds the actual park without empty publication or readiness timeout',()=>{
+  const f=fixture();f.host.requestTransition('unavailable',()=>{});
+  f.host.mayShow=false;f.bridge.inputAvailable=false;f.host.transitionAvailabilityLost=true;
+  f.ack();f.host.transitionAdvance();
+  assert.equal(f.host.secondary,null);assert.equal(f.host.transitionPhase,'suspended');
+  assert(f.host.inputGeometryPending);assert.equal(f.gate.phase,'parked');assert(!f.timer.running);
+  for(let i=0;i<200;i++)f.host.transitionAdvance();
+  assert.equal(f.host.transitionPhase,'suspended');assert(!f.calls.includes('permit:1'));
+  assert(!f.host.requestTransition('resize',()=>assert.fail('hidden mutation')));
+  f.bridge.inputAvailable=true;f.host.resumeAvailableInput();
+  assert.equal(f.host.transitionPhase,'loading');assert(f.timer.running);
+  f.host.transitionAdvance();f.host.transitionAdvance();f.host.transitionComplete(1);
+  assert.equal(f.host.transitionPhase,'idle');assert.equal(f.gate.phase,'ready');
+  assert(f.calls.includes('finish:1')); // Same fresh-publication path, no empty-fence bypass.
+});
+test('stock document open continues an owned suspended park without a new seal',()=>{
+  const f=fixture();f.host.requestTransition('close',()=>{f.host.secondary=null;f.bridge.primary=null;});
+  f.bridge.inputAvailable=false;f.ack();f.host.transitionAdvance();
+  assert.equal(f.host.transitionPhase,'suspended');
+  assert(f.host.requestTransition('document',()=>{f.bridge.primary=f.view('new');f.bridge.inputAvailable=true;}));
+  f.host.transitionAdvance();f.host.transitionAdvance();f.host.transitionComplete(1);
+  assert.equal(f.host.transitionPhase,'idle');assert.equal(f.bridge.primary.document.id,'new');
+  assert.equal(f.calls.filter(c=>c.startsWith('pause:')).length,1);
 });
 test('secondary stock close routes through the retained-view lifecycle, not a blank paired slot',()=>{
   const builder=fs.readFileSync('build-native.mjs','utf8');

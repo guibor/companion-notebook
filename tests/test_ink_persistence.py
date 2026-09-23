@@ -320,6 +320,74 @@ class PersistenceVerifierTests(unittest.TestCase):
             with self.subTest(swapped=index), self.assertRaises(AssertionError):
                 verify(self.root)
 
+    def lifecycle_fixture(self):
+        lines = self.ordinary_fixture()
+        self.original_pages = [PAGE, "44444444-4444-4444-8444-444444444444"]
+        self.added_pages = ["66666666-6666-4666-8666-666666666666", "77777777-7777-4777-8777-777777777777"]
+        receipts = ["Companion lifecycle: history passed; panes=2; undo=true; redo=true",
+                    "Companion lifecycle: tools passed; eraser=true; pen=true",
+                    "Companion lifecycle: pages passed; original=" + ",".join(self.original_pages) + "; added=" + ",".join(self.added_pages),
+                    "Companion lifecycle: native close/reopen passed; pairing=true; original-page=true"]
+        at = next(i for i, line in enumerate(lines) if "lifecycle completed;" in line)
+        lines[at:at] = receipts
+        lines[-1] = lines[-1].replace("ordinary ink submissions", "lifecycle ink submissions")
+        self.log.write_text("\n".join(lines) + "\n")
+        for pane, document_id in enumerate(IDS):
+            directory = self.root / "documents" / document_id
+            if pane:
+                (directory / (PAGE + ".rm")).rename(directory / (self.original_pages[pane] + ".rm"))
+            directory.with_suffix(".content").write_text(json.dumps({"pageCount": 2,
+                "cPages": {"pages": [{"id": self.original_pages[pane]}, {"id": self.added_pages[pane]}]}}))
+        return lines
+
+    def test_lifecycle_requires_saved_original_strokes_and_exact_added_page_ids(self):
+        self.lifecycle_fixture()
+        receipt = verify(self.root)
+        self.assertEqual(receipt["status"], "four-disposable-stroke-shapes-and-native-page-lifecycle-persisted")
+        self.assertTrue(receipt["nativePageLifecycleReceiptVerified"])
+        self.assertFalse(receipt["releaseQualified"])
+        self.assertFalse(receipt["nativeReopenVerified"])
+
+    def test_lifecycle_accepts_an_empty_native_new_page_file_but_never_extra_ink(self):
+        self.lifecycle_fixture()
+        blank = self.root / "documents" / IDS[0] / (self.added_pages[0] + ".rm")
+        with blank.open("wb") as stream:
+            write_blocks(stream, [])
+        verify(self.root)
+        blank.write_bytes((blank.parent / (PAGE + ".rm")).read_bytes())
+        with self.assertRaisesRegex(AssertionError, "Unexpected ink"):
+            verify(self.root)
+
+    def test_lifecycle_requires_unique_ordered_history_tool_page_and_reopen_markers(self):
+        lines = self.lifecycle_fixture()
+        indexes = [i for i, line in enumerate(lines) if line.startswith("Companion lifecycle:")]
+        for index in indexes:
+            for duplicate in (False, True):
+                altered = lines[:index] + ([lines[index], lines[index]] if duplicate else []) + lines[index + 1:]
+                self.log.write_text("\n".join(altered) + "\n")
+                with self.subTest(index=index, duplicate=duplicate), self.assertRaises(AssertionError):
+                    verify(self.root)
+        altered = lines.copy()
+        altered[indexes[0]], altered[indexes[1]] = altered[indexes[1]], altered[indexes[0]]
+        self.log.write_text("\n".join(altered) + "\n")
+        with self.assertRaises(AssertionError):
+            verify(self.root)
+
+    def test_lifecycle_refuses_missing_swapped_or_foreign_saved_page_maps(self):
+        self.lifecycle_fixture()
+        content = self.root / "documents" / (IDS[0] + ".content")
+        for pages in ([self.original_pages[0]], list(reversed([self.original_pages[0], self.added_pages[0]])),
+                      [self.original_pages[0], self.added_pages[1]]):
+            content.write_text(json.dumps({"pageCount": len(pages), "cPages": {"pages": [{"id": p} for p in pages]}}))
+            with self.subTest(pages=pages), self.assertRaises(AssertionError):
+                verify(self.root)
+
+    def test_lifecycle_cannot_relabel_a_plain_ordinary_trial(self):
+        self.ordinary_fixture()
+        self.log.write_text(self.log.read_text().replace("ordinary ink submissions", "lifecycle ink submissions"))
+        with self.assertRaises(AssertionError):
+            verify(self.root)
+
     def test_ordinary_failures_mixed_profiles_or_false_lifecycle_refused(self):
         self.ordinary_fixture()
         original = self.log.read_text()

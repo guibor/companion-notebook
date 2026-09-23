@@ -16,6 +16,8 @@ both lists. The selected tab is remembered for the current UI session.
 Public illustrations in docs/images are schematic UI mockups with fictional
 content, not device screenshots or handwriting evidence. They do not bundle
 native firmware artwork and are separate from the runtime icon resources.
+Icon-only revision234000 reached native host-ready on UI185793; public
+illustrations are published in the README. Reddit addition awaits approval.
 
 ## Popup picker and symmetric document roles
 

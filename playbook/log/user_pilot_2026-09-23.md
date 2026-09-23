@@ -28,6 +28,8 @@ screenshots or physical acceptance evidence. Reddit image/caption approval pendi
   Prior session recovered base183578; verified Mac backup
   48f6a4e97384bda285ad3a7bc6fd793e17e9d43ea0313e9100365e475e748fdb.
   Activation invocation429190f8df03466e9118dced356ff26a.
+  UI185793 reached host-ready17:06:07.393UTC, ink/settings=true; pilot-running
+  receipt exists. No image-provider error matched the startup receipt scan.
 
 ## Revision230000 — native icon, favorites, public source
 

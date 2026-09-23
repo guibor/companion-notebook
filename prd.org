@@ -100,8 +100,9 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
-0. Prepare the icon-only update and public illustrations; no picker, layout,
-   input, pairing or Move behavior changes. Reddit addition needs text preview.
+0.234000 installed with big/baby native notebook icon; UI185793 host-ready.
+   Public README mockups committed/pushed. No picker, layout, input, pairing or
+   Move behavior changes. Reddit image/caption approval remains pending.
 0.230000 installed: native notebook icon with badge, Recent/Favorites popup,
   reversed arrows and true role swap. Host ready onUI177343;
   owner176282/watch177031 active. User hands-on feedback next; no input automation.

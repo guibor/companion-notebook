@@ -25,6 +25,7 @@ Item {
         property var document: ({id: "11111111-1111-4111-8111-111111111111"})
         property bool cnGestureBusy: false
         property var sceneController: ({})
+        property var penHandler: ({})
         property bool cnSelected: !fixture.host || !fixture.host.secondarySelected
         property bool cnInkAllowed: fixture.host && !fixture.host.renderProbeOnly && !fixture.host.modalOpen
             && !fixture.host.dragging && !fixture.host.restoring
@@ -53,6 +54,7 @@ Item {
             property string currentPageId: "33333333-3333-4333-8333-333333333333"
             property bool cnGestureBusy: false
             property var sceneController: ({})
+            property var penHandler: ({})
             property bool cnSelected: !!cnHost && cnHost.secondarySelected && cnHost.paired
             property bool cnInkAllowed: false
             readonly property var cnProbeViewport: secondaryView

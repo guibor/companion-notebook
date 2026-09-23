@@ -11,6 +11,7 @@ const geometryProbe = process.env.CN_PROBE === 'geometry';
 const retirementProbe = process.env.CN_PROBE === 'retirement';
 const admissionProbe = process.env.CN_PROBE === 'admission';
 const visualProbe = process.env.CN_PROBE === 'visual';
+const ordinaryProbe = process.env.CN_ORDINARY_PROBE === '1';
 const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe || admissionProbe;
 const noCaptureProbe = structuralProbe || geometryProbe || inkProbe || visualProbe;
 const diagnostic = renderProbe || noCaptureProbe;
@@ -18,7 +19,8 @@ const diagnostic = renderProbe || noCaptureProbe;
 // candidate is local-only until it receives a separately scoped native trial.
 const paneNavigation = !diagnostic || geometryProbe || inkProbe;
 assert(!process.env.CN_PROBE || diagnostic, 'Unknown probe profile');
-const output = diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
+assert(!ordinaryProbe || !diagnostic, 'Ordinary lifecycle probe is separate from historical profiles');
+const output = ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
@@ -29,9 +31,9 @@ const affect = (file, root, body, imports='') => `AFFECT /${file}\n${imports}\n 
 const insert = text => ` LOCATE BEFORE ALL\n INSERT {\n${text}\n }\n`;
 const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL\n REPLACE { ${before} } WITH { ${after} }\n END REBUILD\n`;
 let q = 'VERSION 3.29.0.148\n';
-q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (diagnostic ? '\nproperty bool cnProbeStarted: false' : '')));
-let probeBridge = diagnostic ? inc('probe-bridge') : '';
-if (noCaptureProbe) {
+q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (diagnostic || ordinaryProbe ? '\nproperty bool cnProbeStarted: false' : '')));
+let probeBridge = diagnostic || ordinaryProbe ? inc('probe-bridge') : '';
+if (noCaptureProbe || ordinaryProbe) {
     const start = probeBridge.indexOf('function probeCapture(host) {');
     const end = probeBridge.indexOf('function probeRestore(host) {');
     assert(start > 0 && end > start, 'Capture removal anchors drifted');
@@ -41,6 +43,9 @@ if (noCaptureProbe) {
         .replaceAll('cnProbeCaptureItem', 'cnProbeScene');
     assert(!/probeCapture|grabToImage|saveToFile/.test(probeBridge));
 }
+if (ordinaryProbe) probeBridge = probeBridge.slice(0, probeBridge.indexOf('function probeRestore(host) {'))
+    .replace('property var probeOriginal: null\n', '')
+    .replace('    probeOriginal = primary && primary.document ? {id:String(primary.document.id), page:primary.currentPage} : null\n', '');
 if (visualProbe) {
     const start=probeBridge.indexOf('function probeCreate() {');
     const end=probeBridge.indexOf('function probeSeparate(host) {');
@@ -55,7 +60,7 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  LOCATE AFTER Loader#documentView
  INSERT {
-   ${diagnostic ? `Rectangle {
+   ${diagnostic || ordinaryProbe ? `Rectangle {
      id: cnProbeNotice
      z: 9001
      anchors.left: parent.left
@@ -93,8 +98,8 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot > Component#documentViewComponent > DocumentView#documentViewItem
  ${insert('cnHost: root.cnHost')}
  END TRAVERSE
-`, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (diagnostic ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
-if (inkProbe) q += affect('qml/device/view/main/MainView.qml','Background#root',`
+`, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (diagnostic || ordinaryProbe ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
+if (inkProbe || ordinaryProbe) q += affect('qml/device/view/main/MainView.qml','Background#root',`
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  ${insert(`MouseArea {
      anchors.fill: parent; z: 9002; acceptedButtons: Qt.AllButtons
@@ -120,6 +125,9 @@ Connections {
 `;
 }
 if (!diagnostic) {
+    document = document.replace('if (!cnHost || !cnHost.idle || !cnHost.inkQualified || !cnSelected || !document) return',
+        'if (!cnHost || !cnHost.transitionApplying || !cnHost.transitionOwnsPark() || !cnHost.inkQualified || !cnSelected || !document) return')
+        .replace('case "Undo": sceneController.undo(); break;', 'case "Undo": sceneController.undo(); break;\n    case "Redo": sceneController.redo(); break;');
     document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/,
         'readonly property bool cnInkAllowed: (!cnHost || !cnHost.inputGeometryPending) && ((!cnPaired && !cnSecondary) || (!!cnHost && cnHost.inkQualified && cnPaired))');
     const start = document.indexOf('function cnNativeClose() {');
@@ -130,6 +138,7 @@ if (!diagnostic) {
     cnStockClose()
 }
 function close() {
+    if (cnSecondary && cnHost) return cnHost.closeSecondary(false)
     if (cnHost) return cnHost.nativeOperation(root, function() { root.cnStockClose() })
     cnStockClose()
 }
@@ -137,6 +146,38 @@ function close() {
     document += `
 function cnAdmissionInputsDetached() { return sceneView.cnAdmissionInputsDetached() }
 function cnAdmissionConstrainToPane() { return sceneView.cnAdmissionConstrainToPane() }
+function cnPageGuarded() { return !!cnHost && (!!cnHost.secondary || (cnHost.transitionBusy && cnHost.transitionPhase !== "cold")) }
+function cnEditGuarded() { return cnPageGuarded() && !cnHost.pageMayMutate(root) }
+function cnEdit(operation) {
+    if (cnEditGuarded()) return cnHost.editOperation(root, operation)
+    operation()
+    return true
+}
+function cnNormalizeTools() {
+    if (!cnHost || !cnHost.pageMayMutate(root)) throw new Error("tool normalization outside native park")
+    const pen = toolbar.selectedPen
+    if (pen && typeof pen.ensureSelection === "function") pen.ensureSelection()
+}
+`;
+}
+if (ordinaryProbe) {
+    document = document.replace('readonly property bool cnInkAllowed: ', 'readonly property bool cnInkAllowed: !!cnHost && cnHost.probeAllows(root) && ');
+    document += `
+readonly property var cnProbeScene: sceneView.sceneView
+readonly property var cnProbeViewport: sceneView.viewport
+function cnProbePreparePen() {
+    if (!cnHost || !cnHost.ordinaryProbe || cnHost.probeDocumentLocked || !cnHost.bridge.probeSeparate(cnHost)) return false
+    toolbar.selectPen("primary")
+    return documentViewTools.isWritingTool(documentViewTools.activePen.tool)
+}
+function cnProbeExpectedBounds(i) {
+    var a = i === 0 ? Qt.point(550,450) : Qt.point(700,1500)
+    var b = i === 0 ? Qt.point(850,500) : Qt.point(1000,1570)
+    if (cnHost.probeRound === 2) { a = Qt.point(a.x,a.y+200); b = Qt.point(b.x,b.y+200) }
+    a = sceneView.tileManager.viewToScene(sceneView.mapFromItem(null,a.x,a.y))
+    b = sceneView.tileManager.viewToScene(sceneView.mapFromItem(null,b.x,b.y))
+    return Qt.rect(a.x,a.y,b.x-a.x,b.y-a.y)
+}
 `;
 }
 if (diagnostic) {
@@ -201,7 +242,8 @@ q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  ${replace('visible','!inSuspend','!root.cnSecondary && root.cnSelected && !inSuspend')}
  END TRAVERSE
 `);
-if (!diagnostic) q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+if (!diagnostic) {
+q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  REBUILD _open_helper
  LOCATE BEFORE ALL
  INSERT {
@@ -213,6 +255,155 @@ if (!diagnostic) q += affect('qml/device/view/documentview/DocumentView.qml','Fo
  }
  END REBUILD
 `);
+for (const [name,args] of [['openPage','page, position'],['addPage','document, pageIndex']]) {
+    q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ REBUILD ${name}
+ LOCATE BEFORE ALL
+ INSERT {
+    if (root.cnPageGuarded() && !cnHost.pageMayMutate(root))
+        return cnHost.pageOperation(root, function() { root.${name}(${args}); });
+ }
+ END REBUILD
+`);
+}
+q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ ${replace('addPage','root.addingPage = true;', `
+const cnAddGuarded = root.cnPageGuarded();
+const cnAddHost = cnAddGuarded ? root.cnHost : null;
+if (cnAddGuarded && document !== root.document) { cnAddHost.transitionFail("foreign page addition"); return; }
+const cnAddToken = cnAddGuarded ? cnAddHost.pageAddBegin(root, newPage) : null;
+if (cnAddGuarded && !cnAddToken) return;
+root.addingPage = true;`)}
+ ${replace('addPage','root.addingPage = false;\n            root.openPage(newPage);', `
+if (cnAddGuarded) {
+    if (cnAddHost) cnAddHost.pageAddComplete(cnAddToken, function(index, pageId) {
+        root.addingPage = false;
+        root.openPage(index);
+    });
+    return;
+}
+root.addingPage = false;
+root.openPage(newPage);`)}
+ TRAVERSE DeviceSceneView#sceneView
+ ${insert('cnDocumentViewOwner: root')}
+ END TRAVERSE
+`);
+q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert('property var cnDocumentViewOwner: null') + `
+ REBUILD goToPageId
+ LOCATE BEFORE ALL
+ INSERT {
+    if (cnDocumentViewOwner && cnDocumentViewOwner.cnPageGuarded()
+            && !cnDocumentViewOwner.cnHost.pageMayMutate(cnDocumentViewOwner))
+        return cnDocumentViewOwner.cnHost.pageOperation(cnDocumentViewOwner, function() { root.goToPageId(pageId); });
+ }
+ END REBUILD
+`);
+q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ TRAVERSE DocumentViewShortcuts
+ REMOVE onUndoRequested
+ REMOVE onRedoRequested
+ ${insert('onUndoRequested: root.cnEdit(function() { root.sceneController.undo(); }); onRedoRequested: root.cnEdit(function() { root.sceneController.redo(); })')}
+ END TRAVERSE
+ TRAVERSE Item#_uiContainer > Toolbar#toolbar
+ ${insert('cnDocumentViewOwner: root')}
+ ${replace('onSelectedPenChanged','documentViewTools.activeTool = selectedPen.penToolType;\n                root.exitTextMode(false);', `
+const cnSelectedPen = selectedPen;
+root.cnEdit(function() {
+    if (toolbar.selectedPen !== cnSelectedPen) throw new Error("selected native pen changed before edit");
+    documentViewTools.activeTool = cnSelectedPen.penToolType;
+    root.exitTextMode(false);
+});`)}
+ END TRAVERSE
+`);
+for (const [signal,args,anchor] of [
+        ['penToolSelected','tool','if (!documentViewTools.isWritingTool(documentViewTools.activePen.tool))'],
+        ['penColorSelected','rgb, paletteEnum','if (!documentViewTools.isWritingTool(documentViewTools.activePen.tool))'],
+        ['penThicknessSelected','thickness','if (!documentViewTools.isWritingTool(documentViewTools.activePen.tool))'],
+        ['highlighterSnapToTextSelected','snap','if (!documentViewTools.isWritingTool(documentViewTools.activePen.tool))'],
+        ['eraserToolSelected','tool','documentViewTools.eraserPen.tool = tool;'],
+        ['eraserThicknessSelected','t','documentViewTools.eraserPen.thickness = t;'],
+        ['eraseAllSelected','','closeFoldout();'],
+        ['selectionToolModeSelected','mode','root.selectionToolMode = mode;'],
+        ['undoSelected','','sceneController.undo();'],['redoSelected','','sceneController.redo();']]) {
+    const handler='on'+signal[0].toUpperCase()+signal.slice(1);
+    q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ TRAVERSE Item#_uiContainer > Toolbar#toolbar
+ ${replace(handler,anchor,`if (root.cnEditGuarded()) return root.cnHost.editOperation(root, function() { toolbar.${signal}(${args}); });\n`+anchor)}
+ END TRAVERSE
+`);
+}
+q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ TRAVERSE DeviceSceneView#sceneView
+ ${replace('onToolPicked','if (tool === Line.SelectionTool)', 'if (root.cnEditGuarded()) return root.cnHost.editOperation(root, function() { sceneView.toolPicked(tool, color, colorCode, width); });\nif (tool === Line.SelectionTool)')}
+ END TRAVERSE
+`);
+q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScope#root',insert('property var cnDocumentViewOwner: null') + `
+ ${replace('onRequestPenSelect','if (!(penTool instanceof PenTool))', `
+if (cnDocumentViewOwner && cnDocumentViewOwner.cnEditGuarded())
+    return cnDocumentViewOwner.cnHost.editOperation(cnDocumentViewOwner, function() { root.requestPenSelect(penTool, mode); });
+if (!(penTool instanceof PenTool))`)}
+`);
+// A requestPenSelect signal is not the entire native tap. Its caller keeps
+// executing, so park before the outer pressed group (including selectedPen,
+// subsequent tool signals and analytics), not between two of those statements.
+for (const type of ['WritingTool','EraserMenu','SelectionButton']) {
+    q += affect(`qt/qml/xofm/libs/toolbar/qml/${type}.qml`,'PenTool#root',`
+ ${replace('onPressed', type === 'EraserMenu' ? 'if(root.toolbar.selectedPen !== root)' : 'if (root.toolbar.selectedPen !== root)', `
+const cnOwner = root.toolbar.cnDocumentViewOwner;
+if (cnOwner && cnOwner.cnEditGuarded())
+    return cnOwner.cnHost.editOperation(cnOwner, function() { root.pressed(); });
+if (root.toolbar.selectedPen !== root)`)}
+`);
+}
+q += affect('qt/qml/xofm/libs/toolbar/qml/SelectionButton.qml','PenTool#root',`
+ ${replace('onSelectionToolModeSelected','root.selectedMode = mode;', `
+const cnOwner = root.toolbar.cnDocumentViewOwner;
+if (cnOwner && cnOwner.cnEditGuarded())
+    return cnOwner.cnHost.editOperation(cnOwner, function() { root.selectionToolModeSelected(mode); });
+root.selectedMode = mode;`)}
+`);
+q += affect('qt/qml/xofm/libs/toolbar/qml/WritingTool.qml','PenTool#root',`
+ REBUILD ensureSelection
+ LOCATE BEFORE ALL
+ INSERT {
+    const cnOwner = root.toolbar.cnDocumentViewOwner;
+    if (cnOwner && cnOwner.cnPageGuarded()) {
+        // An inactive pen must not normalize the current pen through the shared
+        // toolbar signals. It is normalized when selected inside the next park.
+        if (root.toolbar.selectedPen !== root) return;
+        if (cnOwner.cnEditGuarded())
+            return cnOwner.cnHost.editOperation(cnOwner, function() { root.ensureSelection(); });
+    }
+ }
+ END REBUILD
+`);
+q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',`
+ TRAVERSE Item > SceneViewGestures#sceneViewGestures
+ ${insert('cnDocumentViewOwner: root.cnDocumentViewOwner')}
+ END TRAVERSE
+`);
+q += affect('qml/device/view/documentview/SceneViewGestures.qml','TouchArea#touchArea',insert(`
+property var cnDocumentViewOwner: null
+function cnHistory(action) {
+    const target = controller;
+    if (cnDocumentViewOwner && cnDocumentViewOwner.cnPageGuarded())
+        return cnDocumentViewOwner.cnHost.editOperation(cnDocumentViewOwner, function() {
+            if (cnDocumentViewOwner.sceneController !== target) throw new Error("gesture history owner changed");
+            target[action]();
+        });
+    target[action]();
+}
+`) + `
+ TRAVERSE TouchAreaClickFilter#twoFingerTapFilter
+ REMOVE onClick
+ ${insert('onClick: touchArea.cnHistory("undo")')}
+ END TRAVERSE
+ TRAVERSE TouchAreaClickFilter#threeFingerTapFilter
+ REMOVE onClick
+ ${insert('onClick: touchArea.cnHistory("redo")')}
+ END TRAVERSE
+`);
+}
 if (inkProbe) q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  REBUILD _open_helper
  LOCATE BEFORE ALL
@@ -333,6 +524,22 @@ q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
  }`)}
  END TRAVERSE
 `, ' IMPORT common 1.0');
+if (ordinaryProbe) {
+    q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert(`
+property var cnProbeReceive: null
+signal cnProbeSubmitted(var stroke)
+`) + `
+ TRAVERSE ScenePenInputHandler#strokeHandler
+ ${replace('onStrokeCompleted','completedStroke();','if (!root.cnProbeReceive || !root.cnProbeReceive(stroke,controller,strokeHandler)) return; completedStroke();')}
+ ${replace('onStrokeCompleted','controller.addDrawingLine(stroke);','controller.addDrawingLine(stroke); root.cnProbeSubmitted(stroke);')}
+ END TRAVERSE
+`);
+    q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ TRAVERSE DeviceSceneView#sceneView
+ ${insert('cnProbeReceive: function(stroke, targetController, inputHandler) { return !!root.cnHost && root.cnHost.probeBeforeSubmit(root, stroke, targetController, inputHandler) }; onCnProbeSubmitted: function(stroke) { if (root.cnHost) root.cnHost.probeSubmitted(root,stroke) }')}
+ END TRAVERSE
+`);
+}
 if (admissionProbe) {
     q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert(`
 property var cnProbeReceive: null
@@ -409,7 +616,16 @@ if (diagnostic) exact('native/DiagnosticHost.qml','7b76db63188dfc4065cf88301fb05
 let host=fs.readFileSync(diagnostic ? 'native/DiagnosticHost.qml' : 'native/NativeHost.qml','utf8');
 if (retirementProbe) host = 'import Companion.Lifecycle 1.0 as Lifecycle\n'+host;
 if (admissionProbe || !diagnostic) host = 'import Companion.Admission 1.0 as Admission\n'+host;
-if (!diagnostic) host = host.replace(/}\s*$/, inc('transactions')+'\n}\n');
+if (!diagnostic) host = host.replace(/}\s*$/, inc('transactions')+'\n'+inc('page-operations')+'\n'+inc('edit-operations')+'\n}\n');
+if (ordinaryProbe) {
+    const prior = inc('retirement-probe');
+    const start=prior.indexOf('function probeBeforeSubmit('), end=prior.indexOf('function probePanesReady(');
+    assert(start>0 && end>start);
+    const receipts=prior.slice(start,end).replace('Companion retirement: received','Companion ordinary: received');
+    const driver=inc('ordinary-probe').replace('// RECEIPT_FUNCTIONS',receipts);
+    host=host.replace('property bool inkQualified: false','property bool inkQualified: true')
+        .replace(/}\s*$/,driver+'\n}\n');
+}
 if (paneNavigation && diagnostic) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
     .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
 if (diagnostic) {
@@ -456,17 +672,23 @@ if (inkProbe) {
         host = host.replace('function '+signature+' {', 'function '+signature+' {\n        if (probeDocumentLocked) return false');
     host = host.replace('function closeSecondary(detach) {', 'function closeSecondary(detach) {\n        if (probeDocumentLocked) return');
 }
-if (noCaptureProbe) {
+if (noCaptureProbe || ordinaryProbe) {
     for (const content of [q, host])
         assert(!/grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer\s*\./.test(content), 'Forbidden offscreen capture in structural profile');
 }
 fs.writeFileSync(output+'/NativeHost.qml',host);
 fs.copyFileSync('src/PairStore.js',output+'/PairStore.js');
-if (!diagnostic) fs.copyFileSync('ui/SizeRuler.qml',output+'/SizeRuler.qml');
+if (!diagnostic) {
+    // The tablet's QtQuick build omits the Accessible attached type. Keep the
+    // desktop accessibility metadata, but never deploy unsupported bindings.
+    const ruler=fs.readFileSync('ui/SizeRuler.qml','utf8');
+    assert.equal((ruler.match(/^\s*Accessible\.[^\n]*$/gm)||[]).length,4);
+    fs.writeFileSync(output+'/SizeRuler.qml',ruler.replace(/^\s*Accessible\.[^\n]*\n/gm,''));
+}
 execFileSync(tool,['hash-diffs',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{stdio:'inherit'});
 const result = execFileSync(tool,['check-compatibility',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{encoding:'utf8'});
 assert.match(result,/No compatibility errors found\./);
 process.stdout.write(result);
 fs.writeFileSync(output+'/SHA256SUMS', ['NativeHost.qml','PairStore.js','companion-notebook.qmd',...(!diagnostic ? ['SizeRuler.qml'] : [])].map(p=>hash(output+'/'+p)+'  '+p+'\n').join(''));
-console.log(inkProbe ? 'Disposable-only fixed-layout ink diagnostic built. Not deployed; ordinary document ink remains disabled.'
+console.log(inkProbe || ordinaryProbe ? 'Disposable-only native diagnostic built. Not deployed; ordinary document ink remains disabled.'
     : 'Native rendering candidate built, pen disabled. Not deployed.');

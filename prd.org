@@ -52,6 +52,51 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. Corrected trial20260923T052500Z-1 passed actual ordinary controls on native
+   UI97653: pair at720, resize1080, two strokes, resize1440, two strokes, tuck,
+   reveal and cancel, final park and full controller stability marker. Controller
+   reported automatic normal recovery to UI99661/Dates14463. SSH then stopped
+   responding during independent postcheck/saved-file copying; a full subnet
+   port scan found only a nonmatching host. Await Pro wake/reconnection for exact
+   saved-file verification and the fresh independent recovery check. Do not claim
+   persisted ink or an everyday installation from the controller marker alone.
+   Local next implementation is ready for qualification: secondary close clears
+   its retained slot; page operations and asynchronous additions hold the worker
+   parked and reject stale identities/callbacks; toolbar/keyboard/touch history
+   and whole tool-setting groups now use owner-checked edits. Native undo/redo,
+   page addition, close/reopen, boundary/eraser and sleep coverage remain to test;
+   virtual-keyboard and delayed HWC edit entry points remain to guard or scope.
+   Review found and corrected native multi-signal caller continuations: intercept
+   whole WritingTool/EraserMenu/SelectionButton pressed groups and erase-all,
+   not only requestPenSelect. Normalize the current pen as one parked group before
+   input publication, retaining delayed native color/thickness validation.
+1. After reconnection, finish the READ-ONLY checks on this consumed trial first.
+   Do not replay it. Then prepare one distinct bounded native page/tool/lifecycle
+   cohort from the current source, with exact artifact review and recovery backup.
+2. Keep ordinary/personal-document ink off until the remaining native gates pass.
+   No Move port, firmware changes or recurring-install inclusion in this slice.
+
+* Qualification history (not current next actions)
+0. Latest stopping point2026-09-23: ordinary-control cohort passed independent
+   review and local checks (67Qt,26saved-file verifier,16stager tests). Exact
+   trial20260923T001500Z-1 was staged/prepared on Pro, with a Mac-verified recovery
+   archive. The activation command was rejected BEFORE execution because the
+   Codex automatic approval reviewer hit an account usage limit. No runtime
+   activation or remote backup-verification marker write occurred in that command.
+   Local stager clearance was already consumed; do not replay it or bypass approval.
+   Last normal state was UI89759/Dates14463, all protected hashes unchanged/rootro.
+   The approval error subsequently cleared through the same require_escalated
+   process. A read-only retry verified UI89759/no restarts and no owner, backup
+   marker or lock: the rejected command had not run. The single prepared attempt
+   was then launched normally with the same verified backup/manifest; no stager
+   replay or approval bypass. Native host loading then refused SizeRuler's
+   unsupported Accessible attached type, before any host-ready, test-note creation
+   or ink. Independent automatic recovery verified normal UI95131/Dates14463,
+   protected settings/base/policies/rootro and no surviving Companion/owner.
+   Fix: strip four desktop-only accessibility bindings from the tablet ruler;
+   fail-fast scans now recognize host/type load errors. Next: one separately
+   reviewed corrected attempt, then page/tool/lifecycle qualification.
+   No ordinary-control hardware pass or everyday installation is yet claimed.
 0. 2026-09-23 actual progress: bootstrap admission trial20260922T233500Z-1
    PASSED real native startup, cold worker discovery, four correctly attributed
    strokes, during-stroke seal/park and1080-to1440resize. All four saved shapes
@@ -74,6 +119,14 @@ Read and write without losing context or compromising native handwriting.
    heights. Independent recovery restored normal UI89759/Dates14463 with all
    protected hashes unchanged. Next: exercise the actual ordinary controls and
    transaction adapter on disposable notebooks, not another frozen-host repeat.
+   The actual-control diagnostic is implemented locally: choose/pick, half and
+   two-thirds presets, four native stroke submissions, tuck/reveal and chooser
+   cancellation, then an owned final park through autosave. Its separate controller
+   preserves the same recovery/release budgets and includes the SizeRuler payload.
+   Local three-order composition and actual-control QML tests pass. The saved-file
+   verifier distinguishes this profile and rejects missing or reordered lifecycle
+   evidence. Next: reviewed bounded hardware attempt and independent recovery;
+   the ordinary package remains pen-disabled until actual gates pass.
 0. 2026-09-23 continuation: the user again requested action. Fresh strict-key
    read-only checks match Ferrari3.29.0.148, accepted base/settings/policies,
    UI79742/Dates14463 with zero restarts and no competing owner. Prepare a fresh

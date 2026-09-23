@@ -16,7 +16,7 @@ assert.deepEqual(peerFiles.map(sha).sort(),expected,'Base payload drifted; await
 const app = path.join(fw,'appload-0.6-embedded.qmd');
 assert.equal(sha(app),'69147587485e8f90336f8e504f48ffebb39212b47572d9cd990b7cfd12ec692a');
 const profile=process.env.CN_PROBE||'load';
-assert(['load','render','structural','geometry','ink','retirement','visual','admission'].includes(profile));
+assert(['load','render','structural','geometry','ink','retirement','visual','admission','ordinary'].includes(profile));
 const payload=profile==='load'?'build/native':`build/${profile}-native`;
 const candidate=path.resolve(payload+'/companion-notebook.qmd');
 const input='build/composition-input'; fs.mkdirSync(input,{recursive:true});
@@ -48,7 +48,7 @@ for(const [name,patches] of variants) {
   const main=read('qml/device/view/main/MainView.qml');
   assert.match(main,/cnSecondary: true/); assert.match(main,/id: rmstreamShortcutLoader/);
   assert.match(main,/id: dispatchDocumentMenuLoader/);
-  if (profile !== 'load') {
+  if (profile !== 'load' && profile !== 'ordinary') {
     if (profile === 'visual') {
       assert.doesNotMatch(main,/createDocument\(/);
       assert.match(main,/reopening saved disposable IDs/);
@@ -99,10 +99,41 @@ for(const [name,patches] of variants) {
     assert.match(main,/id: cnProbeNotice/);
     assert.match(main,/Temporary test — writing and scrolling paused/);
     assert.doesNotMatch(main,/root\.content\.grabToImage/);
-  } else {
+  } else if (profile === 'load') {
     assert.doesNotMatch(main,/cnProbeNotice/);
+    assert.match(doc,/return cnHost\.pageOperation\(root, function\(\) \{ root\.openPage\(page, position\)/);
+    assert.match(doc,/return cnHost\.pageOperation\(root, function\(\) \{ root\.addPage\(document, pageIndex\)/);
+    assert.match(doc,/Values\.ndiAddPage\(DocumentController, document, newPage, validTemplate, paperSize, function\(\)/);
+    assert.match(doc,/if \(cnAddGuarded\) \{[^]*?if \(cnAddHost\) cnAddHost\.pageAddComplete/);
+    assert.match(doc,/if \(cnSecondary && cnHost\) return cnHost\.closeSecondary\(false\)/);
+    assert.match(doc,/cnDocumentViewOwner: root/);
+    assert.match(scene,/cnDocumentViewOwner\.cnHost\.pageOperation\(cnDocumentViewOwner, function\(\) \{ root\.goToPageId\(pageId\)/);
+    assert.match(doc,/function cnNormalizeTools\(\)/);
+    assert.match(doc,/toolbar\.eraseAllSelected\(\)/);
+    assert.match(doc,/toolbar\.selectionToolModeSelected\(mode\)/);
+    const toolbar=read('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml');
+    assert.match(toolbar,/cnDocumentViewOwner\.cnHost\.editOperation/);
+    for(const type of ['WritingTool','EraserMenu','SelectionButton']) {
+      const tool=read(`qt/qml/xofm/libs/toolbar/qml/${type}.qml`);
+      assert.match(tool,/onPressed:\s*\{\s*const cnOwner = root\.toolbar\.cnDocumentViewOwner;/);
+      assert.match(tool,/return cnOwner\.cnHost\.editOperation\(cnOwner, function\(\) \{ root\.pressed\(\); \}\)/);
+      if(type==='WritingTool') {
+        assert.match(tool,/function ensureSelection\(\)\s*\{\s*const cnOwner/);
+        assert.match(tool,/if \(root\.toolbar\.selectedPen !== root\) return;/);
+      }
+    }
+  } else {
+    assert.match(main,/cnProbeNotice/);
+    assert.match(main,/createDocument\(/);
+    assert.match(main,/acceptedButtons: Qt.AllButtons/);
+    assert.match(doc.replace(/\s/g,''),/cnInkAllowed:!!cnHost&&cnHost.probeAllows\(root\)/);
+    assert.match(doc,/cnProbeReceive: function\(stroke, targetController, inputHandler\)/);
+    assert.match(scene,/controller.addDrawingLine\(stroke\); root.cnProbeSubmitted\(stroke\);/);
+    assert(scene.indexOf('root.cnProbeReceive(stroke,controller,strokeHandler)') < scene.indexOf('controller.addDrawingLine(stroke); root.cnProbeSubmitted(stroke);'));
+    for(const source of [main,doc,fs.readFileSync(candidate,'utf8'),fs.readFileSync(payload+'/NativeHost.qml','utf8')])
+      assert.doesNotMatch(source,/grabToImage|grabWindow|saveToFile|probeRestore\(|ShaderEffect|layer\s*\./);
   }
-  if (profile === 'load' || profile === 'geometry' || profile === 'ink' || profile === 'retirement' || profile === 'admission') {
+  if (profile === 'load' || profile === 'ordinary' || profile === 'geometry' || profile === 'ink' || profile === 'retirement' || profile === 'admission') {
     assert.match(scene,/limitScrollingToPaper: !root.cnPaired/);
     assert.match(scene,/cnPaired: root.cnPaired/);
     assert.match(scene,/root.height - root.cnInputHeight/);
@@ -110,7 +141,7 @@ for(const [name,patches] of variants) {
     assert.match(scene,/inputSurface.updateTransform\(\)/);
     assert.match(scene,/manager.updateRegions\(\)/);
     assert.match(scene,/visible: !root.cnGeometryHidden/);
-    if (profile === 'load') assert.match(doc,/!cnHost.inputGeometryPending/);
+    if (profile === 'load' || profile === 'ordinary') assert.match(doc,/!cnHost.inputGeometryPending/);
     const nav=read('qml/device/view/documentview/Navigation.qml');
     if (profile === 'admission') fs.writeFileSync(payload+'/Navigation.composed.qml',nav);
     assert.match(nav,/function cnConstrainToPane/);
@@ -123,9 +154,12 @@ execFileSync(tool,['apply-diffs','--clean','--hashtab',path.join(fw,'hashtab'),'
 assert.equal(files('build/wrong-firmware').length,0);
 assert.doesNotMatch(fs.readFileSync('native/NativeHost.qml','utf8'),/\bCanvas\b|addDrawingLine|\.rm\b|\.content\b/);
 assert.match(fs.readFileSync('native/NativeHost.qml','utf8'),/property bool inkQualified: false/);
-const payloadFiles=['NativeHost.qml','PairStore.js',...(profile === 'load' ? ['SizeRuler.qml'] : [])];
+const payloadFiles=['NativeHost.qml','PairStore.js',...(['load','ordinary'].includes(profile) ? ['SizeRuler.qml'] : [])];
 const payloadSha256=Object.fromEntries(payloadFiles.map(p=>[p,sha(payload+'/'+p)]));
-if (profile === 'load') execFileSync('qmlformat',['--ignore-settings',payload+'/SizeRuler.qml'],{stdio:['ignore','ignore','pipe']});
+if (profile === 'load' || profile === 'ordinary') {
+  assert.doesNotMatch(fs.readFileSync(payload+'/SizeRuler.qml','utf8'), /\bAccessible\./, 'Tablet QtQuick has no Accessible attached type');
+  execFileSync('qmlformat',['--ignore-settings',payload+'/SizeRuler.qml'],{stdio:['ignore','ignore','pipe']});
+}
 execFileSync('qmlformat',['--ignore-settings',payload+'/NativeHost.qml'],{stdio:['ignore','ignore','pipe']});
-fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:['ink','retirement','admission'].includes(profile),ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
+fs.writeFileSync(payload+'/composition.json',JSON.stringify({status:'offline-companion-against-accepted-r1-base',profile:process.env.CN_PROBE||'load',firmware:'3.29.0.148',penEnabled:['ink','retirement','admission','ordinary'].includes(profile),ordinaryDocumentInk:false,baseQmds:11,embedded:1,baseManifestSha256:sha(manifest),counts,candidateSha256:sha(candidate),payloadSha256},null,2)+'\n');
 console.log(JSON.stringify(counts));

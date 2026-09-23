@@ -284,6 +284,54 @@ class PersistenceVerifierTests(unittest.TestCase):
                 with self.assertRaises(AssertionError):
                     verify(self.root)
 
+    def ordinary_fixture(self):
+        lines = self.admission_fixture()
+        lines = [line for line in lines if "transition requested" not in line and "drained during stroke" not in line]
+        lines = [line.replace("Companion admission:", "Companion ordinary:")
+                 .replace("round=2; height=1440; fresh-candidates=true", "preset completed; height=1440; fresh-candidates=true")
+                 .replace("admission ink submissions completed", "ordinary ink submissions completed") for line in lines]
+        lines.insert(-2, "Companion ordinary: lifecycle completed; tuck=true; reveal=true; cancel=true")
+        self.log.write_text("\n".join(lines) + "\n")
+        return lines
+
+    def test_ordinary_four_shapes_have_separate_status_and_no_release_claim(self):
+        self.ordinary_fixture()
+        receipt = verify(self.root)
+        self.assertEqual(receipt["status"], "four-disposable-stroke-shapes-persisted-after-ordinary-lifecycle")
+        self.assertEqual([[stroke["bounds"][1] for stroke in pane["strokes"]]
+                          for pane in receipt["panes"]], [[20, 220], [120, 320]])
+        self.assertFalse(receipt["releaseQualified"])
+
+    def test_ordinary_each_receipt_required_unique_and_ordered(self):
+        lines = self.ordinary_fixture()
+        for index, marker in enumerate(lines):
+            for duplicate in (False, True):
+                with self.subTest(index=index, duplicate=duplicate):
+                    altered = lines[:index] + ([marker, marker] if duplicate else []) + lines[index + 1:]
+                    self.log.write_text("\n".join(altered) + "\n")
+                    with self.assertRaises(AssertionError):
+                        verify(self.root)
+        # Every adjacent receipt has a required order, including the actual
+        # tuck/reveal/cancel receipt after the final stroke and before sealing.
+        for index in range(len(lines) - 1):
+            altered = lines.copy()
+            altered[index:index + 2] = reversed(altered[index:index + 2])
+            self.log.write_text("\n".join(altered) + "\n")
+            with self.subTest(swapped=index), self.assertRaises(AssertionError):
+                verify(self.root)
+
+    def test_ordinary_failures_mixed_profiles_or_false_lifecycle_refused(self):
+        self.ordinary_fixture()
+        original = self.log.read_text()
+        for altered in [original + "Companion transition: FAILED stale generation\n",
+                        original + "Companion probe: admission ink submissions completed; panes=2; strokes=4; durable=unverified\n",
+                        original.replace("cancel=true", "cancel=false"),
+                        original.replace("height=1440", "height=1080"),
+                        original.replace("round=2", "round=2x")]:
+            self.log.write_text(altered)
+            with self.assertRaises(AssertionError):
+                verify(self.root)
+
 
 if __name__ == "__main__":
     unittest.main()

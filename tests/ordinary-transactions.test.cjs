@@ -15,6 +15,8 @@ function fixture() {
     transitionBefore:[],transitionAfter:[],transitionApplying:false,inputGeometryPending:false,
     secondary:null,revealHeight:1080,restoring:false,choosing:false,error:'',mayShow:true,transitionAvailabilityLost:false,
     closeSecondaryParked(){assert(host.transitionApplying);assert(host.transitionOwnsPark());host.secondary=null;host.revealHeight=0;calls.push('close');},
+    pageOperationsReady(){return true;},
+    editOperationsReady(){return true;},
     hideWhenUnavailable(){calls.push('unavailable');},
     checkpoint(){calls.push('checkpoint');}};
   Object.defineProperties(host,{
@@ -115,6 +117,14 @@ for(const kind of ['throw','timeout','finish'])test('ordinary '+kind+' failure c
   assert.equal(f.host.transitionPhase,'failed');assert(!f.timer.running);
   assert(!f.calls.includes('checkpoint'));assert(!f.calls.some(s=>s.startsWith('Companion transition: completed')));
 });
+test('a native callback failure cannot be overwritten by the enclosing apply phase',()=>{
+  const f=fixture();
+  f.host.requestTransition('page',()=>f.host.transitionFail('synchronous native callback failed'));
+  f.ack();
+  for(let i=0;i<10;i++)f.host.transitionAdvance();
+  assert.equal(f.host.transitionPhase,'failed');assert(!f.host.transitionApplying);
+  assert(!f.timer.running);assert(!f.calls.includes('permit:1'));assert(!f.calls.includes('checkpoint'));
+});
 test('ordinary head interception preserves upstream open helper anchors and covers same-document calls',()=>{
   const builder=fs.readFileSync('build-native.mjs','utf8');
   assert.doesNotMatch(builder,/RENAME _open_helper TO/);
@@ -122,4 +132,14 @@ test('ordinary head interception preserves upstream open helper anchors and cove
   assert.match(builder,/cnHost\.nativeOperation\(root, function\(\) \{ root\._open_helper\(documentToOpen, pageToOpen, highlightDetails\)/);
   assert.match(source,/enabled: \(host\.transitionBusy && host\.transitionPhase !== "choosing"\) \|\| pressed/);
   assert.doesNotMatch(source,/onPenDownChanged.*enabled|setFilterEvents|\/dev\/input|grabToImage/);
+});
+test('secondary stock close routes through the retained-view lifecycle, not a blank paired slot',()=>{
+  const builder=fs.readFileSync('build-native.mjs','utf8');
+  const wrapper=builder.slice(builder.indexOf('function cnNativeClose() {'),builder.indexOf('` + document.slice(end);'));
+  assert.match(wrapper,/function close\(\) \{\s*if \(cnSecondary && cnHost\) return cnHost\.closeSecondary\(false\)/);
+  assert.match(wrapper,/function cnNativeClose\(\) \{[^]*?cnStockClose\(\)/);
+  const host=fs.readFileSync('native/NativeHost.qml','utf8');
+  const close=body(host,'function closeSecondaryParked(');
+  assert(close.indexOf('secondary = null')<close.indexOf('view.cnNativeClose()'));
+  assert.match(close,/view\.cnNativeClose\(\); view\.destroy\(\)/);
 });

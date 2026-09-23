@@ -51,14 +51,16 @@ def stroke_report(line, native_count, bounds):
 def verify(directory):
     root = Path(directory).resolve()
     log = re.sub(r"\x1b\[[0-9;]*m", "", (root / "probe.log").read_text())
-    assert "Companion probe: FAILED" not in log, "Native test failed"
+    assert "Companion probe: FAILED" not in log and "Companion transition: FAILED" not in log, "Native test failed"
     fixed_success = "Companion probe: fixed ink submissions completed; panes=2; durable=unverified"
     retirement_success = "Companion probe: retirement ink submissions completed; panes=2; strokes=4; durable=unverified"
     admission_success = "Companion probe: admission ink submissions completed; panes=2; strokes=4; durable=unverified"
+    ordinary_success = "Companion probe: ordinary ink submissions completed; panes=2; strokes=4; durable=unverified"
     retirement = retirement_success in log
     admission = admission_success in log
-    assert sum((retirement, admission, fixed_success in log)) == 1, "Require exactly one successful profile"
-    multiple_rounds = retirement or admission
+    ordinary = ordinary_success in log
+    assert sum((retirement, admission, ordinary, fixed_success in log)) == 1, "Require exactly one successful profile"
+    multiple_rounds = retirement or admission or ordinary
     rounds = 2 if multiple_rounds else 1
     if retirement:
         for receipt in ["Companion retirement: both native handlers retired; generation=1",
@@ -71,35 +73,42 @@ def verify(directory):
     armed = [match.groups() for match in armed_matches]
     assert len(created) == 1 and len(armed) == rounds and all(pair == created[0] for pair in armed), "Disposable identity receipt mismatch"
     assert created[0][0] != created[0][1]
-    admission_submissions = []
-    if admission:
+    ordered_submissions = []
+    if admission or ordinary:
         # These are receipts for this bounded diagnostic, not general input or
         # release qualification. Do not relabel retirement logs as admission.
         def unique_position(marker):
             matches = list(re.finditer(re.escape(marker) + r"(?=\s|$)", log))
-            assert log.count(marker) == 1 and len(matches) == 1, "Missing or duplicate admission receipt: " + marker
+            assert log.count(marker) == 1 and len(matches) == 1, "Missing or duplicate native receipt: " + marker
             return matches[0].start()
 
-        startup = unique_position("Companion admission: cold native worker roundtrip passed")
-        requested = unique_position("Companion admission: transition requested during second stroke")
-        parked = unique_position("Companion admission: drained during stroke; submissions=2; generation=1")
-        reopened = unique_position("Companion admission: round=2; height=1440; fresh-candidates=true")
+        profile = "ordinary" if ordinary else "admission"
+        startup = unique_position("Companion " + profile + ": cold native worker roundtrip passed")
+        reopened = unique_position("Companion ordinary: preset completed; height=1440; fresh-candidates=true" if ordinary
+                                   else "Companion admission: round=2; height=1440; fresh-candidates=true")
         closed = unique_position("Companion ink: gate closed")
-        completed = unique_position(admission_success)
-        admission_submissions = list(re.finditer(
+        completed = unique_position(ordinary_success if ordinary else admission_success)
+        ordered_submissions = list(re.finditer(
             r"Companion ink: submitted pane=([01]); points=(\d+); bounds=("
             + ",".join([NUMBER] * 4) + r"); round=([12])(?=\s|$)", log))
-        assert len(admission_submissions) == 4 and log.count("Companion ink: submitted ") == 4, "Require exactly four valid admission submissions"
-        assert [(m[1], m[4]) for m in admission_submissions] == [("0", "1"), ("1", "1"), ("0", "2"), ("1", "2")], "Unexpected admission pane/round order"
-        first, second, third, fourth = [m.start() for m in admission_submissions]
+        assert len(ordered_submissions) == 4 and log.count("Companion ink: submitted ") == 4, "Require exactly four valid native submissions"
+        assert [(m[1], m[4]) for m in ordered_submissions] == [("0", "1"), ("1", "1"), ("0", "2"), ("1", "2")], "Unexpected native pane/round order"
+        first, second, third, fourth = [m.start() for m in ordered_submissions]
         assert (startup < created_matches[0].start() < armed_matches[0].start()
-                < first < requested < second < parked < reopened
-                < armed_matches[1].start() < third < fourth < closed < completed), "Admission handoff receipts are out of order"
+                < first < second < reopened < armed_matches[1].start()
+                < third < fourth < closed < completed), "Native handoff receipts are out of order"
+        if admission:
+            requested = unique_position("Companion admission: transition requested during second stroke")
+            parked = unique_position("Companion admission: drained during stroke; submissions=2; generation=1")
+            assert first < requested < second < parked < reopened, "Admission handoff receipts are out of order"
+        else:
+            lifecycle = unique_position("Companion ordinary: lifecycle completed; tuck=true; reveal=true; cancel=true")
+            assert fourth < lifecycle < closed, "Ordinary lifecycle receipts are out of order"
     reports = []
     for pane, document_id in enumerate(created[0]):
         pattern = r"submitted pane=" + str(pane) + r"; points=(\d+); bounds=(" + ",".join([NUMBER]*4) + r")"
-        expected = ([m.groups()[1:] for m in admission_submissions if int(m[1]) == pane]
-                    if admission else re.findall(pattern + (r"; round=([12])" if retirement else ""), log))
+        expected = ([m.groups()[1:] for m in ordered_submissions if int(m[1]) == pane]
+                    if admission or ordinary else re.findall(pattern + (r"; round=([12])" if retirement else ""), log))
         assert len(expected) == rounds, "Unexpected native submission count per pane"
         submissions = []
         for index, row in enumerate(expected):
@@ -144,7 +153,8 @@ def verify(directory):
                   "sha256": hashlib.sha256(page.read_bytes()).hexdigest()}
         report.update({"strokes": matched} if multiple_rounds else matched[0])
         reports.append(report)
-    status = ("four-disposable-stroke-shapes-persisted-after-admission" if admission
+    status = ("four-disposable-stroke-shapes-persisted-after-ordinary-lifecycle" if ordinary
+              else "four-disposable-stroke-shapes-persisted-after-admission" if admission
               else "four-disposable-stroke-shapes-persisted-after-retirement" if retirement
               else "two-disposable-stroke-shapes-persisted")
     return {"status": status, "nativeReopenVerified": False,

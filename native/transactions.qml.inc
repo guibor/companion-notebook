@@ -86,6 +86,7 @@ function applyTransition() {
         transitionApplying = true
         var result = transitionIntent.apply()
         transitionApplying = false
+        if (transitionPhase === "failed") return
         if (result === "choosing" && mayShow && !transitionAvailabilityLost) { transitionPhase = "choosing"; return }
         choosing = false
         transitionAfter = transitionSnapshot()
@@ -108,6 +109,7 @@ function transitionAdvance() {
     try {
         if (++transitionTicks > 120) throw new Error("native view readiness timed out")
         if (!transitionOwnsPark() || !inputGeometryPending) throw new Error("park ownership lost")
+        if (!pageOperationsReady()) return
         if (transitionAvailabilityLost || !mayShow) {
             // An availability change is retained even if it arrived mid-drain.
             // Collapse only now, while the native worker is owned and parked.
@@ -127,6 +129,7 @@ function transitionAdvance() {
             if (reason === "loading") return
             if (reason !== "ready" || !view.cnAdmissionInputsDetached()) throw new Error("unsafe target geometry: " + reason)
         }
+        if (!editOperationsReady(views)) return
         if (transitionPhase === "loading") {
             for (var expected of transitionAfter) {
                 if (!expected.view || !expected.view.document || String(expected.view.document.id) !== expected.id)

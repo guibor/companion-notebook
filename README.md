@@ -9,20 +9,22 @@ The initial hardware target is Paper Pro **3.29.0.148**. Move and landscape rema
 out of scope. The normal Pro setup was restored after each bounded experiment;
 no Companion is left active and ordinary-document ink remains gated off.
 
-The tap-only size ruler is implemented locally; the filled mark shows the selected
+The tap-only size ruler is implemented; the filled mark shows the selected
 size. There is no drag interaction. A real native **during-stroke handoff and
 resize now passes**, including all four correctly saved strokes. The regular
-open/resize/tuck/close controls have been wired locally to the same protocol;
-their complete user-driven lifecycle and visible occlusion still need native
-qualification. See the bounded
+pair/resize/tuck/reveal controls also passed a bounded native submission test;
+that newest trial's saved-file readback is pending reconnection. Full native
+page/tool/close/sleep qualification is still outstanding. See the bounded
 [handoff audit](playbook/ADMISSION-HANDOFF.md). This project is not ready for daily
 use or inclusion in the recurring installation list.
 
-Latest result (2026-09-23): the Qt-free bootstrap correction now passes the real
-native UI trial, not just isolated tests. The test completed cold worker discovery,
-input draining, resize and four native saved shapes. Automatic recovery restored
-the accepted Pro setup; no ordinary Companion installation remains active. See
-[the native pass receipt](playbook/log/admission_bootstrap_pass_2026-09-23.md).
+Latest result (2026-09-23): corrected ordinary-control trial20260923T052500Z-1
+passed native pair/resize/tuck/reveal/cancel and four stroke submissions. Its
+watchdog reported restoration of the accepted Pro setup; connectivity was lost
+before the separate full postcheck and saved-file copy. Those remain pending, not
+passed. Newer local page/tool safeguards pass regression tests but are not yet
+native-qualified or installed. See [the controls receipt](playbook/log/ordinary_controls_2026-09-23.md)
+and the earlier [verified native saved-ink pass](playbook/log/admission_bootstrap_pass_2026-09-23.md).
 
 | Capability | Evidence |
 | --- | --- |
@@ -33,7 +35,8 @@ the accepted Pro setup; no ordinary Companion installation remains active. See
 | Move the sheet, then continue writing | Native four-stroke write–retire–move–recreate–write sequence completed; final controller observation timed out and restored base |
 | Native saving before and after movement | All four saved shapes matched their pane/round and reconstructed native bounds exactly |
 | Cold startup and during-stroke sealed resize | Full native admission trial and saved-shape readback passed; normal base restored |
-| Fixed ⅓ / ½ / ⅔ ruler, per-pair selection, no accidental drag | Local pointer/state tests pass; not deployed |
+| Fixed ⅓ / ½ / ⅔ ruler, per-pair selection, no accidental drag | Local pointer/state tests pass; native actual-control trial started at⅓ and wrote at½/⅔; saved readback pending |
+| Pair, resize, tuck/reveal and chooser cancellation | Actual native host/control trial passed; normal setup restoration reported |
 | Native reopen and settled visual occlusion at ½ and ⅔ | Saved pages render correctly in guarded native-buffer captures; normal setup restored |
 | Dynamic pen-boundary clipping and user-triggered lifecycle | Not yet qualified |
 

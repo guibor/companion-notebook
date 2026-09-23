@@ -156,8 +156,11 @@ Item {
         })
     }
     function action(name) {
-        if (!idle || !secondary || !secondarySelected || !inkQualified) return
-        secondary.cnAction(name)
+        if (!idle || !secondary || !secondarySelected || !inkQualified
+                || ["Pen", "Erase", "Undo", "Redo", "Next", "＋"].indexOf(name) < 0) return false
+        var view = secondary
+        var invoke = function() { view.cnAction(name) }
+        return name === "Next" || name === "＋" ? pageOperation(view, invoke) : editOperation(view, invoke)
     }
     function nearestSize(ratio) {
         var sizes = [1 / 3, 1 / 2, 2 / 3], best = sizes[0]
@@ -238,10 +241,10 @@ Item {
             Row {
                 anchors.right: parent.right; anchors.rightMargin: 20 * host.unit; anchors.bottom: parent.bottom
                 Repeater {
-                    model: ["Pen", "Erase", "Undo", "Next", "＋", "⌄"]
+                    model: ["Pen", "Erase", "Undo", "Redo", "Next", "＋", "⌄"]
                     Rectangle {
                         required property string modelData
-                        width: 104 * host.unit; height: 76 * host.unit; color: "transparent"
+                        width: 94 * host.unit; height: 76 * host.unit; color: "transparent"
                         Text { anchors.centerIn: parent; text: modelData; font.pixelSize: 27 * host.unit; color: "#333" }
                         MouseArea { anchors.fill: parent; onClicked: { if (modelData === "⌄") host.tuck(); else { host.selectPane(true); host.action(modelData) } } }
                     }

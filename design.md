@@ -1,6 +1,33 @@
 # Architecture and implementation status
 
-## Current result: real native admission and saved-ink pass (2026-09-23)
+## Current result: native ordinary controls pass; release not qualified (2026-09-23)
+
+Corrected trial `20260923T052500Z-1` passed the actual ordinary host controls on
+native UI97653: two new disposable notes, four correctly attributed submissions,
+half/two-thirds sizing, tuck/reveal and chooser cancellation. The independent
+controller reported its machine-pass marker and automatic recovery to normal
+base UI99661/Dates14463. The tablet then became unreachable during the separate
+saved-file readback and independent recovery postcheck. Those two checks remain
+pending; no saved-file or everyday-release success is inferred from that marker.
+The frozen trial bytes remain unchanged. See the exact hashes and remaining
+checks in [the controls receipt](playbook/log/ordinary_controls_2026-09-23.md).
+
+The preceding attempt `20260923T001500Z-1` stopped before host creation because
+tablet QtQuick lacks the ruler's `Accessible` attached type. Its watchdog restored
+the exact normal base, independently verified as UI95131/Dates14463. The native
+builder strips only four accessibility metadata bindings from the tablet ruler,
+preserving them in the desktop source. All five fail-fast scans now recognize
+host/type-load failures. The subsequent corrected trial is the pass above; the
+earlier transient approval-service error is resolved, not a current blocker.
+
+Current source also guards page/add-page operations, secondary close and grouped
+tool/history changes. These changes are newer than the frozen passing diagnostic
+and are **local only**. Normal Companion remains pen-disabled and is not installed
+for personal notebooks. Native page/tool/boundary/sleep tests and a successful
+saved-file/readback check still precede ordinary deployment.
+The current local source passes359 Node cases (7 historical skips),67 Qt cases,
+26 saved-file fixtures and three-order composition with33 resources per order.
+The frozen passing ordinary diagnostic had30; its files/manifest were not changed.
 
 Trial `20260922T233500Z-1` now completes the real native cold-start, during-stroke
 producer seal/worker park,1080-to1440resize, fresh-candidate publication and four
@@ -27,6 +54,9 @@ tiles, refreshes detached transforms, and publishes before releasing the worker.
 notification. A persistent mouse shield retains its own press grab through
 release/cancel, never using pen-up alone to remove that grab. The old free-running
 geometry timers are not included in the ordinary build.
+`applyTransition()` preserves a failure reported by a synchronous native callback;
+returning from that callback must never overwrite `failed` with `loading` and
+resume a partially completed operation.
 
 `NativeHost.qml` routes its controls through that adapter. `nativeOperation()`
 also protects the stock open/close path while a companion is retained. The builder
@@ -35,6 +65,66 @@ that method, preserving BetterTOC's anchors in all three plugin load orders.
 Focus changes do not refresh geometry; document readiness and identities are
 separate from toolbar focus. This local integration is not a release or native
 lifecycle qualification. Consumed diagnostic profiles remain byte-identical.
+The ordinary stock `close()` wrapper now routes secondary closes through
+`closeSecondary(false)`, clearing the retained slot and destroying its view only
+inside the owned park. The internal `cnNativeClose()` still bypasses this wrapper
+to call the stock close body exactly once. This avoids a blank paired pane after
+the native close shortcut; the frozen current diagnostic does not exercise close.
+
+`native/page-operations.qml.inc` extends the ordinary host, not historical probes.
+`pageOperation()` captures the original view, document object/ID, page ID,
+controller, handler and generation before requesting a park. The builder guards
+both `DocumentView.openPage/addPage` and low-level `DeviceSceneView.goToPageId`,
+covering page-map notifications as well as buttons. Stock unpaired/cold paths
+remain unchanged, and nested calls inside an owned park do not start a new park.
+`pageAddBegin()` captures the source page UUID map immediately before native add;
+`pageAddComplete()` admits one callback only, verifies the same owner and exactly
+one newly added target page, and opens it before any input publication. A retained
+guard boolean prevents a deleted host from falling through to the stock callback.
+`pageOperationsReady()` holds loading under the existing bounded timeout until
+that callback succeeds. Add-page's function name and native call prefix stay
+intact for Dates' wrapper. These new paths are local and still need native tests.
+
+`native/edit-operations.qml.inc::editOperation()` adds stricter pane-local edits
+on top of the page transaction. It captures document/page/controller/handler and
+owner generations at action entry and requires them unchanged before and after
+the entire tool-setting or undo/redo group. It never splits a tool selection into
+independently queued property setters. A native failure remains latched even if
+a signal dispatcher catches the JavaScript exception. This helper is tested
+locally; its UI call-site coverage and actual native qualification are separate.
+The companion bar now runs Pen/Erase/Undo/Redo through `editOperation()` and
+Next/Add through `pageOperation()`. Its native action adapter admits those calls
+only from an applying, owned park; there is no ordinary synchronous fallback.
+Redo has a matching bar control, with widths adjusted to keep the ruler separate.
+The ordinary builder additionally intercepts native Toolbar `requestPenSelect`
+before `_select` and the selected-pen assignment. Its DocumentView tool/color/
+thickness/eraser/history signal handlers reenter the unchanged whole handler only
+inside the accepted edit transaction. The quick-switch setter group follows the
+same rule. Keyboard and two-/three-finger undo/redo are pane-scoped; gestures also
+capture the original controller and refuse a different target. Stock unpaired
+behavior and already-parked document initialization bypass reentry as intended.
+Virtual-keyboard/history and delayed HWC callbacks are not yet covered by these
+hooks; do not describe partial call-site coverage as a full native release.
+
+The request-signal guard is not sufficient by itself: native WritingTool and
+EraserMenu taps continue to change selection or emit another tool signal after
+`requestPenSelect()`. The builder therefore intercepts each entire outer pressed
+group, including SelectionButton, before its first mutation and reemits it once
+inside the same owned park. Erase-all and selection-mode changes similarly guard
+their entire native handler, not only one nested signal. Regression tests retain
+the real caller ordering and require exactly one transaction with no early
+selection, tool or content change.
+
+`editOperationsReady()` normalizes the currently selected native pen in every
+ready view before input publication. This handles native `ensureSelection()`
+callbacks queued by `Qt.callLater` while a transaction is loading: they cannot
+mutate mid-transition or silently leave an invalid color/thickness. Normalization
+is one identity-checked parked group, not three queued setter operations. Inactive
+pens defer normalization until selected, avoiding writes through another pen's
+shared toolbar signals. Unpaired stock behavior is unchanged. These new call-site
+guards are local work and still require the next bounded native qualification.
+An availability transition that has already removed the companion skips tool
+normalization on the now-hidden primary; it returns to stock without new edits.
 
 The visual-reopen profile now pins the two successful admission notebooks and
 the same1080/1440heights. It permits no pen events or notebook-file edits. Its
@@ -55,6 +145,42 @@ asynchronous park/publication protocol and verify ruler taps, settings restore,
 pair cancellation, failures, tuck/reveal and availability changes. Native phase
 checks read the C++ getter at the call boundary: its notification is queued and
 must not be mistaken for the immediate parked acknowledgement.
+
+### Actual-control disposable qualification
+
+The next separate `CN_ORDINARY_PROBE=1` profile runs the actual ordinary host
+and ruler/transaction code on two new labelled disposable notebooks. Its driver
+uses choose/pick,½and⅔presets, tuck/reveal and picker cancellation, with two
+native submissions before and two after resizing. The QMD restricts eligibility
+to those exact created IDs and checks view/controller/handler plus stroke bounds
+before native submission. Final input stays parked through autosave/recovery.
+This does not turn on ordinary or personal notebook writing in the normal build.
+The current driver's tool preparation now has its own owned park and waits for
+publication before selecting a size. This matches the new asynchronous tool
+guards; it must not issue two tool requests and a size request in the same idle
+callback. Source-level driver tests cover this new ordering. The stored passing
+hardware cohort and its Qt regression still retain the earlier exact driver.
+
+`ops/build-ordinary-controller.mjs` derives from the successful frozen bootstrap
+controller. `SizeRuler.qml` is its11thcapsule payload, checked in prepared and
+retained host inventories. It recognizes ordinary lifecycle receipts and both
+probe and transaction failures while preserving release/cgroup/recovery actions
+and finite watchdog budgets. No device clearance is implied by this local build.
+
+`ops/stage-ordinary.mjs` packages the separately reviewed cohort into one private,
+exclusive-created trial directory. It reads regular files once, hashes and writes
+those same cached bytes, pins all eleven payloads including the ruler, verifies
+the actual target bootstrap-isolation receipt and all three composition orders,
+and refuses reused IDs. Its one-run clearance is consumed before activation.
+The controller still requires a fresh live identity/base/settings check and a
+verified Mac copy of the device recovery archive before any UI restart.
+
+`verify-disposable-ink.py::verify()` recognizes the ordinary profile separately
+from the admission/retirement diagnostics. It requires exactly one ordered
+startup/create/two-round/lifecycle/seal/completion sequence and one-to-one matching
+saved shapes. Missing, duplicated or reordered receipts, transaction failures,
+mixed profile completions and altered preset/lifecycle flags are rejected. This
+read-only verifier still does not claim release, visual or native reopen acceptance.
 
 ### Historical startup failure and correction
 

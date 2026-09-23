@@ -1,6 +1,12 @@
 # Architecture and implementation status
 
-## Current result: native ordinary controls pass; release not qualified (2026-09-23)
+## Current result: native lifecycle passes; sleep trial outcome unknown (2026-09-23)
+
+Display-sleep trial110500 was launched once after exact independent review and a
+Mac-verified recovery archive. The following SSH observation and fresh connection
+timed out. Its actual test phase and recovery are UNKNOWN, so no further device
+mutation or release is appropriate until recovery is verified. The capsule is
+consumed. See [the current recovery boundary](playbook/log/display_sleep_2026-09-23.md).
 
 Corrected trial `20260923T052500Z-1` passed the actual ordinary host controls on
 native UI97653: two new disposable notes, four correctly attributed submissions,
@@ -20,20 +26,19 @@ preserving them in the desktop source. All five fail-fast scans now recognize
 host/type-load failures. The subsequent corrected trial is the pass above; the
 earlier transient approval-service error is resolved, not a current blocker.
 
-The next lifecycle capsule103000 passed exact independent review and was staged
-locally with manifest `1d0bd6381c25f8c2d8787f8cc13b0556fa31ebd155b31e7ee03a8c6c7a0b53b9`.
-The Pro then stopped answering before the first upload SSH connection. No remote
-prepare, backup or activation ran. Local staging clearance is consumed; the
-unchanged unused capsule may proceed once reachable, with fresh live/backup gates.
-Later source changes for hidden-primary handling are not in this frozen capsule.
+The subsequent lifecycle capsule103000 passed on the actual Pro with manifest
+`1d0bd6381c25f8c2d8787f8cc13b0556fa31ebd155b31e7ee03a8c6c7a0b53b9`.
+History, tools, page creation/return and close/reopen passed, with all four saved
+shapes preserved and two new pages blank. Automatic recovery restored normal
+UI106973/Dates14463 and all protected settings/policies; root stayed read-only.
+This capsule is consumed. Later visibility/sleep changes are a separate candidate.
 
 Current source also guards page/add-page operations, secondary close and grouped
-tool/history changes. These changes are newer than the frozen passing diagnostic
-and are **local only**. Normal Companion remains pen-disabled and is not installed
-for personal notebooks. Native page/tool/boundary/sleep tests and a successful
-saved-file/readback check still precede ordinary deployment.
-The current local source passes387 Node cases (7 historical skips),68 Qt cases,
-31 saved-file fixtures and three-order composition with33 resources per order.
+tool/history changes. These paths passed in the lifecycle test above. Normal
+Companion remains pen-disabled and is not installed for personal notebooks.
+Native boundary/sleep and remaining extension checks precede ordinary deployment.
+The current local source passes398 Node cases (7 historical skips),69 Qt cases,
+33 saved-file fixtures and three-order composition with33 resources per order.
 The frozen passing ordinary diagnostic had30; its files/manifest were not changed.
 
 Trial `20260922T233500Z-1` now completes the real native cold-start, during-stroke
@@ -75,6 +80,48 @@ allowance. The pointer shield releases for library interaction, except for its
 own outstanding pressed grab. No power state, sleep policy or native core is
 changed. Actual sleep ordering and native wake qualification remain open; this
 change is NOT part of the frozen reviewed lifecycle trial103000.
+Input visibility loss is itself a trigger, even when portrait/availability has
+not changed. Every path into `suspended` first closes the retained secondary
+under the owned park. Waking to a visible landscape primary resumes stock input
+without reopening Companion. Separate idle/loading/settling regressions cover
+the visibility-only case rather than always toggling both availability signals.
+
+The ordinary QMD additionally contains a local-only DeepSleep visibility latch.
+The QMD wraps (rather than replaces) the stock visibility expression, retaining
+it verbatim and checking the full result in all three extension load orders.
+`inputVisibilityHeld` is armed before paired native input publication, independently
+of the requested BatteryManager sleep state. It is cleared only after the owned
+park detaches the old inputs and refreshes the empty cache. The exact stock
+`rootItem.visible` DeepSleep binding uses that hold; requested sleep still triggers
+the availability transaction. No save worker, lock screen, screensaver or power
+policy is replaced. This contains that one QML visibility boundary only, not a
+hidden parent/window or unknown native power ordering. It needs independent
+native sleep/privacy qualification and is not a released or deployed fix.
+
+Lifecycle trial103000 has now run successfully on native UI104747. Strict saved
+readback verifies all four original shapes, two original pages and two new blank
+pages after native history/tools/page/close operations. Independent automatic
+recovery restored normal UI106973/Dates14463 with unchanged settings/base/policies
+and read-only root. No sleep or personal-notebook release is inferred from it.
+
+The separate, not-yet-qualified `CN_PROBE=sleep` candidate reuses the ordinary
+four-stroke diagnostic and adds `native/sleep-probe.qml.inc`. `probeSleepBegin`
+first obtains the existing native park and detaches inputs, then calls the stock
+`BatteryManager.requestSleep`. `probeSleepTick` requires actual DeepSleep followed
+by Normal, fresh primary publication, and restored paired page IDs. It does not
+qualify CPU suspend/resume or sleep during an unfinished stroke.
+`ops/wake-key.c` pre-opens and checks the exact Pro power-key device, waits for a
+fresh local owned-park receipt, and sends one balanced down/up batch within two
+seconds. No network round trip, RTC alarm, power policy mutation or fake wake
+reason is used. Partial write is failure with up-only cleanup, not success.
+`ops/build-sleep-controller.mjs` derives an always-reverting controller from the
+frozen passing ordinary controller; the helper must be ready before ink can
+reach the sleep step. A missed wake fails in five seconds, before the cached
+12-second sleep timer. An independent watchdog additionally starts a four-second
+wake deadline from a logged marker BEFORE the native sleep call, even if the GUI
+stalls before its sleeping receipt. Key-injection freshness uses that same request
+time. Owner-cgroup death precedes any UP-only key recovery, which writes nothing
+when the key is already up. All files require fresh independent review before use.
 
 `NativeHost.qml` routes its controls through that adapter. `nativeOperation()`
 also protects the stock open/close path while a companion is retained. The builder

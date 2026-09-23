@@ -24,7 +24,7 @@ function fixture() {
     const events = [];
     const host = {transitionPhase:'idle', transitionGeneration:0, transitionTicks:0,
         transitionIntent:null, transitionBefore:[], transitionAfter:[], transitionApplying:false,
-        inputGeometryPending:false, transitionAvailabilityLost:false, mayShow:true,
+        inputGeometryPending:false, inputVisibilityHeld:true, transitionAvailabilityLost:false, mayShow:true,
         restoring:false, choosing:false, secondary:null, revealHeight:1080, openGeneration:1, pagePendingAdd:null,
         checkpoint(){events.push('checkpoint');}, hideWhenUnavailable(){events.push('unavailable');}};
     const view = id => {

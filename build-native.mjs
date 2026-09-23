@@ -12,16 +12,17 @@ const retirementProbe = process.env.CN_PROBE === 'retirement';
 const admissionProbe = process.env.CN_PROBE === 'admission';
 const visualProbe = process.env.CN_PROBE === 'visual';
 const lifecycleProbe = process.env.CN_PROBE === 'lifecycle';
-const ordinaryProbe = process.env.CN_ORDINARY_PROBE === '1' || lifecycleProbe;
+const sleepProbe = process.env.CN_PROBE === 'sleep';
+const ordinaryProbe = process.env.CN_ORDINARY_PROBE === '1' || lifecycleProbe || sleepProbe;
 const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe || admissionProbe;
 const noCaptureProbe = structuralProbe || geometryProbe || inkProbe || visualProbe;
 const diagnostic = renderProbe || noCaptureProbe;
 // Preserve the previously reviewed diagnostic bytes. This new navigation
 // candidate is local-only until it receives a separately scoped native trial.
 const paneNavigation = !diagnostic || geometryProbe || inkProbe;
-assert(!process.env.CN_PROBE || diagnostic || lifecycleProbe, 'Unknown probe profile');
+assert(!process.env.CN_PROBE || diagnostic || lifecycleProbe || sleepProbe, 'Unknown probe profile');
 assert(!ordinaryProbe || !diagnostic, 'Ordinary lifecycle probe is separate from historical profiles');
-const output = lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
+const output = sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
@@ -55,6 +56,19 @@ if (visualProbe) {
     assert(!probeBridge.includes('createDocument('));
 }
 let main = inc('main').replace('// PROBE_BRIDGE', probeBridge);
+if (sleepProbe) main = main.replace('    function canOpen(id) {', `
+    readonly property int probeDisplayState: BatteryManager.displayState
+    readonly property bool probeSleeping: BatteryManager.displaySleeping
+    function probeSleepOwned(host) {
+        if (!host.transitionOwnsPark() || !host.inputGeometryPending || host.penDown
+                || probeDisplayState !== BatteryManager.Normal || probeSleeping
+                || !available || RetailDemo.enabled) throw new Error("sleep entry refused")
+        console.log("Companion sleep: requested; epoch-ms=" + Date.now())
+        BatteryManager.requestSleep()
+        if (probeDisplayState !== BatteryManager.DeepSleep || !probeSleeping)
+            throw new Error("native sleep request not accepted")
+    }
+    function canOpen(id) {`);
 if (!diagnostic) {
     const portrait = 'readonly property bool portrait: root.orientation.isPortraitOrientation';
     assert.equal(main.split(portrait).length, 2, 'Input visibility anchor drift');
@@ -107,6 +121,16 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
  ${insert('cnHost: root.cnHost')}
  END TRAVERSE
 `, ' IMPORT xofm.libs.epaper 1.0 CnEpaper' + (diagnostic || ordinaryProbe ? '\n IMPORT xofm.libs.devicescreen 1.0' : ''));
+if (!diagnostic) q += affect('qml/device/view/main/MainView.qml','Background#root',`
+ TRAVERSE FocusScope#rootItem
+ REBUILD visible
+ LOCATE BEFORE ALL
+ INSERT { (!!root.cnHost && root.cnHost.inputVisibilityHeld) || ( }
+ LOCATE AFTER ALL
+ INSERT { ) }
+ END REBUILD
+ END TRAVERSE
+`);
 if (inkProbe || ordinaryProbe) q += affect('qml/device/view/main/MainView.qml','Background#root',`
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  ${insert(`MouseArea {
@@ -663,6 +687,24 @@ if (ordinaryProbe) {
         replaceDriver('ordinary ink submissions completed; panes=2; strokes=4; durable=unverified',
             'lifecycle ink submissions completed; panes=2; strokes=4; durable=unverified');
         driver=inc('lifecycle-probe')+'\n'+driver;
+    }
+    if (sleepProbe) {
+        const change=(before,after)=>{
+            assert.equal(driver.split(before).length,2,'Sleep driver anchor drift: '+before);
+            driver=driver.replace(before,()=>after);
+        };
+        change('probeDocuments.length === 2 && bridge.probeSeparate(host)\n        && ((view',
+            'probeDocuments.length === 2 && (bridge.probeSeparate(host) || probeSleepSolePrimary(view))\n        && ((view');
+        change('if (host.probePhase > 0 && bridge.probeReadinessReason !== "ready"',
+            'if (host.probePhase > 0 && !host.probeSleepBusy && bridge.probeReadinessReason !== "ready"');
+        change('host.probeDocumentLocked && !host.probeIdentities()',
+            'host.probeDocumentLocked && !host.probeSleepBusy && !host.probeIdentities()');
+        change('if (!host.tuck()) throw new Error("ordinary tuck refused")',
+            'if (!host.probeSleepDone) { host.probeSleepBegin(); host.probePhase = 30; break }\n                if (!host.tuck()) throw new Error("ordinary tuck refused")');
+        change('case 11:', 'case 30:\n                if (host.probeSleepTick()) host.probePhase = 10\n                break\n            case 11:');
+        change('ordinary ink submissions completed; panes=2; strokes=4; durable=unverified',
+            'sleep ink submissions completed; panes=2; strokes=4; durable=unverified');
+        driver=inc('sleep-probe')+'\n'+driver;
     }
     host=host.replace('property bool inkQualified: false','property bool inkQualified: true')
         .replace(/}\s*$/,driver+'\n}\n');

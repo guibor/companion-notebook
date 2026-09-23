@@ -320,6 +320,35 @@ class PersistenceVerifierTests(unittest.TestCase):
             with self.subTest(swapped=index), self.assertRaises(AssertionError):
                 verify(self.root)
 
+    def sleep_fixture(self):
+        self.ordinary_fixture()
+        data = self.log.read_text().replace("ordinary ink submissions completed;", "sleep ink submissions completed;")
+        marker = "Companion ordinary: lifecycle completed;"
+        data = data.replace(marker,
+                            "Companion sleep: requested; epoch-ms=1700000000000\n"
+                            "Companion sleep: asleep; parked=true; detached=true; epoch-ms=1700000000100\n"
+                            "Companion sleep: awake; normal=true; primary-fresh=true\n"
+                            "Companion sleep: roundtrip passed; normal=true; pairing=true; original-pages=true; fresh-candidates=true\n" + marker)
+        self.log.write_text(data)
+
+    def test_sleep_readback_requires_normal_wake_and_durable_shapes(self):
+        self.sleep_fixture()
+        receipt = verify(self.root)
+        self.assertEqual(receipt["status"], "four-disposable-stroke-shapes-persisted-after-display-sleep")
+        self.assertTrue(receipt["nativeDisplaySleepReceiptVerified"])
+        self.assertFalse(receipt["cpuSuspendResumeVerified"])
+        self.assertFalse(receipt["releaseQualified"])
+
+    def test_sleep_without_real_fresh_normal_publication_never_passes(self):
+        self.sleep_fixture()
+        original = self.log.read_text()
+        for data in [original.replace("normal=true; primary-fresh=true", "normal=false; primary-fresh=true"),
+                     original.replace("1700000000100", "1700000005000"),
+                     original.replace("pairing=true; original-pages=true", "pairing=false; original-pages=true")]:
+            self.log.write_text(data)
+            with self.assertRaises(AssertionError):
+                verify(self.root)
+
     def lifecycle_fixture(self):
         lines = self.ordinary_fixture()
         self.original_pages = [PAGE, "44444444-4444-4444-8444-444444444444"]

@@ -20,7 +20,7 @@ function functions(text) {
 function fixture() {
     const events=[];
     const host={transitionPhase:'idle',transitionGeneration:0,transitionTicks:0,transitionIntent:null,
-        transitionBefore:[],transitionAfter:[],transitionApplying:false,inputGeometryPending:false,
+        transitionBefore:[],transitionAfter:[],transitionApplying:false,inputGeometryPending:false,inputVisibilityHeld:true,
         transitionAvailabilityLost:false,mayShow:true,secondary:null,openGeneration:1,pagePendingAdd:null,
         restoring:false,choosing:false,revealHeight:1080,checkpoint(){events.push('checkpoint');},
         hideWhenUnavailable(){events.push('unavailable');}};

@@ -1,6 +1,31 @@
-# Lifecycle capsule reviewed and staged, not activated
+# Lifecycle capsule: native PASS and verified recovery
 
-## Status
+## Update: native lifecycle and saved readback PASS
+
+After the user woke the Pro, the exact unused capsule was uploaded and prepared.
+Recovery archive SHA256 `dbc3d0e18607159a4b8a948f4d3da2dd860f3b07d78f7e9e9f254a7256b79868`
+was copied to the Mac, matched exactly, and contained only the expected19 paths.
+Native UI104747 completed the whole sequence; marker
+`lifecycle-submission-machine-passed=104747`. Watchdog restored `base:106973`.
+Independent verification confirmed base/settings/policies/runtime/rootro and
+absent experimental host/data/drop/lock and owner/watch cgroups, with unchanged
+Dates14463 and zero UI restarts. No manual recovery was needed.
+
+- Reference document `1f77d668-e83b-4205-b9df-e23fb38bbf0b`; original page
+  `76e07255-3f90-4b3f-aa46-ff5aaf66b7af`; new blank page
+  `b81cd0f8-9b27-4b55-b86b-5909fe42815c`.
+- Notes document `2a2e6d29-d5d8-4470-9c20-0a3d4143b81a`; original page
+  `ca72a15f-c784-4421-997b-d696c306d26f`; new blank page
+  `3a8f12e6-880e-4300-be06-ff33ae75e7e0`.
+- Strict readback status `four-disposable-stroke-shapes-and-native-page-lifecycle-persisted`.
+  Each original page has exactly2 shapes,31 native points simplified to24 saved
+  samples, and each new page is blank. Native page-map IDs match the receipts.
+  Each file reports111 SceneInfo extension bytes; no unreadable line blocks.
+
+This trial is now consumed and must not be replayed. The earlier staging/transport
+notes below describe its history, not a remaining device-connectivity blocker.
+
+## Historical staging status (superseded by the PASS above)
 
 The pending ordinary trial052500 readback was completed in this session: four
 correctly attributed saved shapes, normal UI99661/Dates14463, zero restarts,
@@ -76,7 +101,7 @@ Final local checks for the later source:387 Node cases passed,7 historical skips
 68 offscreen Qt cases passed;31 saved-file fixtures passed; normal composition
 produced33 resources in each of3 orders. The frozen capsule's11 hashes still match.
 
-## Resume
+## Historical activation recipe (already completed; do not replay)
 
 1. Strict-key connect to Ferrari; verify exact3.29.0.148 identity and accepted base.
 2. Use the existing local frozen stage, first checking its complete manifest.

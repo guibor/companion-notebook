@@ -8,6 +8,9 @@ property var transitionBefore: []
 property var transitionAfter: []
 property bool transitionApplying: false
 property bool inputGeometryPending: false
+// Pre-armed while paired input is published. Requested sleep remains independent
+// of effective visibility, so it still seals/drains before the hold is released.
+property bool inputVisibilityHeld: false
 readonly property bool transitionBusy: transitionPhase !== "idle"
 property bool transitionAvailabilityLost: false
 // Read the native getter at the call boundary: phaseChanged is deliberately
@@ -58,7 +61,7 @@ function requestTransition(name, apply) {
     if (transitionPhase !== "idle" || !bridge.penInput || !bridge.penInput.surfaceManager) return false
     transitionBefore = transitionSnapshot()
     transitionIntent = {name: name, apply: apply}
-    transitionAvailabilityLost = !mayShow
+    transitionAvailabilityLost = !mayShow || !bridge.inputAvailable
     transitionTicks = 0
     transitionGeneration++
     transitionPhase = "draining"
@@ -77,6 +80,7 @@ function transitionPark(generation) {
         if (!record.view.cnAdmissionInputsDetached()) { transitionFail("old surface still attached"); return }
     }
     bridge.penInput.surfaceManager.updateRegions()
+    inputVisibilityHeld = false
     applyTransition()
 }
 function applyTransition() {
@@ -118,7 +122,7 @@ function resumeAvailableInput() {
 }
 Connections {
     target: bridge
-    function onInputAvailableChanged() { host.resumeAvailableInput() }
+    function onInputAvailableChanged() { host.hideWhenUnavailable() }
 }
 function transitionAdvance() {
     if (transitionPhase !== "loading" && transitionPhase !== "settling") return
@@ -126,7 +130,7 @@ function transitionAdvance() {
         if (++transitionTicks > 120) throw new Error("native view readiness timed out")
         if (!transitionOwnsPark() || !inputGeometryPending) throw new Error("park ownership lost")
         if (!pageOperationsReady()) return
-        if (transitionAvailabilityLost || !mayShow) {
+        if (transitionAvailabilityLost || !mayShow || !bridge.inputAvailable) {
             // An availability change is retained even if it arrived mid-drain.
             // Collapse only now, while the native worker is owned and parked.
             transitionApplying = true
@@ -173,6 +177,7 @@ function transitionAdvance() {
         restoring = false
         if (!admissionGate.permitPublication(transitionGeneration)) throw new Error("publication refused: " + admissionGate.error)
         transitionPhase = "publishing"
+        inputVisibilityHeld = !!secondary && mayShow && bridge.inputAvailable
         inputGeometryPending = false
         if (!admissionGate.finish(transitionGeneration)) throw new Error("fresh candidates missing: " + admissionGate.error)
         transitionTimer.stop()

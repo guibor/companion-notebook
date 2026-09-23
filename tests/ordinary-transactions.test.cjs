@@ -12,7 +12,7 @@ function body(text,anchor) {
 function fixture() {
   const calls=[];
   const host={transitionPhase:'idle',transitionGeneration:0,transitionTicks:0,transitionIntent:null,
-    transitionBefore:[],transitionAfter:[],transitionApplying:false,inputGeometryPending:false,
+    transitionBefore:[],transitionAfter:[],transitionApplying:false,inputGeometryPending:false,inputVisibilityHeld:true,
     secondary:null,revealHeight:1080,restoring:false,choosing:false,error:'',mayShow:true,transitionAvailabilityLost:false,
     closeSecondaryParked(){assert(host.transitionApplying);assert(host.transitionOwnsPark());host.secondary=null;host.revealHeight=0;calls.push('close');},
     pageOperationsReady(){return true;},
@@ -51,15 +51,29 @@ function fixture() {
 test('ordinary resize preserves all old input until real park, then clamps/refreshes before publication',()=>{
   const f=fixture();let applied=0;
   assert(f.host.requestTransition('resize',()=>{applied++;assert(f.host.transitionApplying);f.host.revealHeight=1440;}));
-  assert.equal(f.host.revealHeight,1080);assert(!f.host.inputGeometryPending);assert.equal(applied,0);
+  assert.equal(f.host.revealHeight,1080);assert(!f.host.inputGeometryPending);assert(f.host.inputVisibilityHeld);assert.equal(applied,0);
   for(let i=0;i<10;i++)f.host.transitionAdvance();assert.equal(applied,0);
-  f.ack();assert.equal(applied,1);assert(f.host.inputGeometryPending);assert.equal(f.host.revealHeight,1440);
+  f.ack();assert.equal(applied,1);assert(f.host.inputGeometryPending);assert(!f.host.inputVisibilityHeld);assert.equal(f.host.revealHeight,1440);
   f.host.transitionAdvance();assert.equal(f.host.transitionPhase,'settling');assert(!f.calls.includes('finish:1'));
-  f.host.transitionAdvance();assert.equal(f.host.transitionPhase,'publishing');assert(!f.host.inputGeometryPending);
+  f.host.transitionAdvance();assert.equal(f.host.transitionPhase,'publishing');assert(!f.host.inputGeometryPending);assert(f.host.inputVisibilityHeld);
   assert(!f.calls.includes('checkpoint'));f.host.transitionComplete(1);assert.equal(f.host.transitionPhase,'idle');
   assert(f.calls.indexOf('refresh:second')<f.calls.indexOf('permit:1'));
   assert(f.calls.indexOf('permit:1')<f.calls.indexOf('finish:1'));
   assert(f.calls.indexOf('finish:1')<f.calls.indexOf('checkpoint'));
+});
+test('sleep request cannot release pre-armed visibility before old input detaches and cache clears',()=>{
+  const f=fixture();let cleared=false;
+  f.bridge.penInput.surfaceManager.updateRegions=()=>{
+    if(f.host.transitionPhase==='draining') {
+      assert(f.host.inputGeometryPending);assert(f.host.inputVisibilityHeld);cleared=true;
+    }
+  };
+  f.host.mayShow=false;f.bridge.inputAvailable=false;
+  assert(f.host.inputVisibilityHeld);
+  f.host.requestTransition('unavailable',()=>{});assert(f.host.inputVisibilityHeld);
+  f.ack();assert(cleared);assert(!f.host.inputVisibilityHeld);
+  f.host.transitionAdvance();assert.equal(f.host.transitionPhase,'suspended');
+  assert(!f.host.inputVisibilityHeld);assert.equal(f.host.secondary,null);
 });
 test('an obsolete acknowledgement cannot mutate the current layout',()=>{
   const f=fixture();let calls=0;f.host.requestTransition('resize',()=>calls++);
@@ -108,6 +122,16 @@ for(const phase of ['draining','loading','settling'])test('availability lost dur
   f.host.transitionAdvance();f.host.transitionAdvance();f.host.transitionComplete(1);
   assert.equal(f.host.secondary,null);assert.equal(f.host.revealHeight,0);
   assert.equal(f.host.transitionPhase,'idle');assert(f.calls.includes('close'));
+});
+for(const phase of ['loading','settling'])test('input-only visibility loss during '+phase+' closes before suspension',()=>{
+  const f=fixture();f.host.requestTransition('resize',()=>{});f.ack();
+  if(phase==='settling')f.host.transitionAdvance();
+  f.bridge.inputAvailable=false; // mayShow deliberately remains true.
+  f.host.transitionAdvance();assert.equal(f.host.transitionPhase,'suspended');
+  assert.equal(f.host.secondary,null);assert(f.host.inputGeometryPending);
+  f.host.mayShow=false;f.bridge.inputAvailable=true; // Wake into stock landscape.
+  f.host.resumeAvailableInput();f.host.transitionAdvance();f.host.transitionAdvance();f.host.transitionComplete(1);
+  assert.equal(f.host.transitionPhase,'idle');assert.equal(f.host.secondary,null);
 });
 for(const kind of ['throw','timeout','finish'])test('ordinary '+kind+' failure cannot persist or report a successful transition',()=>{
   const f=fixture();f.host.requestTransition('resize',()=>{if(kind==='throw')throw new Error('test');});f.ack();

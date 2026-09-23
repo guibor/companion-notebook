@@ -52,23 +52,22 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
-1. Pro became unreachable before the first upload connection for lifecycle trial
-   20260923T103000Z-1. Full LAN scan found no alternative Pro endpoint. No remote
-   preparation or activation occurred. Resume the already reviewed, unused local
-   capsule only after fresh strict-key identity/base checks and a Mac-verified
-   recovery backup. Manifest1d0bd6381c25f8c2d8787f8cc13b0556fa31ebd155b31e7ee03a8c6c7a0b53b9.
-   Staging clearance is consumed; do not regenerate or reuse a different payload.
-2. Run its combined native history, tool, page-add/return and close/reopen sequence,
-   automatic recovery and saved-file verification. Review corrected the sole-
-   primary diagnostic gate and actual bar Redo before this capsule was frozen.
-3. Qualify the later local sleep/library publication fix separately. It retains
-   an owned park without an invisible input candidate; visible wake/stock open
-   resumes the normal fresh-publication path. No power policy or core change.
-   Native sleep ordering, boundary/eraser, delayed HWC/keyboard and extension
-   coverage still precede personal-notebook release.
-4. Ordinary trial052500 readback is COMPLETE: four correctly attributed saved
-   shapes and exact recovery to UI99661/Dates14463. Do not replay that old test.
-   Keep personal-document ink off, Move untouched and no recurring-install entry.
+1. Lifecycle103000 is now COMPLETE: native history/tools/page-add/return and
+   close/reopen passed on UI104747; exact saved-file check passed all4 shapes and
+   new blank pages. Independent recovery verified normal UI106973/Dates14463,
+   protected files/policies and read-only root. Never replay this consumed test.
+2. STOP device mutations: display-sleep capsule110500 was activated once, but SSH
+   dropped before observations could be read. Test phase and recovery are UNKNOWN.
+   On restored reachability, inspect only its receipts and independently verify
+   recovery first. Manifest15226549450f1f7dbd9171390642b7fa13f4e4ef62e3abb5e55815b027320770.
+   Do not replay, add key input, reboot or launch another capsule. This one is
+   consumed. See playbook/log/display_sleep_2026-09-23.md for exact evidence paths.
+3. The local visibility latch preserves old geometry until park/detachment;
+   visibility-only loss, hidden-primary suspension, landscape wake and fresh
+   publication pass local tests. Native boundary/eraser, in-flight sleep,
+   lock/privacy, delayed HWC/keyboard and extension gates remain separate.
+4. Finish the remaining native acceptance before ordinary personal-notebook
+   installation. Keep Move untouched and no recurring-install entry yet.
 
 * Qualification history (not current next actions)
 0. Latest stopping point2026-09-23: ordinary-control cohort passed independent

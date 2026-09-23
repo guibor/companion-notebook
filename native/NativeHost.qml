@@ -178,7 +178,8 @@ Item {
         })
     }
     function hideWhenUnavailable() {
-        if (mayShow) { resumeAvailableInput(); return }
+        if (bridge.inputAvailable) resumeAvailableInput()
+        if (mayShow && bridge.inputAvailable) return
         if (secondary || transitionBusy || choosing) transitionAvailabilityLost = true
         if ((secondary || choosing) && (transitionPhase === "idle" || transitionPhase === "choosing"))
             requestTransition("unavailable", function() { choosing = false; closeSecondaryParked(false) })

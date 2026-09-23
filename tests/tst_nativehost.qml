@@ -130,12 +130,23 @@ Item {
             verify(!fixture.host.tuck()); verify(!fixture.host.selectPane(false))
         }
         function test_hidden_primary_waits_parked_then_wakes_tucked() {
-            open(); fixture.bridge.available=false; fixture.primary.visible=false
+            open();verify(fixture.host.inputVisibilityHeld)
+            fixture.bridge.available=false; fixture.primary.visible=false
             tryCompare(fixture.host,"transitionPhase","suspended",2500)
             compare(fixture.host.secondary,null); verify(fixture.host.inputGeometryPending)
+            verify(!fixture.host.inputVisibilityHeld)
             wait(300); compare(fixture.host.transitionPhase,"suspended")
             fixture.primary.visible=true; fixture.bridge.available=true
             settled(); compare(fixture.host.revealHeight,0)
+            verify(!fixture.host.inputGeometryPending)
+        }
+        function test_primary_visibility_only_loss_parks_from_idle_and_wakes_in_landscape() {
+            open(); fixture.primary.visible=false
+            verify(fixture.host.mayShow)
+            tryCompare(fixture.host,"transitionPhase","suspended",2500)
+            compare(fixture.host.secondary,null);verify(fixture.host.inputGeometryPending)
+            fixture.bridge.portrait=false;fixture.primary.visible=true
+            settled();compare(fixture.host.secondary,null)
             verify(!fixture.host.inputGeometryPending)
         }
         function test_sheet_movement_refreshes_native_input_before_ungating() {

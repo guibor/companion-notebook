@@ -57,11 +57,13 @@ def verify(directory):
     admission_success = "Companion probe: admission ink submissions completed; panes=2; strokes=4; durable=unverified"
     ordinary_success = "Companion probe: ordinary ink submissions completed; panes=2; strokes=4; durable=unverified"
     lifecycle_success = "Companion probe: lifecycle ink submissions completed; panes=2; strokes=4; durable=unverified"
+    sleep_success = "Companion probe: sleep ink submissions completed; panes=2; strokes=4; durable=unverified"
     retirement = retirement_success in log
     admission = admission_success in log
     lifecycle_profile = lifecycle_success in log
-    ordinary = ordinary_success in log or lifecycle_profile
-    assert sum((retirement, admission, ordinary_success in log, lifecycle_profile, fixed_success in log)) == 1, "Require exactly one successful profile"
+    sleep_profile = sleep_success in log
+    ordinary = ordinary_success in log or lifecycle_profile or sleep_profile
+    assert sum((retirement, admission, ordinary_success in log, lifecycle_profile, sleep_profile, fixed_success in log)) == 1, "Require exactly one successful profile"
     multiple_rounds = retirement or admission or ordinary
     rounds = 2 if multiple_rounds else 1
     if retirement:
@@ -89,7 +91,7 @@ def verify(directory):
         reopened = unique_position("Companion ordinary: preset completed; height=1440; fresh-candidates=true" if ordinary
                                    else "Companion admission: round=2; height=1440; fresh-candidates=true")
         closed = unique_position("Companion ink: gate closed")
-        completed = unique_position(lifecycle_success if lifecycle_profile else ordinary_success if ordinary else admission_success)
+        completed = unique_position(sleep_success if sleep_profile else lifecycle_success if lifecycle_profile else ordinary_success if ordinary else admission_success)
         ordered_submissions = list(re.finditer(
             r"Companion ink: submitted pane=([01]); points=(\d+); bounds=("
             + ",".join([NUMBER] * 4) + r"); round=([12])(?=\s|$)", log))
@@ -106,6 +108,14 @@ def verify(directory):
         else:
             lifecycle = unique_position("Companion ordinary: lifecycle completed; tuck=true; reveal=true; cancel=true")
             assert fourth < lifecycle < closed, "Ordinary lifecycle receipts are out of order"
+            if sleep_profile:
+                requested = list(re.finditer(r"Companion sleep: requested; epoch-ms=(\d{13})(?=\s|$)", log))
+                asleep = list(re.finditer(r"Companion sleep: asleep; parked=true; detached=true; epoch-ms=(\d{13})(?=\s|$)", log))
+                assert len(requested) == len(asleep) == 1, "Require unique native sleep request/park receipts"
+                awake = unique_position("Companion sleep: awake; normal=true; primary-fresh=true")
+                paired = unique_position("Companion sleep: roundtrip passed; normal=true; pairing=true; original-pages=true; fresh-candidates=true")
+                assert fourth < requested[0].start() < asleep[0].start() < awake < paired < lifecycle, "Display sleep receipts out of order"
+                assert 0 <= int(asleep[0][1]) - int(requested[0][1]) <= 2000, "Sleep park receipt too late"
             if lifecycle_profile:
                 history = unique_position("Companion lifecycle: history passed; panes=2; undo=true; redo=true")
                 tools = unique_position("Companion lifecycle: tools passed; eraser=true; pen=true")
@@ -180,13 +190,16 @@ def verify(directory):
                   "sha256": hashlib.sha256(page.read_bytes()).hexdigest()}
         report.update({"strokes": matched} if multiple_rounds else matched[0])
         reports.append(report)
-    status = ("four-disposable-stroke-shapes-and-native-page-lifecycle-persisted" if lifecycle_profile
+    status = ("four-disposable-stroke-shapes-persisted-after-display-sleep" if sleep_profile
+              else "four-disposable-stroke-shapes-and-native-page-lifecycle-persisted" if lifecycle_profile
               else "four-disposable-stroke-shapes-persisted-after-ordinary-lifecycle" if ordinary
               else "four-disposable-stroke-shapes-persisted-after-admission" if admission
               else "four-disposable-stroke-shapes-persisted-after-retirement" if retirement
               else "two-disposable-stroke-shapes-persisted")
     return {"status": status, "nativeReopenVerified": False,
             "nativePageLifecycleReceiptVerified": lifecycle_profile,
+            "nativeDisplaySleepReceiptVerified": sleep_profile,
+            "cpuSuspendResumeVerified": False,
             "exactSamplePreservationVerified": False,
             "visualClippingVerified": False, "releaseQualified": False, "panes": reports}
 

@@ -9,6 +9,12 @@ This is a working personal pilot, not a general-purpose or one-click installer.
 Do not run the device-specific deployment scripts blindly or change the version
 guard to force a different firmware. Back up your documents before experimenting.
 
+![Illustrative portrait split and Recent/Favorites picker](docs/images/companion-overview.png)
+
+*UI mockups with fictional content, not device screenshots. Portrait only.
+The toolbar illustration is schematic; the installed icon uses the tablet's
+native notebook artwork at two sizes.*
+
 ## What it does
 
 - Write directly in either pane without a tap-to-select step.

@@ -3,12 +3,18 @@
 ## Native icon and favorites
 
 The toolbar now uses reMarkable's own qrc:/ark/icons/notebook through its native
-icon renderer, with a small QML companion-page badge above it. No copied stock
+icon renderer, with a smaller instance of that same native icon overlapping its
+bottom-right corner. A white backing separates the two notebook outlines; there
+is no border or minus mark on the backing. No copied stock
 icon or replacement notebook SVG is bundled. The picker has Recent/Favorites
 tabs; cnRecent queries recent documents, while cnFavorites uses the stock
 LibraryNavigator Documents|Pinned filter, independent of the recent40 limit.
 describeDocuments applies the same local/portrait/unlocked eligibility rules to
 both lists. The selected tab is remembered for the current UI session.
+
+Public illustrations in docs/images are schematic UI mockups with fictional
+content, not device screenshots or handwriting evidence. They do not bundle
+native firmware artwork and are separate from the runtime icon resources.
 
 ## Popup picker and symmetric document roles
 

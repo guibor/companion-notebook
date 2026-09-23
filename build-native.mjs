@@ -609,11 +609,15 @@ if (userPilot) q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScop
  iconSource: "qrc:/ark/icons/notebook"
  Rectangle {
  z: 2
- x: parent.width * 0.57; y: parent.height * 0.56
- width: parent.width * 0.24; height: parent.height * 0.22
- color: "white"; border.color: "black"; border.width: Math.max(1, parent.width * 0.016)
- radius: 1
- Rectangle { anchors.centerIn: parent; width: parent.width * 0.55; height: 1; color: "black" }
+ x: parent.width * 0.55; y: parent.height * 0.53
+ width: parent.width * 0.31; height: width
+ color: "white"
+ ArkControls.Icon {
+ anchors.centerIn: parent
+ size: parent.width
+ source: "qrc:/ark/icons/notebook"
+ color: "black"
+ }
  }
  visible: shouldShow && root.expanded
  shouldShow: root.documentType === "note" || root.documentType === "pdf"

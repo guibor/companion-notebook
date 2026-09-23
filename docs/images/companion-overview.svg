@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1160" viewBox="0 0 1400 1160">
+<defs>
+ <pattern id="ruled" width="500" height="42" patternUnits="userSpaceOnUse"><path d="M0 41.5H500" stroke="#dcdad4"/></pattern>
+ <g id="book" fill="white" stroke="#20211f" stroke-width="2"><rect width="22" height="28" rx="2"/><path d="M5 0V28"/></g>
+ <g id="pair"><use href="#book"/><rect x="12" y="15" width="17" height="20" fill="white"/><use href="#book" transform="translate(14 17) scale(.58)"/></g>
+ <g id="toolbar">
+  <rect width="54" height="712" fill="#faf9f5"/>
+  <circle cx="27" cy="30" r="12" fill="none" stroke="#222" stroke-width="2"/>
+  <path d="M30 25L24 30L30 35" fill="none" stroke="#222" stroke-width="2"/>
+  <rect x="7" y="64" width="40" height="42" rx="4" fill="#252623"/>
+  <path d="M22 92L25 76L31 76L34 92ZM25 96H31" fill="none" stroke="white" stroke-width="2"/>
+  <path d="M19 136L29 124L37 131L27 143H23Z M20 168H35 M23 165L20 168L23 171 M35 205H20 M32 202L35 205L32 208" fill="none" stroke="#333" stroke-width="2"/>
+  <path d="M17 244H37M17 250H37M17 256H37" stroke="#333" stroke-width="2"/>
+  <use href="#pair" x="15" y="574"/>
+  <rect x="17" y="629" width="22" height="21" rx="2" fill="none" stroke="#333" stroke-width="2"/><path d="M17 635H39M22 626V632M34 626V632" stroke="#333" stroke-width="2"/>
+  <g fill="#333"><circle cx="19" cy="686" r="2"/><circle cx="27" cy="686" r="2"/><circle cx="35" cy="686" r="2"/></g>
+ </g>
+</defs>
+<rect width="1400" height="1160" fill="#eeeae2"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#252623">
+ <text x="72" y="83" font-size="18" letter-spacing="3">COMPANION NOTEBOOK</text>
+ <text x="72" y="146" font-size="47" font-weight="600">Read here. Write beside it.</text>
+ <text x="74" y="188" font-size="22" fill="#62635e">A portrait companion pane. Two documents. One shared toolbar.</text>
+ <text x="80" y="256" font-size="23" font-weight="600">Keep your source in view</text>
+ <text x="744" y="256" font-size="23" font-weight="600">Choose a familiar notebook</text>
+ <rect x="72" y="284" width="588" height="744" rx="15" fill="#cbc8bf"/>
+ <rect x="736" y="284" width="588" height="744" rx="15" fill="#cbc8bf"/>
+ <svg x="88" y="300" width="556" height="712" viewBox="0 0 556 712">
+  <rect width="556" height="712" fill="#fffefa"/>
+  <text x="87" y="54" font-size="13" letter-spacing="2" fill="#777">READING NOTES · SAMPLE DOCUMENT</text>
+  <text x="87" y="105" font-family="Georgia, serif" font-size="31">Space to think</text>
+  <g font-family="Georgia, serif" font-size="18" fill="#45463f">
+   <text x="87" y="151">Reading is a conversation with a page.</text>
+   <text x="87" y="181">A thought appears, then another. Give</text>
+   <text x="87" y="211">them somewhere to land without losing</text>
+   <text x="87" y="241">the passage that started them.</text>
+   <text x="87" y="292">Keep the source above and your own</text>
+   <text x="87" y="322">notebook below. Read a little. Write a</text>
+   <text x="87" y="352">little. Stay with the idea.</text>
+  </g>
+  <rect x="54" y="445" width="502" height="267" fill="url(#ruled)"/>
+  <path d="M54 445H556" stroke="#45463f" stroke-width="1.5"/>
+  <g font-family="Georgia, serif" font-style="italic" fill="#30322e">
+   <text x="91" y="488" font-size="24">Thoughts while reading</text>
+   <text x="91" y="536" font-size="20">Keep context. Make room for ideas.</text>
+   <text x="91" y="577" font-size="20">→ Explore this in the next chapter.</text>
+  </g>
+  <use href="#toolbar"/>
+ </svg>
+ <svg x="752" y="300" width="556" height="712" viewBox="0 0 556 712">
+  <rect width="556" height="712" fill="#faf9f5"/>
+  <use href="#toolbar"/>
+  <g stroke="#dbdad4" stroke-width="2"><path d="M87 86H490M87 123H455M87 160H483M87 197H450M87 234H495M87 271H464M87 308H485"/></g>
+  <rect width="556" height="712" fill="#000" opacity=".12"/>
+  <rect x="39" y="125" width="478" height="447" rx="12" fill="#fff" stroke="#b7b8b1"/>
+  <text x="66" y="174" font-size="25" font-weight="600">Companion notebook</text>
+  <path d="M478 154L490 166M490 154L478 166" stroke="#444" stroke-width="2"/>
+  <text x="66" y="205" font-size="15" fill="#6a6b65">Choose a document to keep alongside this one.</text>
+  <text x="67" y="251" font-size="19" font-weight="600">Recent</text>
+  <text x="182" y="251" font-size="19" fill="#777">Favorites</text>
+  <path d="M66 267H490" stroke="#ddd"/><path d="M66 267H129" stroke="#222" stroke-width="3"/>
+  <use href="#book" x="69" y="292"/><text x="111" y="314" font-size="20">Reading journal</text>
+  <path d="M66 340H490" stroke="#e5e5df"/>
+  <use href="#book" x="69" y="361"/><text x="111" y="383" font-size="20">Ideas &amp; questions</text>
+  <path d="M66 409H490" stroke="#e5e5df"/>
+  <use href="#book" x="69" y="430"/><text x="111" y="452" font-size="20">Project notes</text>
+  <text x="67" y="533" font-size="15" fill="#777">Your documents stay separate.</text>
+ </svg>
+ <text x="80" y="1068" font-size="18" fill="#555851">Independent scrolling · Native handwriting · Thin divider</text>
+ <text x="744" y="1068" font-size="18" fill="#555851">Recent + Favorites · Pairings remembered per document</text>
+ <text x="72" y="1125" font-size="16" fill="#6a6b65">Illustrative UI mockups, not device screenshots. Fictional content. Portrait only · Experimental · Paper Pro 3.29.0.148</text>
+</g>
+</svg>

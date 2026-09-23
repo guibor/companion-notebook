@@ -2,6 +2,13 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+test('Companion icon uses the native notebook at both sizes, with no minus badge', () => {
+  const builder=fs.readFileSync('build-native.mjs','utf8');
+  const icon=builder.slice(builder.indexOf('id: cnCompanionButton'),builder.indexOf('visible: shouldShow && root.expanded',builder.indexOf('id: cnCompanionButton')));
+  assert.equal((icon.match(/qrc:\/ark\/icons\/notebook/g)||[]).length,2);
+  assert.match(icon,/ArkControls\.Icon/);
+  assert.doesNotMatch(icon,/border\.color|height: 1;/);
+});
 function functions(path) {
   const s = fs.readFileSync(path, 'utf8');
   let result = '';

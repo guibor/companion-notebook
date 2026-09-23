@@ -27,6 +27,9 @@ Read and write without losing context or compromising native handwriting.
 - Pro only initially; no changes to Move or shared servers.
 
 * Requirements changed
+- Icon-only refinement: retain the full-size native notebook; overlap a baby
+  instance of the same notebook at its corner, replacing the square/minus badge.
+  Add clearly labeled public UI mockups to the README and Reddit announcement.
 - Replace the original custom notebook drawing with the actual native notebook
   icon plus a small companion badge. Picker tabs are Recent and Favorites;
   favorites are independently queried, not restricted to recent documents.
@@ -97,6 +100,8 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. Prepare the icon-only update and public illustrations; no picker, layout,
+   input, pairing or Move behavior changes. Reddit addition needs text preview.
 0.230000 installed: native notebook icon with badge, Recent/Favorites popup,
   reversed arrows and true role swap. Host ready onUI177343;
   owner176282/watch177031 active. User hands-on feedback next; no input automation.

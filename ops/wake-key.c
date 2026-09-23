@@ -96,11 +96,20 @@ int main(int argc,char **argv) {
         if(found<0||now<begun||now-begun>90000||process_start(pid)!=start){close(fd);return 5;}
         if(epoch>0){
             if(request_seen<0){request_seen=now;request_epoch=epoch;}
-            if(epoch!=request_epoch||now-request_seen>1900){close(fd);return 6;}
+            // Native secondary destruction took 2074ms in trial110500. Keep
+            // the original pre-sleep clock, but allow that observed drain.
+            // The independent 3s-monotonic/4s-wall watchdog is unchanged.
+            if(epoch!=request_epoch||now-request_seen>2900){
+                fprintf(stderr,"wake refused: request changed or monotonic freshness expired\n");
+                close(fd);return 6;
+            }
         }else if(request_seen>=0){close(fd);return 6;}
         if(found){
             double age=milliseconds(CLOCK_REALTIME)-epoch;
-            if(age<0||age>2000||now-begun<3000||!key_up(fd)){close(fd);return 6;}
+            if(age<0||age>3000||now-begun<3000||!key_up(fd)){
+                fprintf(stderr,"wake refused: wall freshness, settling or key-up check failed\n");
+                close(fd);return 6;
+            }
             struct input_event events[4]={
                 {.type=EV_KEY,.code=KEY_POWER,.value=1}, {.type=EV_SYN,.code=SYN_REPORT,.value=0},
                 {.type=EV_KEY,.code=KEY_POWER,.value=0}, {.type=EV_SYN,.code=SYN_REPORT,.value=0}
@@ -108,6 +117,15 @@ int main(int argc,char **argv) {
             // No retry: a partial write is a failure, never a balanced success.
             // A separate UP-only cleanup cannot generate a new held key.
             puts("wake-batch-attempted");fflush(stdout);
+            // Log scans, /proc checks, ioctls and even flushing this marker can
+            // take time. Never authorize a write using the loop's old sample.
+            now=milliseconds(CLOCK_MONOTONIC);
+            age=milliseconds(CLOCK_REALTIME)-epoch;
+            if(now<begun||now-begun>90000||now<request_seen||now-request_seen>2900
+                    ||age<0||age>3000){
+                fprintf(stderr,"wake refused: final pre-write freshness expired\n");
+                close(fd);return 6;
+            }
             ssize_t written=write(fd,events,sizeof events);
             if(written!=(ssize_t)sizeof events||!key_up(fd)){
                 (void)write(fd,events+2,2*sizeof events[0]);

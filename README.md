@@ -4,19 +4,50 @@ A portrait writing margin for reMarkable: keep a source open and place
 a separate notebook over its lower edge at **⅓, ½ or ⅔** of the screen. Write directly in either visible pane;
 scroll either document independently. Pairings are specific to a notebook/PDF.
 
-**Status: native two-pane writing demonstrated; not yet a tablet release.**
-The initial hardware target is Paper Pro **3.29.0.148**. Move and landscape remain
-out of scope. The normal Pro setup was restored after each bounded experiment;
-no Companion is left active and ordinary-document ink remains gated off.
+**Status: user-driven experimental pilot installed on Paper Pro3.29.0.148.**
+On2026-09-23 the user explicitly stopped further automated trials and requested
+hands-on use. The separate `CN_USER_PILOT=1` build is active, with native writing
+enabled and no scripted document creation or synthetic input. This is not a
+fully qualified release. Move and landscape remain out of scope.
+
+## Use the installed pilot
+
+1. Open a notebook or PDF in portrait.
+2. Tap **Companion notebook** on the full toolbar, above Dates.
+3. Choose a different local portrait notebook from the recent-notebook list.
+4. Write directly in either pane. Only a hairline separates the pages. The native
+   toolbar stays above both canvases, with shared writing-tool settings.
+5. In the three-dot menu, layout pictures select source-only,
+   small, medium (default), half, or companion-only. Source-only hides the
+   companion without forgetting the pair. A split picture returns from full
+   companion view to the original source and companion. No controls or labels
+   sit between the pages. Split sizes are25%,37.5%,50%; no fractions in the UI.
+6. You can also start with a size picture: if unpaired, the picker opens directly.
+   The companion gets a default pairing back to the original notebook, without
+   replacing an existing explicit pair. There is no separate menu off switch;
+   the independent recovery controller remains available to the operator.
+
+Start with a disposable notebook: mid-stroke sleep, boundary/eraser edge cases
+and full extension interactions remain unqualified. A background runtime guard
+restores normal apps on a reported Companion failure or a30second UI stall.
+It is a fallback, not a guarantee against losing an in-progress stroke.
+Activation is runtime-only; reboot does not automatically reactivate Companion.
+Your existing app payloads, notebook files, firmware and boot configuration are
+not replaced. See [the installation record](playbook/log/user_pilot_2026-09-23.md).
+Current revision:210500, with suspend-aware supervision.
+Pair settings carried forward through210000. This adopts RMHacks' separation of split controls from the writing area;
+it does not install RMHacks' older firmware patches.
+
+## Qualification history (before the hands-on pilot)
 
 The tap-only size ruler is implemented; the filled mark shows the selected
 size. There is no drag interaction. A real native **during-stroke handoff and
 resize now passes**, including all four correctly saved strokes. The regular
 pair/resize/tuck/reveal controls also passed a bounded native submission test;
-that newest trial's saved-file readback is pending reconnection. Full native
-page/tool/close/sleep qualification is still outstanding. See the bounded
+saved-file readback subsequently passed. Native page/tool/close and already-parked
+display sleep also passed; broader edge cases remain outstanding. See the bounded
 [handoff audit](playbook/ADMISSION-HANDOFF.md). This project is not ready for daily
-use or inclusion in the recurring installation list.
+use as a fully qualified release or inclusion in the recurring installation list.
 
 Latest result (2026-09-23): corrected ordinary-control trial20260923T052500Z-1
 passed native pair/resize/tuck/reveal/cancel and four stroke submissions. Its

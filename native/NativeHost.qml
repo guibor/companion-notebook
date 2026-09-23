@@ -20,13 +20,13 @@ Item {
     readonly property bool dragging: false // Shared bridge compatibility; no live dragging.
     property bool closing: false
     property real revealHeight: 0
-    property real savedRatio: 1 / 3
+    property real savedRatio: 3 / 8
     property bool penDown: false
     property bool restoring: false
     property string restorePage: ""
     property int openGeneration: 0
     readonly property real unit: width / 1620
-    readonly property real barHeight: 112 * unit
+    readonly property real barHeight: 2 * unit
     readonly property real minimumHeight: 360 * unit
     readonly property real maximumHeight: height * 0.85
     readonly property bool paired: secondary !== null && revealHeight > 0
@@ -70,7 +70,7 @@ Item {
         primaryId = id
         var p = pairs.pairs[id]
         companionId = p ? p.companion : ""
-        savedRatio = nearestSize(p ? p.ratio : 1 / 3)
+        savedRatio = nearestSize(p ? p.ratio : 3 / 8)
         revealHeight = 0; secondarySelected = false; choosing = false
     }
     function choose() {
@@ -164,7 +164,7 @@ Item {
         return name === "Next" || name === "＋" ? pageOperation(view, invoke) : editOperation(view, invoke)
     }
     function nearestSize(ratio) {
-        var sizes = [1 / 3, 1 / 2, 2 / 3], best = sizes[0]
+        var sizes = [1 / 4, 3 / 8, 1 / 2], best = sizes[0]
         for (var i = 1; i < sizes.length; ++i)
             if (Math.abs(ratio - sizes[i]) < Math.abs(ratio - best)) best = sizes[i]
         return best
@@ -172,9 +172,10 @@ Item {
     function chooseSize(ratio) {
         if (!idle || !mayShow || !secondary || typeof ratio !== "number" || !isFinite(ratio)
                 || Math.abs(nearestSize(ratio) - ratio) > 0.000001) return false
+        var requestedRatio = Number(ratio)
         return requestTransition("resize", function() {
-            savedRatio = nearestSize(ratio)
-            if (paired) revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio))
+            host.savedRatio = requestedRatio
+            host.revealHeight = Math.min(host.maximumHeight, Math.max(host.minimumHeight, host.height * requestedRatio))
         })
     }
     function hideWhenUnavailable() {
@@ -222,37 +223,7 @@ Item {
             enabled: host.idle
             onTapped: function(p) { if (p.position.y > host.barHeight && p.position.y < host.revealHeight) host.selectPane(true) }
         }
-        Rectangle {
-            id: grip; width: parent.width; height: host.barHeight; color: "#f1f1ed"; border.color: "#888"
-            Text {
-                x: 32 * host.unit; anchors.verticalCenter: parent.verticalCenter; width: parent.width * 0.28; elide: Text.ElideRight
-                text: (host.secondarySelected ? "● " : "") + (host.secondary && host.secondary.document ? host.secondary.document.visibleName : "Companion")
-                font.pixelSize: 30 * host.unit; color: "#222"
-            }
-            MouseArea {
-                anchors.fill: parent; preventStealing: true // Chrome never starts an underlying scroll.
-            }
-            SizeRuler {
-                objectName: "nativeSizeRuler"
-                x: 510 * host.unit; anchors.verticalCenter: parent.verticalCenter
-                width: 390 * host.unit; height: 104 * host.unit
-                unit: host.unit; ratio: host.savedRatio
-                enabled: host.idle
-                onChosen: function(ratio) { host.chooseSize(ratio) }
-            }
-            Row {
-                anchors.right: parent.right; anchors.rightMargin: 20 * host.unit; anchors.bottom: parent.bottom
-                Repeater {
-                    model: ["Pen", "Erase", "Undo", "Redo", "Next", "＋", "⌄"]
-                    Rectangle {
-                        required property string modelData
-                        width: 94 * host.unit; height: 76 * host.unit; color: "transparent"
-                        Text { anchors.centerIn: parent; text: modelData; font.pixelSize: 27 * host.unit; color: "#333" }
-                        MouseArea { anchors.fill: parent; onClicked: { if (modelData === "⌄") host.tuck(); else { host.selectPane(true); host.action(modelData) } } }
-                    }
-                }
-            }
-        }
+        Rectangle { id: grip; width: parent.width; height: host.barHeight; color: "#555" }
         Text {
             visible: !host.inkQualified || host.restoring; y: host.barHeight + 16 * host.unit; anchors.horizontalCenter: parent.horizontalCenter
             text: host.restoring ? "Opening companion…" : "Rendering probe — writing disabled"
@@ -261,7 +232,7 @@ Item {
     }
     Rectangle {
         objectName: "reopenCompanion"
-        visible: host.mayShow && !!host.companionId && !host.paired
+        visible: false // Reopen lives in the native menu; no floating page chrome.
         width: 420 * host.unit; height: 94 * host.unit
         anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
         color: "#efefea"; radius: 25 * host.unit; border.color: "#888"

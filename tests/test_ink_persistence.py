@@ -349,6 +349,16 @@ class PersistenceVerifierTests(unittest.TestCase):
             with self.assertRaises(AssertionError):
                 verify(self.root)
 
+    def test_sleep_delayed_park_still_requires_fresh_wake_and_all_shapes(self):
+        self.sleep_fixture()
+        original = self.log.read_text()
+        self.log.write_text(original.replace("1700000000100", "1700000002074"))
+        self.assertTrue(verify(self.root)["nativeDisplaySleepReceiptVerified"])
+        for stamp in ["1699999999999", "1700000003001"]:
+            self.log.write_text(original.replace("1700000000100", stamp))
+            with self.assertRaises(AssertionError):
+                verify(self.root)
+
     def lifecycle_fixture(self):
         lines = self.ordinary_fixture()
         self.original_pages = [PAGE, "44444444-4444-4444-8444-444444444444"]

@@ -40,6 +40,13 @@ Item {
         if (index < 0 || index >= entry.pageCount) index = 0
         view.openDocumentOnPage(entry, index)
     }
+    function openPrimary(id, pageId) {
+        var entry = Library.entryForId(id)
+        if (!entry || entry.archived || entry.lockedByPassword || entry.loadError) throw new Error("Document unavailable")
+        var index = pageId ? entry.pageForId(pageId) : entry.lastOpenedPage
+        if (index < 0 || index >= entry.pageCount) index = 0
+        root.openDocument_helper(entry, function() { documentView.item.openDocumentOnPage(entry, index) })
+    }
     function viewReady(view) { return view.documentLoaded && !view.isLoading && !!view.sceneController }
     function beginAnimation() { }
     function endAnimation() { if (primary) primary.cnRefresh(); if (cnHost?.secondary) cnHost.secondary.cnRefresh() }

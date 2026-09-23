@@ -4,8 +4,8 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-const clearedTrial = null; // Consumed: immutable capsule110500 now exists; never regenerate/replay.
-const trial='20260923T110500Z-1';
+const clearedTrial = null; // Consumed: immutable152000 capsule exists; never regenerate/replay110500 or152000.
+const trial='20260923T152000Z-1';
 assert.equal(clearedTrial,trial,'Display-sleep trial requires fresh exact-capsule clearance');
 assert.equal(process.argv[2],trial,'Only the reviewed one-use trial may stage');
 const out='build/probe-'+trial,payload='build/sleep-native';
@@ -17,8 +17,8 @@ const expected={
     'PairStore.js':'44d0b0a96107d61bffc3564b737ade6d92acd0e848bc68b3bb857297ccf05b19',
     'SizeRuler.qml':'7351a5bf60c0d72ab90053af4e2629257f2f616307c7ed8ef44734dde24bea52',
     'companion-notebook.qmd':'4d99c25b02bc419907974aa34676be18790efcea7f370e376c8ab31d7aa7b223',
-    'probe.sh':'1a6f70ea41abb6d4ff0b6e7c335e968c4b75eaf4b8344b973885759827779a66',
-    'wake-key':'6403628e6e3edaddd0de8ab9e5a14dee21c6bf3c9769796398846c08a7cca56e',
+    'probe.sh':'d9303e24d70a99e592b07edb2043d352ecb824594d322cc55271bf5e62ba3acf',
+    'wake-key':'0d90c6b4d6f8ef024ac8d42c9cae369c5b34a2771f7f922d325fe34b5365681c',
     'libcompanionbootstrap.so':'113f6b72899225ff062d21cf3db28e2e8ec5b716a79d49f0987ae914d2d55a39',
     'libcompanionadmissionplugin.so':'e4b3d8550654409dc06703b95fc5c59ed2c98c09aa37207275c35c29bb6dd89f',
     'admission-qmldir':'5d6bc9a2e632fe2304db143667a6ff1c95c1ccccc65000485881cf1b8a5c084e',

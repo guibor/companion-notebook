@@ -1,12 +1,115 @@
 # Architecture and implementation status
 
-## Current result: native lifecycle passes; sleep trial outcome unknown (2026-09-23)
+## Layout and pairing refinement
 
-Display-sleep trial110500 was launched once after exact independent review and a
-Mac-verified recovery archive. The following SSH observation and fresh connection
-timed out. Its actual test phase and recovery are UNKNOWN, so no further device
-mutation or release is appropriate until recovery is verified. The capsule is
-consumed. See [the current recovery boundary](playbook/log/display_sleep_2026-09-23.md).
+The pilot toolbar now has Companion above Dates; the settings menu holds an
+ordered five-icon source/quarter/three-eighths/half/companion strip in three dots.
+Three-eighths is the new unpaired default; old larger splits normalize to half.
+The end icons show up/down document arrows, not X or an off switch. Menu layout
+uses ordinary declarative insertion. Qt's C++ stackBefore is not QML-invokable
+on this tablet; the rejected210000 ordering helper is removed in210500. The live
+alphabetical QMD order places Companion before Dates. Size controls remain in
+three dots; exact placement relative to Dispatch is not enforced at runtime.
+The menu sends an integer index before closing its delegate. layoutChoice stores
+the numeric request and source identity; an idle-only timer calls applyLayoutChoice
+after any current native transition. chooseSize captures a scalar ratio and
+explicitly mutates host geometry only inside the existing owned-park callback.
+Unpaired choices open the picker with that ratio, including a deferred full-view
+request after pairing. rememberReversePair creates only missing reverse defaults;
+existing explicit pairings are preserved. Full-return navigation remains native.
+There is no visible Turn off Companion action; independent operator/crash fallback
+remains. Local orchestration tests do not establish tablet handwriting acceptance.
+
+## Hairline/shared-toolbar revision
+
+RMHacks' local upstream split_doc/toolbar.qmd separates toolbar chrome from split
+canvases, while layers_menu.qmd holds split controls. This revision follows that
+separation rather than importing its older firmware patches. In the pilot build,
+the Companion loader is a visual child of the primary DocumentView, beneath its
+raised native uiContainer. The full-size primary toolbar stays visible regardless
+of which pane last received ink, so left/right rails and foldouts remain above
+the lower canvas. The sheet begins with a two-pixel separator; its title/actions,
+fraction ruler and floating reopen banner are removed from the visible UI.
+
+`shared-tools.qml.inc::cnToolState()` snapshots only pen/style/eraser settings.
+`cnApplyToolState()` copies them to the companion exclusively under the existing
+owned native park before input publication. Secondary normalization no longer
+reasserts its hidden toolbar selection. Undo/Redo route to the last active pane;
+their enabled state uses that pane's controller, never both documents at once.
+
+`layout-menu.qml.inc` places four pictograms and close in the stock settings menu.
+`layoutChoice()` implements quarter/half/three-quarter, tuck, and companion-only
+through the existing transactions. Full view uses normal native document opening,
+not a zero-height input surface, and retains a session-local source/page return.
+`openPrimary()` uses the native main-document opening path. Returning from full
+view waits for the original primary to be ready before reopening its companion.
+`build-pilot.mjs` can seed the next session from the prior retained pairs.ini;
+neither notebook contents nor independent app settings are overwritten.
+Revision210500 is now installed: native UI166334 reported host-ready with ink and
+settings enabled; owner165260/fallback166027 active, zero automatic restarts.
+Pair metadata was carried forward through210000. Only local package composition/QML
+parsing and the installation-startup receipt were read; no tablet interaction
+tests were run. Hands-on behavior remains for the user's feedback.
+
+## First hands-on UX feedback: design delta, not yet implemented
+
+The full-width, high-z Companion host currently overlays the primary DocumentView
+including its native toolbar. `build-native.mjs` also suppresses the secondary
+toolbar and hides the primary toolbar when the secondary is selected. Tool
+operations are routed to an individual DocumentView by `editOperation`, not a
+shared writing-tool model. These source facts explain the reported toolbar and
+tool-selection problems; native writing itself is not proof of correct toolbar UX.
+
+Next design: preserve the native toolbar's display and hit-test region on either
+configured side, including its foldouts. Share pen/style/eraser selection across
+both native controllers under one parked transaction; keep undo/page actions
+document-local, proposed target the last explicitly interacted-with pane. Replace
+the middle title/action row with four layout pictograms (small/balanced/large/full)
+and X (close to source, retain pairing). Full mode preserves a route back to the
+split; closed mode has a small reopen affordance. No fractions or duplicate pens.
+This is a proposal recorded after user feedback, not a deployed change or a
+claim that full-mode ownership and native toolbar reparenting already work.
+
+## Explicit user-driven pilot (2026-09-23)
+
+The user stopped automated qualification and requested direct use/feedback.
+`CN_USER_PILOT=1` is a separate, deliberately experimental build: it enables
+native input without adding a diagnostic driver, injected strokes or test-note
+creation. Default builds and historical capsules remain unchanged/pen-disabled.
+`native/pilot.qml.inc::pilotStop()` parks input, closes the companion natively,
+allows five seconds of autosave settling, then requests normal-runtime recovery.
+The document menu exposes Turn off Companion. A five-second UI heartbeat lets
+the session supervisor restore the normal runtime after31 executed missed polls;
+CPU-suspended time is excluded rather than mistaken for a UI stall.
+`ops/build-pilot.mjs` retains the existing exact-device/base/preimage/fallback
+machinery, removes input helpers and scripted tests, and replaces the180second
+trial with a user-controlled session. Recovery keeps legitimate user settings
+changes and retains pair metadata; it never restores notebook contents. All
+activation policy is in `/run`, with no boot/firmware changes or automatic
+Companion activation after reboot. This is not a full-release qualification.
+Pilot20260923T170000Z-1 is installed: UI132308 reported host ready with ink/settings
+true; owner131303 and fallback132006 are active, all with zero automatic restarts.
+No further interaction tests were run after the user's stop-verifying request.
+The installation receipt is `playbook/log/user_pilot_2026-09-23.md`.
+
+## Current result: native lifecycle and display sleep pass; base recovered (2026-09-23)
+
+Corrected single-use trial152000 passed native display sleep/wake on UI126884,
+restored the original paired pages, and preserved all four complete saved stroke
+shapes. The request-to-owned-park interval was2537ms; one balanced wake-key batch
+returned to Normal and fresh native input. Independent recovery verified normal
+UI129176/Dates14463, zero restarts, exact settings/base/policies and read-only root.
+Both152000 and the earlier110500 capsules are consumed, never replayed. This
+qualifies already-parked display sleep only, not an unfinished stroke, CPU suspend
+or an everyday release. See the dated receipt below.
+
+Read-only SSH verification after connectivity returned established trial110500's
+actual outcome: its sleeping receipt followed the request by2074ms, beyond the
+helper's1900ms freshness window. No wake batch was attempted, QML's5s deadline
+failed, and the independent controller restored normal base UI112106/Dates14463.
+All base/settings/policy hashes and read-only root were independently verified;
+the experimental host/drop/lock and both owner cgroups are absent. The capsule
+is consumed and is not a wake pass. See [the receipt](playbook/log/display_sleep_2026-09-23.md).
 
 Corrected trial `20260923T052500Z-1` passed the actual ordinary host controls on
 native UI97653: two new disposable notes, four correctly attributed submissions,
@@ -111,8 +214,11 @@ first obtains the existing native park and detaches inputs, then calls the stock
 by Normal, fresh primary publication, and restored paired page IDs. It does not
 qualify CPU suspend/resume or sleep during an unfinished stroke.
 `ops/wake-key.c` pre-opens and checks the exact Pro power-key device, waits for a
-fresh local owned-park receipt, and sends one balanced down/up batch within two
-seconds. No network round trip, RTC alarm, power policy mutation or fake wake
+fresh local owned-park receipt, and sends one balanced down/up batch within three
+seconds of the original request (2900ms monotonic from first observation). The
+local diagnostic-only correction accommodates the observed2074ms native close;
+it still requires separate exact-capsule review and a native pass. No network
+round trip, RTC alarm, power policy mutation or fake wake
 reason is used. Partial write is failure with up-only cleanup, not success.
 `ops/build-sleep-controller.mjs` derives an always-reverting controller from the
 frozen passing ordinary controller; the helper must be ready before ink can
@@ -122,6 +228,9 @@ wake deadline from a logged marker BEFORE the native sleep call, even if the GUI
 stalls before its sleeping receipt. Key-injection freshness uses that same request
 time. Owner-cgroup death precedes any UP-only key recovery, which writes nothing
 when the key is already up. All files require fresh independent review before use.
+The helper resamples both clocks immediately before the actual batch write,
+after log parsing, process/key checks and marker flushing; delayed work cannot
+reuse an earlier eligible timestamp. A production-C harness exercises that race.
 
 `NativeHost.qml` routes its controls through that adapter. `nativeOperation()`
 also protects the stock open/close path while a companion is retained. The builder
@@ -1052,3 +1161,13 @@ controller/tool sentinels and per-instance dynamic Components. It checks reactiv
 ownership, inner-ID versus published-property resolution, independent recreation,
 foreign QObject parenting and pre/post callback snapshots. These six desktop
 scenarios isolate lexical semantics only, not the proprietary native handler.
+# Suspend-aware pilot supervision (2026-09-23)
+
+Pilot190000 recovered to the accepted base because its heartbeat deadline used
+`/proc/uptime`, which includes system suspend. Logs show native wake events and
+resumed UI heartbeats, not a Companion exception. `ops/build-pilot.mjs` now
+counts consecutive completed watchdog polls without a new heartbeat instead of
+elapsed uptime. Its one-second loop still recovers after 31 missed polls while
+executing, but suspended time alone cannot expire the deadline. Startup identity,
+native-failure, process-exit, manual-stop and backup/recovery checks are unchanged.
+No input tests or notebook-content writes are part of this correction.

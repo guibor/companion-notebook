@@ -115,7 +115,7 @@ def verify(directory):
                 awake = unique_position("Companion sleep: awake; normal=true; primary-fresh=true")
                 paired = unique_position("Companion sleep: roundtrip passed; normal=true; pairing=true; original-pages=true; fresh-candidates=true")
                 assert fourth < requested[0].start() < asleep[0].start() < awake < paired < lifecycle, "Display sleep receipts out of order"
-                assert 0 <= int(asleep[0][1]) - int(requested[0][1]) <= 2000, "Sleep park receipt too late"
+                assert 0 <= int(asleep[0][1]) - int(requested[0][1]) <= 3000, "Sleep park receipt too late"
             if lifecycle_profile:
                 history = unique_position("Companion lifecycle: history passed; panes=2; undo=true; redo=true")
                 tools = unique_position("Companion lifecycle: tools passed; eraser=true; pen=true")

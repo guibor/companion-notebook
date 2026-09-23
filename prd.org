@@ -6,14 +6,20 @@ Read and write without losing context or compromising native handwriting.
 * Accepted requirements (2026-09-21)
 - Portrait-first bottom pull-out writable margin overlays the main document.
 - Main viewport and page scale do not shrink as the margin is pulled.
-- Tap a ruler mark to choose a fixed companion height: ⅓, ½ or ⅔ of the screen.
-  The filled mark shows the current size. No live drag or drag-to-snap control.
-  Remember the selected size per document pair; tuck/reopen restores it.
+- Layout controls must be pictorial, with no fraction labels. Support a small,
+  balanced, large and companion-only presentation, plus source-only/closed.
+  Exact control grouping is a UX proposal pending agreement. Remember the last
+  split size per pair; reopen restores it. No live dragging is required.
 - Two independently scrollable documents; write directly in either visible pane.
 - Pull out the notebook and start writing without an activation tap. Native pen
   hit-testing chooses the document at stroke start and keeps it until pen-up.
-- Toolbar context follows the pane in use; finger tap can choose toolbar context,
-  but must not be required before writing. Scrolling does not change that context.
+- The native toolbar must remain visible and usable above/outside the companion.
+  One writing-tool selection (pen, color, thickness, eraser) applies to both panes;
+  no manual pane selection is required to share the tool. Document operations
+  remain scoped to one notebook; their target behavior is specified separately.
+- The middle separator is a hairline only, with no controls or labels at all.
+  Layout pictures and close live in the existing document toolbar menu, following
+  the RMHacks split-document pattern. No floating reopen button on the page.
 - Pairings belong to the primary notebook or PDF; no same-document pair in v1.
 - Tucking preserves positions and pairing; detaching never deletes documents.
 - No layout/focus/document changes during a stroke; gestures keep their owner.
@@ -21,6 +27,32 @@ Read and write without losing context or compromising native handwriting.
 - Pro only initially; no changes to Move or shared servers.
 
 * Requirements changed
+- Subsequent size refinement: splits are quarter, three-eighths (default), half;
+  no three-quarter pane. Source-only and full-companion endpoints remain. Existing
+  three-quarter settings normalize to half. Icons remain unlabeled by fractions.
+- Feedback2026-09-23: Companion picker lives above Dates on the full toolbar;
+  size icons remain in three dots above Dispatch, available before pairing.
+  The ordered spectrum ends in source-only and companion-only document icons,
+  replacing X/full and removing the redundant Turn off Companion menu item.
+  First size choice opens the picker if unpaired. A companion defaults back to
+  its source unless it already has an explicitly saved companion. Fix all sizes.
+- Screenshot clarification2026-09-23 supersedes even the proposed minimal middle
+  control strip: two-pixel separator only; all layout/close controls in the native
+  menu. Keep one unobstructed native toolbar alongside both panes. User authorized
+  implementation and installation of this revision, not automated pen trials.
+- Hands-on feedback2026-09-23: companion covers the vertical toolbar; native
+  toolbar choices do not apply to the companion. Fix these as product defects.
+  Shared writing-tool selection replaces pane-specific tool selection. Pictorial
+  layout choices replace⅓/½/⅔ labels, with source-only and companion-only ends.
+  The busy middle toolbar is removed. Proposed UX: four layout pictograms
+  (quarter, half, three-quarter, full) plus X as the source-only/close action;
+  preserve pairing on close, keep Remove pairing in the document menu.
+- On2026-09-23 the user explicitly stopped further automated verification and
+  requested hands-on use with their own feedback. Deliver a manually activated,
+  plainly experimental Pro pilot with a visible off switch and normal-runtime
+  fallback. This replaces further pre-pilot automated trials, not a claim that
+  remaining release gates passed. No injected input, test-note creation, firmware,
+  boot persistence, Move deployment or recurring-install entry in this pilot.
 - On 2026-09-22 the user dropped live dragging and requested fixed fractions,
   optionally chosen on a ruler. This supersedes continuous motion, divider-drag
   and high-speed-video fluidity requirements. Native ink handoff, clipping and
@@ -52,22 +84,43 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. Revised210500 is active onUI166334: full-toolbar pairing, size-first picker,
+   source/quarter/three-eighths/half/companion spectrum and reverse pair defaults.
+   Host ready with ink/settings true; user feedback next, no input automation.
+   Ordering helper removed after210000 reported unsupported stackBefore. Size
+   strip stays in three dots; exact placement above Dispatch deferred.
+0. Pilot190000 automatically restored baseUI153378 after a false sleep-inclusive
+   heartbeat timeout. Corrected200000 counts completed missed polls, retaining
+   crash recovery and pairings; deployed without automated pen interactions.
+0. Hairline/shared-toolbar pilot200000 is installed on ProUI155746. Native host
+   ready with writing/settings enabled; session154630 and fallback155390 active.
+   Previous pair settings carried forward. User feedback next; no automated pen
+   trials. Menu-only layout pictures/close, shared writing settings, no middle UI.
+0. Historical first pilot170000 was installed on ProUI132308, with native
+   writing/settings ready; it has now been replaced by190000 above. Do not run
+   more automated tablet trials or manipulate the
+   tablet while the user tries it. Turn off Companion restores the normal base.
+   No full-release claim, Move deployment or recurring-install entry.
 1. Lifecycle103000 is now COMPLETE: native history/tools/page-add/return and
    close/reopen passed on UI104747; exact saved-file check passed all4 shapes and
    new blank pages. Independent recovery verified normal UI106973/Dates14463,
    protected files/policies and read-only root. Never replay this consumed test.
-2. STOP device mutations: display-sleep capsule110500 was activated once, but SSH
-   dropped before observations could be read. Test phase and recovery are UNKNOWN.
-   On restored reachability, inspect only its receipts and independently verify
-   recovery first. Manifest15226549450f1f7dbd9171390642b7fa13f4e4ef62e3abb5e55815b027320770.
-   Do not replay, add key input, reboot or launch another capsule. This one is
-   consumed. See playbook/log/display_sleep_2026-09-23.md for exact evidence paths.
+2. Display-sleep capsule110500 FAILED its wake deadline. Read-only checks after
+   Wi-Fi returned verified exact normal base UI112106/Dates14463, settings,
+   policies, read-only root and no experimental host/drop/lock/owner cgroups.
+   Its sleeping receipt arrived2074ms after the request, beyond the helper's
+   1900ms limit; no wake batch was attempted. Never replay the consumed capsule.
+   Corrected single-use152000 subsequently PASSED native display sleep/wake,
+   original-page restoration and all four saved shapes. Normal UI129176/Dates14463
+   independently verified restored, with exact settings/base/policies/root-ro.
+   Never replay either capsule. See playbook/log/display_sleep_2026-09-23.md.
+   Already-parked display sleep is not in-flight sleep or CPU suspend qualification.
 3. The local visibility latch preserves old geometry until park/detachment;
    visibility-only loss, hidden-primary suspension, landscape wake and fresh
    publication pass local tests. Native boundary/eraser, in-flight sleep,
    lock/privacy, delayed HWC/keyboard and extension gates remain separate.
-4. Finish the remaining native acceptance before ordinary personal-notebook
-   installation. Keep Move untouched and no recurring-install entry yet.
+4. Remaining native acceptance is deferred by the explicit hands-on-pilot request.
+   Keep Move untouched and no recurring-install entry yet.
 
 * Qualification history (not current next actions)
 0. Latest stopping point2026-09-23: ordinary-control cohort passed independent

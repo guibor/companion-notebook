@@ -26,15 +26,17 @@ static int fake_ioctl(int fd,unsigned long request,...){
     assert(fd==99);va_list args;va_start(args,request);void *out=va_arg(args,void *);va_end(args);
     if(request==EVIOCGNAME(128)){strcpy(out,wrong_device?"foreign":"30370000.snvs:snvs-powerkey");return 0;}
     if(request==EVIOCGPHYS(128)){strcpy(out,"snvs-pwrkey/input0");return 0;}
-    if(request==EVIOCGKEY((KEY_MAX+8)/8)){memset(out,0,(KEY_MAX+8)/8);if(down)((unsigned char *)out)[KEY_POWER/8]|=1u<<(KEY_POWER%8);return 0;}
+    if(request==EVIOCGKEY((KEY_MAX+8)/8)){if(mode==13&&now>=15.08)now+=1.25;memset(out,0,(KEY_MAX+8)/8);if(down)((unsigned char *)out)[KEY_POWER/8]|=1u<<(KEY_POWER%8);return 0;}
     assert(false);return -1;
 }
 static ssize_t fake_readlink(const char *path,char *out,size_t n){assert(strstr(path,"/proc/321/exe"));const char *s="/usr/bin/xochitl";assert(n>strlen(s));memcpy(out,s,strlen(s));return strlen(s);}
 static FILE *fake_fopen(const char *path,const char *access){
     assert(!strcmp(path,"/proc/321/stat"));assert(!strcmp(access,"r"));FILE *f=tmpfile();assert(f);
-    fprintf(f,"321 (xochitl) S");for(int i=4;i<22;i++)fprintf(f," 0");fprintf(f," %d\n",mode==6&&proc_reads++>0?456:123);rewind(f);return f;
+    int call=proc_reads++;
+    if(mode==12&&now>=15.08)now+=1.25; // eligibility scan/process check stalled
+    fprintf(f,"321 (xochitl) S");for(int i=4;i<22;i++)fprintf(f," 0");fprintf(f," %d\n",mode==6&&call>0?456:123);rewind(f);return f;
 }
-static int fake_clock(clockid_t id,struct timespec *t){double v=now+(id==CLOCK_REALTIME?1700000000:0);if(mode==9&&id==CLOCK_REALTIME&&now>13.1)v-=100;t->tv_sec=(time_t)v;t->tv_nsec=(long)((v-t->tv_sec)*1e9);return 0;}
+static int fake_clock(clockid_t id,struct timespec *t){double v=now+(id==CLOCK_REALTIME?1700000000:0);if(mode==9&&id==CLOCK_REALTIME&&now>13.1)v-=100;if(mode==12&&id==CLOCK_REALTIME&&now>=16.3)v-=1.25;t->tv_sec=(time_t)v;t->tv_nsec=(long)((v-t->tv_sec)*1e9);return 0;}
 static int fake_sleep(const struct timespec *a,struct timespec *b){(void)a;(void)b;now+=mode==7?100:0.02;return 0;}
 static ssize_t fake_write(int fd,const void *data,size_t n){
     assert(fd==99&&writes<3);sizes[writes]=n;memcpy(sent+writes*2,data,n);
@@ -77,10 +79,11 @@ static int fake_open(const char *path,int flags,...){
     if(now>=13){
         const char *prefix="Companion sleep: requested; epoch-ms=";
         if(mode==3)fprintf(f,"%snan\n",prefix);
-        else if(mode==4)fprintf(f,"%s%.0f\n",prefix,(1700000000+now-3)*1000);
+        else if(mode==4)fprintf(f,"%s%.0f\n",prefix,(1700000000+now-4)*1000);
         else if(mode==5)fprintf(f,"Companion probe: FAILED expected\n");
         else fprintf(f,"%s1700000013000\x1b[0;37m (probeSleepOwned qrc:/test.qml:123)\x1b[0m\n",prefix);
-        if(mode!=8&&mode!=9)fprintf(f,"Companion sleep: asleep; parked=true; detached=true; epoch-ms=%.0f\n",(1700000000+now)*1000);
+        if(mode!=8&&mode!=9&&((mode!=10&&mode!=12&&mode!=13)||now>=15.08)&&(mode!=11||now>=15.92))
+            fprintf(f,"Companion sleep: asleep; parked=true; detached=true; epoch-ms=%.0f\n",(1700000000+now)*1000);
     }
     fflush(f);rewind(f);int fd=dup(fileno(f));assert(fd>=0);fclose(f);return fd;
 }
@@ -91,6 +94,10 @@ int main(void){
     assert(sent[0].type==EV_KEY&&sent[0].value==1);assert(sent[1].type==EV_SYN);assert(sent[2].type==EV_KEY&&sent[2].value==0);assert(sent[3].type==EV_SYN);
     for(int m=1;m<=2;m++){reset(m);assert(wake_production_main(3,args)==7);assert(writes==2&&!down);assert(sizes[1]==2*sizeof(struct input_event));assert(sent[2].value==0);}
     for(int m=3;m<=9;m++){reset(m);assert(wake_production_main(3,args)!=0);assert(writes==0);}
+    reset(10);assert(wake_production_main(3,args)==0);assert(writes==1&&!down);assert(now>=15.08&&now<15.9);
+    reset(11);assert(wake_production_main(3,args)==6);assert(writes==0); // no late wake after freshness expires
+    reset(12);assert(wake_production_main(3,args)==6);assert(writes==0); // final reread catches delayed process check
+    reset(13);assert(wake_production_main(3,args)==6);assert(writes==0); // final reread catches delayed key ioctl
     reset(0);wrong_device=true;assert(wake_production_main(3,args)==3);assert(!writes);
     reset(0);down=true;assert(wake_production_main(3,args)==3);assert(!writes);
     reset(0);assert(wake_production_main(2,release)==0);assert(!writes);

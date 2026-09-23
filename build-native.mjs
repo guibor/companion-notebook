@@ -13,6 +13,7 @@ const admissionProbe = process.env.CN_PROBE === 'admission';
 const visualProbe = process.env.CN_PROBE === 'visual';
 const lifecycleProbe = process.env.CN_PROBE === 'lifecycle';
 const sleepProbe = process.env.CN_PROBE === 'sleep';
+const userPilot = process.env.CN_USER_PILOT === '1';
 const ordinaryProbe = process.env.CN_ORDINARY_PROBE === '1' || lifecycleProbe || sleepProbe;
 const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe || admissionProbe;
 const noCaptureProbe = structuralProbe || geometryProbe || inkProbe || visualProbe;
@@ -22,7 +23,8 @@ const diagnostic = renderProbe || noCaptureProbe;
 const paneNavigation = !diagnostic || geometryProbe || inkProbe;
 assert(!process.env.CN_PROBE || diagnostic || lifecycleProbe || sleepProbe, 'Unknown probe profile');
 assert(!ordinaryProbe || !diagnostic, 'Ordinary lifecycle probe is separate from historical profiles');
-const output = sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
+assert(!userPilot || (!process.env.CN_PROBE && !ordinaryProbe), 'User pilot never includes a diagnostic driver');
+const output = userPilot ? 'build/pilot-native' : sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
@@ -33,7 +35,7 @@ const affect = (file, root, body, imports='') => `AFFECT /${file}\n${imports}\n 
 const insert = text => ` LOCATE BEFORE ALL\n INSERT {\n${text}\n }\n`;
 const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL\n REPLACE { ${before} } WITH { ${after} }\n END REBUILD\n`;
 let q = 'VERSION 3.29.0.148\n';
-q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (diagnostic || ordinaryProbe ? '\nproperty bool cnProbeStarted: false' : '')));
+q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (userPilot ? '\nsignal cnPilotStopRequested()\nsignal cnLayoutRequested(int sizeIndex)\nproperty bool cnHasCompanion: false\nproperty real cnLayoutRatio: 0' : '') + (diagnostic || ordinaryProbe ? '\nproperty bool cnProbeStarted: false' : '')));
 let probeBridge = diagnostic || ordinaryProbe ? inc('probe-bridge') : '';
 if (noCaptureProbe || ordinaryProbe) {
     const start = probeBridge.indexOf('function probeCapture(host) {');
@@ -101,7 +103,7 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
    }` : ''}
    Loader {
      id: cnHostLoader
-     anchors.fill: documentView
+     ${userPilot ? 'parent: documentView.item || viewRoot\n     anchors.fill: parent' : 'anchors.fill: documentView'}
      z: 8000
      Component.onCompleted: setSource("file:///home/root/.local/lib/companion-notebook/NativeHost.qml", {bridge: cnBridge})
      onStatusChanged: { if (status === Loader.Error) console.warn("Companion: host load failed") }
@@ -113,8 +115,12 @@ q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagno
    }
    Connections {
      target: Values
-     function onCnChooseRequested() { if (cnHost && cnBridge.available) cnHost.choose() }
+     function onCnChooseRequested() { if (cnHost && cnBridge.available) { ${userPilot ? 'cnHost.fullReturn = null; cnHost.pickerLayout = -1;' : ''} cnHost.choose() } }
+     ${userPilot ? 'function onCnPilotStopRequested() { if (cnHost) cnHost.pilotStop() }' : ''}
+     ${userPilot ? 'function onCnLayoutRequested(sizeIndex) { if (cnHost && sizeIndex >= 0 && sizeIndex < 5) cnHost.layoutChoice([0, 0.25, 0.375, 0.5, 1][sizeIndex]) }' : ''}
    }
+   ${userPilot ? `Binding { target: Values; property: "cnHasCompanion"; value: !!cnHost && (!!cnHost.companionId || cnHost.isFullCompanion) }
+   Binding { target: Values; property: "cnLayoutRatio"; value: !cnHost ? 0 : cnHost.isFullCompanion ? 1 : cnHost.paired ? cnHost.savedRatio : 0 }` : ''}
  }
  END TRAVERSE
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot > Component#documentViewComponent > DocumentView#documentViewItem
@@ -289,9 +295,20 @@ q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  ${replace('onDocumentAboutToChange','Settings.setLastWritingTool(toolSettings());','if (root.cnOwnsGlobals) Settings.setLastWritingTool(toolSettings());')}
  END TRAVERSE
  TRAVERSE Item#_uiContainer > Toolbar#toolbar
- ${replace('visible','!inSuspend','!root.cnSecondary && root.cnSelected && !inSuspend')}
+ ${replace('visible','!inSuspend',userPilot ? '!root.cnSecondary && !inSuspend' : '!root.cnSecondary && root.cnSelected && !inSuspend')}
  END TRAVERSE
 `);
+if (userPilot) {
+    q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',insert(inc('shared-tools')) + `
+ TRAVERSE Item#_uiContainer
+ ${insert('z: root.cnSecondary ? 0 : 9000')}
+ END TRAVERSE
+ TRAVERSE Item#_uiContainer > Toolbar#toolbar
+ ${replace('undoEnabled','sceneController && sceneController.undoAvailable','root.cnToolbarController && root.cnToolbarController.undoAvailable')}
+ ${replace('redoEnabled','sceneController && sceneController.redoAvailable','root.cnToolbarController && root.cnToolbarController.redoAvailable')}
+ END TRAVERSE
+`);
+}
 if (!diagnostic) {
 q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  REBUILD _open_helper
@@ -378,7 +395,7 @@ for (const [signal,args,anchor] of [
     const handler='on'+signal[0].toUpperCase()+signal.slice(1);
     q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  TRAVERSE Item#_uiContainer > Toolbar#toolbar
- ${replace(handler,anchor,`if (root.cnEditGuarded()) return root.cnHost.editOperation(root, function() { toolbar.${signal}(${args}); });\n`+anchor)}
+ ${replace(handler,anchor,(userPilot && ['undoSelected','redoSelected'].includes(signal) ? `if (!root.cnSecondary && root.cnHost && root.cnHost.paired && root.cnHost.activeView !== root) { const view = root.cnHost.activeView; return root.cnHost.editOperation(view, function() { view.cnAction("${signal === 'undoSelected' ? 'Undo' : 'Redo'}"); }); }\n` : '') + `if (root.cnEditGuarded()) return root.cnHost.editOperation(root, function() { toolbar.${signal}(${args}); });\n`+anchor)}
  END TRAVERSE
 `);
 }
@@ -560,7 +577,7 @@ function cnAdmissionConstrainToPane() {
  END TRAVERSE
 `);
 }
-q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
+if (!userPilot) q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
  TRAVERSE Component#settingsComponent > ColumnLayout#content
  ${insert(`ToolbarTool {
  toolbar: root.toolbar
@@ -572,6 +589,29 @@ q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
  iconSource: "qrc:/ark/icons/notebook"
  onPressed: { root.toolbar.closeFoldout(); Values.cnChooseRequested() }
  }`)}
+ END TRAVERSE
+`, ' IMPORT common 1.0');
+if (userPilot) q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
+ TRAVERSE Component#settingsComponent > ColumnLayout#content
+ ${insert(inc('layout-menu'))}
+ END TRAVERSE
+`, ' IMPORT common 1.0');
+if (userPilot) q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScope#root',`
+ TRAVERSE Item#toolbar > GridLayout#toolLayout
+ LOCATE BEFORE ToolbarTool#tocButton
+ INSERT {
+ ToolbarTool {
+ id: cnCompanionButton
+ toolbar: root
+ type: ToolbarTool.Type.ToolbarButton
+ property bool _isExtensionButton: true
+ label: "Companion notebook"
+ iconSource: "qrc:/ark/icons/notebook"
+ visible: shouldShow && root.expanded
+ shouldShow: root.documentType === "note" || root.documentType === "pdf"
+ onPressed: { Values.cnChooseRequested(); root.closeFoldout() }
+ }
+ }
  END TRAVERSE
 `, ' IMPORT common 1.0');
 if (ordinaryProbe) {
@@ -667,6 +707,18 @@ let host=fs.readFileSync(diagnostic ? 'native/DiagnosticHost.qml' : 'native/Nati
 if (retirementProbe) host = 'import Companion.Lifecycle 1.0 as Lifecycle\n'+host;
 if (admissionProbe || !diagnostic) host = 'import Companion.Admission 1.0 as Admission\n'+host;
 if (!diagnostic) host = host.replace(/}\s*$/, inc('transactions')+'\n'+inc('page-operations')+'\n'+inc('edit-operations')+'\n}\n');
+if (userPilot) {
+    host = host.replace('property bool inkQualified: false',
+        '// Explicit user-driven pilot; this flag enables native input, NOT a release qualification.\n    property bool inkQualified: true')
+        .replace(/}\s*$/, inc('pilot')+'\n'+inc('layout-actions')+'\n}\n');
+    host = host.replace('companionId = id; choosing = false', 'companionId = id; choosing = false; fullReturn = null; rememberReversePair()');
+    host = host.replace('if (typeof view.cnNormalizeTools !== "function") continue;',
+        'if (view === secondary || typeof view.cnNormalizeTools !== "function") continue;');
+    const toolsEnd = '        return transitionPhase !== "failed"\n    } catch (e) {\n        return pageOperationFailed("normalization failed: " + String(e))';
+    assert.equal(host.split(toolsEnd).length, 2);
+    host = host.replace(toolsEnd, '        if (secondary && bridge.primary) secondary.cnApplyToolState(bridge.primary.cnToolState())\n' + toolsEnd);
+    assert(!/probeCreate|probeWriting|probeBeforeSubmit|Companion probe:/.test(host + q), 'No automated trial in the pilot');
+}
 if (ordinaryProbe) {
     const prior = inc('retirement-probe');
     const start=prior.indexOf('function probeBeforeSubmit('), end=prior.indexOf('function probePanesReady(');
@@ -773,5 +825,5 @@ const result = execFileSync(tool,['check-compatibility',path.join(firmware,'hash
 assert.match(result,/No compatibility errors found\./);
 process.stdout.write(result);
 fs.writeFileSync(output+'/SHA256SUMS', ['NativeHost.qml','PairStore.js','companion-notebook.qmd',...(!diagnostic ? ['SizeRuler.qml'] : [])].map(p=>hash(output+'/'+p)+'  '+p+'\n').join(''));
-console.log(inkProbe || ordinaryProbe ? 'Disposable-only native diagnostic built. Not deployed; ordinary document ink remains disabled.'
+console.log(userPilot ? 'User-authorized experimental pilot built. No diagnostic driver; not a qualified release.' : inkProbe || ordinaryProbe ? 'Disposable-only native diagnostic built. Not deployed; ordinary document ink remains disabled.'
     : 'Native rendering candidate built, pen disabled. Not deployed.');

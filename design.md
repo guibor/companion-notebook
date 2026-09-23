@@ -1,6 +1,62 @@
 # Architecture and implementation status
 
-## Current result: loader isolation fixed and standalone-tested; normal Pro unchanged (2026-09-23)
+## Current result: real native admission and saved-ink pass (2026-09-23)
+
+Trial `20260922T233500Z-1` now completes the real native cold-start, during-stroke
+producer seal/worker park,1080-to1440resize, fresh-candidate publication and four
+correctly attributed native submissions. Strict readback verifies all four saved
+shapes. The watchdog restored base UI86380/Dates14463 and all protected hashes.
+The ordinary host is still pen-disabled and not installed. See
+[the successful receipt](playbook/log/admission_bootstrap_pass_2026-09-23.md).
+
+The subsequent pen-disabled visual trial also passed. Native reopen shows both
+saved notebooks correctly, with unchanged primary scale/rows and the intended
+settled occlusion at1080/1440reveal. The normal base was independently verified
+restored as UI89759/Dates14463. This is framebuffer evidence, not physical-panel
+or dynamic-boundary acceptance. See [the visual receipt](playbook/log/visual_reopen_2026-09-23.md).
+
+`native/transactions.qml.inc` is the ordinary host's new local lifecycle adapter.
+`requestTransition()` records a generation-tagged UI-only intent and preserves
+the old native inputs while `AdmissionGate.pause()` drains them.
+`transitionPark()` checks old document/controller identities before detaching.
+`applyTransition()` is the only scope allowed to open, close, tuck or resize a
+view; a picker remains parked until a choice/cancel. `transitionAdvance()` waits
+for ready native controllers, constrains the pane while parked, waits again for
+tiles, refreshes detached transforms, and publishes before releasing the worker.
+`transitionComplete()` commits pairing metadata only after the queued resumed
+notification. A persistent mouse shield retains its own press grab through
+release/cancel, never using pen-up alone to remove that grab. The old free-running
+geometry timers are not included in the ordinary build.
+
+`NativeHost.qml` routes its controls through that adapter. `nativeOperation()`
+also protects the stock open/close path while a companion is retained. The builder
+inserts the guard at the first statement of `_open_helper` rather than renaming
+that method, preserving BetterTOC's anchors in all three plugin load orders.
+Focus changes do not refresh geometry; document readiness and identities are
+separate from toolbar focus. This local integration is not a release or native
+lifecycle qualification. Consumed diagnostic profiles remain byte-identical.
+
+The visual-reopen profile now pins the two successful admission notebooks and
+the same1080/1440heights. It permits no pen events or notebook-file edits. Its
+separate stager requires exact hashes and a fresh review. `read-visual-frame.c`
+opens the already-identified process memory readonly and preads only the6480
+visible bytes of each6528-byte row. `copy_visible_rows()` skips padding at the
+syscall level and handles bounded interrupted/partial reads and stdout writes.
+The packed output is13,996,800bytes; no non-visible memory reaches the file.
+`build-visual-reader.mjs` produces only a static ARM64 helper and rejects the
+desktop-fixture entry point. The helper is a seventh hash-pinned capsule file,
+not part of the installed host. The wrapper retains exact process, active-view,
+heartbeat, file-ownership, exclusive-output and pre/post-read guards.
+
+The ordinary boundary tests use an explicit desktop-only Admission module under
+`tests/mock-imports`, never included by any device packager. The native C++ module
+and completed device proof remain separate. QML pointer tests now wait for the
+asynchronous park/publication protocol and verify ruler taps, settings restore,
+pair cancellation, failures, tuck/reveal and availability changes. Native phase
+checks read the C++ getter at the call boundary: its notification is queued and
+must not be mistaken for the immediate parked acknowledgement.
+
+### Historical startup failure and correction
 
 Trial `20260922T221000Z-1` failed before any Companion host-ready, cold-worker,
 disposable-document or scripted-ink marker. The native UI aborted with
@@ -96,6 +152,21 @@ policy rendering and build preservation, compares recovery functions, checks
 payload/health accounting and inspects actual bootstrap/child ELF dependencies.
 The independently reviewed controller preserves the original recovery and release
 actions; that local review does not authorize another native UI trial.
+
+`ops/stage-admission-bootstrap.mjs` prepares only the new exact bootstrap-based
+trial, separately from the consumed combined-preload stager. It pins both shared
+objects, the unchanged disposable host/QMD/helpers, the successful isolated-target
+receipt (including negative control and complete cgroup cleanup), base inventory
+and all three composition orders. It refuses until a new exact-capsule review,
+rejects reused IDs and emits ten payload files plus their manifest. It never
+connects to a tablet; live identity, base/settings, fresh backup and automatic
+restoration gates remain in the controller.
+Two independent reviewers cleared the exact bootstrap cohort for one disposable
+attempt `20260922T233500Z-1`; this is technical test clearance, not physical
+recovery attestation or a release. The operator will consume it on any attempt
+or failure, retain pen/identity/startup gates, and independently recheck restored
+base state. No extra startup-only restart is needed: cold native worker readiness
+and healthy startup are already prerequisites for any injected event.
 
 ### Worker admission transaction
 

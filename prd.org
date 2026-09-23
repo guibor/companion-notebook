@@ -52,6 +52,41 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. 2026-09-23 actual progress: bootstrap admission trial20260922T233500Z-1
+   PASSED real native startup, cold worker discovery, four correctly attributed
+   strokes, during-stroke seal/park and1080-to1440resize. All four saved shapes
+   match exactly after recovery. Normal Pro base86380/Dates14463 restored and
+   independently verified. Both admission clearances are consumed.
+   Ordinary open/resize/tuck/close now use a local generation-tagged transaction
+   adapter, preserving old input until native park and waiting for final native
+   geometry/candidates before release. The first-statement stock-open guard
+   preserves BetterTOC in all three composition orders. Next: saved disposable
+   native reopen/visible pixel occlusion, then ordinary lifecycle qualification.
+   Keep ordinary ink off until that evidence exists; no Move or firmware changes.
+   All62desktop QML tests pass, including25ordinary-host boundary/pointer tests.
+   Additional transaction regressions cover old-controller changes, stale/native
+   notifications, retained availability loss, loading and publication failure.
+   Visual trial20260922T235000Z-1 is separately reviewed, prepared with a verified
+   Mac recovery backup and consumed one-run clearance. Its read-only helper
+   copies only visible pixels, not48padding bytes per row. No pen is injected.
+   Actual visualtrialPASSED: bothsavednotebooks reopened, settledframes show
+   correcttemplates/strokes/occlusion; primaryfirst720rows byte-identical atboth
+   heights. Independent recovery restored normal UI89759/Dates14463 with all
+   protected hashes unchanged. Next: exercise the actual ordinary controls and
+   transaction adapter on disposable notebooks, not another frozen-host repeat.
+0. 2026-09-23 continuation: the user again requested action. Fresh strict-key
+   read-only checks match Ferrari3.29.0.148, accepted base/settings/policies,
+   UI79742/Dates14463 with zero restarts and no competing owner. Prepare a fresh
+   exact bootstrap-based disposable admission capsule; keep the old combined
+   stager consumed. The existing test already gates input on successful native
+   startup/cold-worker readiness, so do not add a redundant startup-only restart.
+   No physical recovery confirmation or product acceptance is inferred from
+   service health. Ordinary/personal-document writing remains gated off.
+   Two independent exact-artifact reviewers cleared one always-reverting
+   disposable attempt20260922T233500Z-1 after202Node tests/three-order composition
+   and real target isolation smoke. Following the user's repeated autonomous
+   continuation request, proceed under fresh machine recovery/backup gates;
+   do not call this physical acceptance or loosen release requirements.
 0. 2026-09-23 startup fix: recovered Memfault stacktrace matches the exact native
    build and places the abort in numeric parsing of a QProcess helper's stdout.
    The old combined preload leaks Qt into every exec child, making GUI-extension

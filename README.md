@@ -10,20 +10,19 @@ out of scope. The normal Pro setup was restored after each bounded experiment;
 no Companion is left active and ordinary-document ink remains gated off.
 
 The tap-only size ruler is implemented locally; the filled mark shows the selected
-size. There is no drag interaction. The remaining release blocker is **safe
-pen handoff during size and document changes**, not creating the second native view. The firmware's worker can finish
-earlier input, but the inspected public controls do not yet provide a complete
-way to stop new input and resume it with coherent geometry. See the bounded
+size. There is no drag interaction. A real native **during-stroke handoff and
+resize now passes**, including all four correctly saved strokes. The regular
+open/resize/tuck/close controls have been wired locally to the same protocol;
+their complete user-driven lifecycle and visible occlusion still need native
+qualification. See the bounded
 [handoff audit](playbook/ADMISSION-HANDOFF.md). This project is not ready for daily
 use or inclusion in the recurring installation list.
 
-Latest fix (2026-09-23): the admission prototype's startup loader was leaking Qt
-dependencies into unrelated child programs. A separate process-scoped, Qt-free
-bootstrap now passes isolated tests on the Pro, including a negative control
-with the old loader and the fake-worker/QML transaction. The normal interface was
-not restarted, and no Companion feature is installed. The exact startup crash
-path was identified; a fresh native-UI trial is still required before calling
-that crash resolved. See [the diagnosis and fix receipt](playbook/log/bootstrap_fix_2026-09-23.md).
+Latest result (2026-09-23): the Qt-free bootstrap correction now passes the real
+native UI trial, not just isolated tests. The test completed cold worker discovery,
+input draining, resize and four native saved shapes. Automatic recovery restored
+the accepted Pro setup; no ordinary Companion installation remains active. See
+[the native pass receipt](playbook/log/admission_bootstrap_pass_2026-09-23.md).
 
 | Capability | Evidence |
 | --- | --- |
@@ -33,8 +32,10 @@ that crash resolved. See [the diagnosis and fix receipt](playbook/log/bootstrap_
 | Native saving of those two strokes | Both exact disposable files contained their expected shapes after UI restart |
 | Move the sheet, then continue writing | Native four-stroke write–retire–move–recreate–write sequence completed; final controller observation timed out and restored base |
 | Native saving before and after movement | All four saved shapes matched their pane/round and reconstructed native bounds exactly |
+| Cold startup and during-stroke sealed resize | Full native admission trial and saved-shape readback passed; normal base restored |
 | Fixed ⅓ / ½ / ⅔ ruler, per-pair selection, no accidental drag | Local pointer/state tests pass; not deployed |
-| Visual clipping and user-triggered size transitions | Not yet qualified |
+| Native reopen and settled visual occlusion at ½ and ⅔ | Saved pages render correctly in guarded native-buffer captures; normal setup restored |
+| Dynamic pen-boundary clipping and user-triggered lifecycle | Not yet qualified |
 
 The historical Qt capture diagnostic crashed the native e-ink rendering path and
 remains blocked. No capture/layer workaround is part of the new experiment. See
@@ -56,7 +57,7 @@ CN_PROBE=ink node ops/build-render-controller.mjs
 CN_PROBE=visual node build-native.mjs # local-only saved-note reopen candidate
 node ops/build-visual-controller.mjs # requires the frozen structural controller
 npm test
-QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner -input tests
+QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner -import tests/mock-imports -input tests
 QT_QUICK_CONTROLS_STYLE=Basic qml ui/Main.qml
 ```
 

@@ -12,13 +12,16 @@ Item {
         function init() {
             fixture = createTemporaryObject(fixtureFactory,surface,{storeLocation: Qt.resolvedUrl("../build/test-settings/"+Date.now()+"-"+(sequence++)+".ini")})
             verify(fixture); verify(fixture.host.storeReady)
+            tryCompare(fixture.host,"transitionPhase","idle")
         }
-        function open() { verify(fixture.host.pick(notes)); tryCompare(fixture.host,"restoring",false,1500); verify(fixture.host.paired) }
+        function settled() { tryCompare(fixture.host,"transitionPhase","idle",2500); compare(fixture.host.error,"") }
+        function chooser() { fixture.host.choose(); tryCompare(fixture.host,"transitionPhase","choosing",1500) }
+        function open() { chooser(); verify(fixture.host.pick(notes)); settled(); verify(fixture.host.paired) }
         function test_native_factory_and_tuck() {
             open(); var view=fixture.host.secondary
-            verify(fixture.host.tuck()); compare(fixture.host.secondary,view)
+            verify(fixture.host.tuck()); settled(); compare(fixture.host.secondary,view)
             compare(fixture.bridge.closeCount,0)
-            verify(fixture.host.openSecondary()); compare(fixture.host.secondary,view)
+            verify(fixture.host.openSecondary()); settled(); compare(fixture.host.secondary,view)
         }
         function test_self_pair_rejected() {
             verify(!fixture.host.pick(fixture.primary.document.id)); compare(fixture.host.secondary,null)
@@ -33,27 +36,29 @@ Item {
             compare(fixture.bridge.lastAction,""); compare(fixture.host.inkQualified,false)
         }
         function test_streaming_prevents_disclosure() {
-            fixture.bridge.sharingActive=true; verify(!fixture.host.pick(notes))
+            chooser(); fixture.bridge.sharingActive=true; verify(!fixture.host.pick(notes))
             compare(fixture.host.secondary,null); verify(fixture.host.error.length>0)
         }
         function test_open_failure_preserves_primary() {
-            fixture.bridge.failCreate=true; verify(!fixture.host.pick(notes))
+            chooser(); fixture.bridge.failCreate=true; verify(!fixture.host.pick(notes))
+            tryCompare(fixture.host,"transitionPhase","failed")
             compare(fixture.primary.document.id,"11111111-1111-4111-8111-111111111111")
             compare(fixture.host.secondary,null); verify(fixture.host.error.length>0)
         }
         function test_primary_change_closes_secondary_once() {
-            open(); fixture.primary.document={id:"44444444-4444-4444-8444-444444444444"}
+            open(); fixture.host.nativeOperation(fixture.primary,function(){fixture.primary.document={id:"44444444-4444-4444-8444-444444444444"}})
+            settled()
             compare(fixture.bridge.closeCount,1); compare(fixture.host.secondary,null)
             compare(fixture.host.companionId,"")
         }
         function test_remove_pair_never_deletes_document() {
-            open(); fixture.host.detach(); compare(fixture.bridge.closeCount,1)
+            open(); fixture.host.detach(); settled(); compare(fixture.bridge.closeCount,1)
             compare(Object.keys(fixture.host.pairs.pairs).length,0)
             compare(fixture.primary.document.id,"11111111-1111-4111-8111-111111111111")
         }
         function test_settings_survive_host_recreation() {
             open(); var url=fixture.storeLocation
-            fixture.host.tuck(); fixture.destroy(); fixture=null
+            fixture.host.tuck(); settled(); fixture.destroy(); fixture=null
             wait(20)
             fixture=createTemporaryObject(fixtureFactory,surface,{storeLocation:url})
             verify(fixture); compare(fixture.host.companionId,notes)
@@ -69,7 +74,7 @@ Item {
             verify(!fixture.host.dragging)
         }
         function test_tucked_drag_does_not_reveal_and_tap_reopens() {
-            open(); fixture.host.tuck()
+            open(); fixture.host.tuck(); settled()
             var view = fixture.host.secondary
             mousePress(fixture.host,300,885)
             mouseMove(fixture.host,300,650,25)
@@ -78,6 +83,7 @@ Item {
             mouseRelease(fixture.host,300,650)
             compare(fixture.host.revealHeight,0)
             mouseClick(fixture.host,300,885)
+            settled()
             verify(fixture.host.paired); verify(!fixture.host.dragging)
         }
         function test_native_size_ruler_taps_and_pair_persistence() {
@@ -87,15 +93,17 @@ Item {
             verify(ruler)
             for (var i=0;i<3;++i) {
                 mouseClick(ruler,ruler.width*(i+0.5)/3,ruler.height/2)
+                settled()
                 compare(fixture.host.savedRatio,ruler.sizes[i])
                 compare(fixture.host.revealHeight,900*ruler.sizes[i])
                 compare(fixture.host.secondary,view)
             }
             var url=fixture.storeLocation
-            fixture.host.tuck();fixture.destroy();fixture=null;wait(20)
+            fixture.host.tuck();settled();fixture.destroy();fixture=null;wait(20)
             fixture=createTemporaryObject(fixtureFactory,surface,{storeLocation:url})
+            settled()
             compare(fixture.host.savedRatio,2/3);compare(fixture.host.revealHeight,0)
-            verify(fixture.host.openSecondary());tryCompare(fixture.host,"restoring",false)
+            verify(fixture.host.openSecondary());settled()
             compare(fixture.host.revealHeight,600)
         }
         function test_presets_reject_arbitrary_values_and_snap_legacy_values() {
@@ -110,8 +118,9 @@ Item {
             fixture.bridge.portrait = false
             verify(fixture.host.paired)
             fixture.pen.penDownChanged(false)
+            settled()
             verify(!fixture.host.paired)
-            compare(fixture.bridge.closeCount,0)
+            compare(fixture.bridge.closeCount,1)
         }
         function test_native_gesture_locks_layout_without_changing_focus() {
             open(); fixture.primary.cnGestureBusy = true
@@ -124,14 +133,15 @@ Item {
             open(); tryCompare(fixture.host,"inputGeometryPending",false)
             var count=fixture.bridge.geometryCount
             verify(fixture.host.chooseSize(1/2))
-            verify(fixture.host.inputGeometryPending)
-            tryCompare(fixture.host,"inputGeometryPending",false)
+            compare(fixture.host.transitionPhase,"draining")
+            verify(!fixture.host.inputGeometryPending)
+            settled()
             verify(fixture.bridge.geometryCount>=count+2)
         }
         function test_geometry_failure_stays_pen_gated() {
             open();tryCompare(fixture.host,"inputGeometryPending",false)
             fixture.bridge.failGeometry=true
-            fixture.host.scheduleInputGeometry()
+            fixture.host.chooseSize(1/2)
             tryVerify(function(){return fixture.host.error.length>0})
             verify(fixture.host.inputGeometryPending)
         }
@@ -139,7 +149,7 @@ Item {
             open();tryCompare(fixture.host,"inputGeometryPending",false)
             fixture.bridge.geometryLoading=true
             var count=fixture.bridge.geometryCount
-            fixture.host.scheduleInputGeometry();wait(250)
+            fixture.host.chooseSize(1/2);wait(250)
             compare(fixture.bridge.geometryCount,count)
             verify(fixture.host.inputGeometryPending);compare(fixture.host.error,"")
             fixture.bridge.geometryLoading=false
@@ -149,8 +159,8 @@ Item {
         function test_loading_timeout_keeps_pen_gate_closed() {
             open();tryCompare(fixture.host,"inputGeometryPending",false)
             fixture.bridge.geometryLoading=true
-            fixture.host.scheduleInputGeometry();wait(20)
-            fixture.host.inputGeometryRetries=120
+            fixture.host.chooseSize(1/2);tryCompare(fixture.host,"transitionPhase","loading")
+            fixture.host.transitionTicks=120
             tryVerify(function(){return fixture.host.error.length>0})
             verify(fixture.host.inputGeometryPending)
         }
@@ -158,12 +168,11 @@ Item {
             open();tryCompare(fixture.host,"inputGeometryPending",false)
             var count=fixture.bridge.geometryCount
             verify(fixture.host.tuck())
-            verify(fixture.host.inputGeometryPending);verify(!fixture.primary.cnInkAllowed)
-            tryCompare(fixture.host,"inputGeometryPending",false)
+            settled()
             compare(fixture.bridge.geometryCount,count+1)
             verify(fixture.primary.cnInkAllowed);compare(fixture.host.error,"")
             verify(fixture.host.openSecondary())
-            tryCompare(fixture.host,"inputGeometryPending",false)
+            settled()
             compare(fixture.bridge.geometryCount,count+3)
             compare(fixture.host.error,"")
         }
@@ -171,10 +180,11 @@ Item {
             open();tryCompare(fixture.host,"inputGeometryPending",false)
             fixture.pen.penDownChanged(true)
             var count=fixture.bridge.geometryCount
-            fixture.host.scheduleInputGeometry();wait(20)
-            compare(fixture.bridge.geometryCount,count);verify(fixture.host.inputGeometryPending)
+            fixture.host.requestTransition("fixture-resize",function(){fixture.host.revealHeight=450});wait(30)
+            compare(fixture.bridge.geometryCount,count);verify(!fixture.host.inputGeometryPending)
+            compare(fixture.host.transitionPhase,"draining")
             fixture.pen.penDownChanged(false)
-            tryCompare(fixture.host,"inputGeometryPending",false)
+            settled()
             verify(fixture.bridge.geometryCount>=count+2)
         }
         function test_toolbar_follows_completed_stroke_only_after_pen_up() {

@@ -35,9 +35,9 @@ function fixture() {
 }
 test('visual reopen keeps native ink disabled and holds both known controllers through two positions',()=>{
   const f=fixture();f.ready();
-  assert(f.logs.some(s=>s.includes('ready; stage=1; height=1320')));
+  assert(f.logs.some(s=>s.includes('ready; stage=1; height=1080')));
   for(let i=0;i<240;i++)f.tick();
-  assert(f.logs.some(s=>s.includes('ready; stage=2; height=1680')));
+  assert(f.logs.some(s=>s.includes('ready; stage=2; height=1440')));
   assert(!f.host.probeFailure);assert.equal(f.host.visualControllers[0],f.primary.sceneController);
   assert.equal(f.host.visualControllers[1],f.secondary.sceneController);
   assert.equal(f.calls.filter(x=>x==='open-saved').length,1);
@@ -61,7 +61,7 @@ test('visual readiness waits for loading, then times out instead of declaring su
   f.host.probeTicks=1500;f.tick();assert.match(f.host.probeFailure,/timed out/);
 });
 test('visual open refuses any different label, page, type, orientation or locked entry',()=>{
-  const ids=['9baaab38-b382-4f8c-9871-2932c2afe4ca','3ded6fc6-4f79-401e-99ec-dae6a934ae4a'];
+  const ids=['3fe4ae5a-a74e-4de3-994c-b1c40b1ccbe2','e761bdbe-f6b0-495d-8224-cacd07fff3c8'];
   for(const invalid of ['none','archived','lockedByPassword','loadError','fileType','pageCount','orientation','label','page']) {
     const entries=ids.map((id,i)=>({id,archived:false,lockedByPassword:false,loadError:false,fileType:1,pageCount:1,orientation:2,
       visibleName:'Companion test '+(i===0?'Reference ':'Notes ')+'test',pageForId(){return 0;}}));
@@ -96,14 +96,15 @@ test('visual controller keeps exact structural recovery and checks disposable fi
 test('external acquisition is a bounded read of one exact image with pre/post guards and exclusive scratch output',()=>{
   const capture=fs.readFileSync('ops/capture-visual-frame.sh','utf8');
   assert.equal(spawnSync('/bin/bash',['-n','ops/capture-visual-frame.sh']).status,0);
-  assert(capture.includes('BYTES=14100480'));
+  assert(capture.includes('BYTES=13996800'));
   assert(capture.includes('1620,2160,2,6528,0$'));
-  assert(capture.includes('timeout -s KILL 5 dd if="/proc/$P/mem"'));
-  assert(capture.indexOf('\nguard\n')<capture.indexOf('timeout -s KILL 5 dd'));
-  assert(capture.lastIndexOf('\nguard\n')>capture.indexOf('timeout -s KILL 5 dd'));
+  assert(capture.includes('timeout -s KILL 5 "$READER" "$P" "$ADDRESS"'));
+  assert(capture.indexOf('\nguard\n')<capture.indexOf('timeout -s KILL 5 "$READER"'));
+  assert(capture.lastIndexOf('\nguard\n')>capture.indexOf('timeout -s KILL 5 "$READER"'));
   assert(capture.includes('set -C\n'));assert(capture.includes('[ ! -L "$OUT.part" ]'));
   assert(capture.includes('[ "$(stat -c %s "$OUT.part")" = "$BYTES" ]'));
   assert.doesNotMatch(capture,/of=\/proc|\/dev\/input|kill\s|ssh\s|curl\s|socket|grabToImage/);
+  assert.doesNotMatch(capture,/\bdd\s|iflag=|count_bytes/);
 });
 test('fresh native visual heartbeat parser distinguishes closure, wrong stage and stale epochs',()=>{
   const helper=fs.readFileSync('ops/capture-visual-frame.sh','utf8');
@@ -111,13 +112,13 @@ test('fresh native visual heartbeat parser distinguishes closure, wrong stage an
   const end=helper.indexOf('\n}',start);
   assert(start>0&&end>start);
   const predicate=helper.slice(start,end);
-  const docs='9baaab38-b382-4f8c-9871-2932c2afe4ca,3ded6fc6-4f79-401e-99ec-dae6a934ae4a';
-  const good='Companion visual: ready; stage=1; height=1320; docs='+docs+'; pen=false; epoch=1790099300500';
+  const docs='3fe4ae5a-a74e-4de3-994c-b1c40b1ccbe2,e761bdbe-f6b0-495d-8224-cacd07fff3c8';
+  const good='Companion visual: ready; stage=1; height=1080; docs='+docs+'; pen=false; epoch=1790099300500';
   for(const [line,pass] of [[good,true],[good+'\x1b[0m (source.qml:5)',true],
-    [good.replace('stage=1','stage=2'),false],[good.replace('1320','1680'),false],
+    [good.replace('stage=1','stage=2'),false],[good.replace('1080','1440'),false],
     [good.replace('pen=false','pen=true'),false],[good.replace(docs,'personal'),false],
     [good.replace('1790099300500','1790099290000'),false],['Companion visual: gate closed',false]]) {
-    const shell=`STAGE=1; HEIGHT=1320; DOCS=${docs}\ndate(){ printf 1790099301; }\ncheck(){ local epoch now; ${predicate}\n}\nline=$1\ncheck`;
+    const shell=`STAGE=1; HEIGHT=1080; DOCS=${docs}\ndate(){ printf 1790099301; }\ncheck(){ local epoch now; ${predicate}\n}\nline=$1\ncheck`;
     const r=spawnSync('/bin/bash',['-c',shell,'fixture',line],{encoding:'utf8'});
     assert.equal(r.status===0,pass,line+' '+r.stderr);
   }

@@ -2,6 +2,25 @@
 
 ## Latest checkpoint (2026-09-23)
 
+The newer trial `20260922T233500Z-1` PASSED after the Qt-free bootstrap correction:
+native cold-worker discovery, sealed/drained in-flight stroke, parked resize,
+fresh-candidate publication, four native submissions and all four saved shapes.
+Base UI86380/Dates14463 was independently verified restored. See
+[the successful receipt](log/admission_bootstrap_pass_2026-09-23.md).
+
+The earlier speculative held-contact boundary is also resolved for this exact
+binary: an empty-region rejection latches Qt-mouse fallback until physical up;
+held reports bypass a fresh native-region acceptance check. Do not add an input
+filter or mandatory out/in pen ritual to solve a nonexistent native-ink gap.
+Fallback Qt events still require a UI grab shield through their actual release.
+Public PenInput down/up forwarding is direct and occurs before the native queue
+mutex; the false notification precedes the Qt release and is not its UI barrier.
+Ordinary host transactions are being integrated locally, with ink still gated
+off pending visual and complete lifecycle qualification. The historical material
+below is retained as superseded reasoning, not the current feasibility verdict.
+
+### Earlier startup checkpoint (superseded)
+
 The sections below retain the earlier static audit. A new public-Qt self-move
 observer and worker-parking sidecar now exists in `native-admission/`; its local
 tests and standalone target smoke pass. Its sole reviewed native UI trial

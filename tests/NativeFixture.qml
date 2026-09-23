@@ -10,7 +10,15 @@ Item {
     property alias bridge: mockBridge
     property alias primary: primaryView
     property alias pen: mockPen
-    QtObject { id: mockPen; signal penDownChanged(bool down) }
+    QtObject {
+        id: mockPen
+        signal penDownChanged(bool down)
+        property var surfaceManager: QtObject {
+            property bool penDown: false
+            function updateRegions() {}
+        }
+        onPenDownChanged: function(down) { surfaceManager.penDown = down }
+    }
     Item {
         id: primaryView
         anchors.fill: parent
@@ -20,13 +28,16 @@ Item {
         property bool cnSelected: !fixture.host || !fixture.host.secondarySelected
         property bool cnInkAllowed: fixture.host && !fixture.host.renderProbeOnly && !fixture.host.modalOpen
             && !fixture.host.dragging && !fixture.host.restoring
-            && (!fixture.host.secondary || !fixture.host.inputGeometryPending) && !fixture.host.paired
+            && (("transitionPhase" in fixture.host) ? !fixture.host.inputGeometryPending
+                : (!fixture.host.secondary || !fixture.host.inputGeometryPending)) && !fixture.host.paired
         readonly property var cnProbeViewport: primaryView
         readonly property var cnProbeScene: primaryView
         function cnCloseFoldout() {}
         function cnProbePreparePen() { return true }
         function cnProbeExpectedBounds(i) { return Qt.rect(10,20,300,50) }
         function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
+        function cnAdmissionInputsDetached() { return !!fixture.host && fixture.host.inputGeometryPending }
+        function cnAdmissionConstrainToPane() { return cnAdmissionInputsDetached() }
         function cnInputGeometryReadiness() {
             if (cnInkAllowed) return "pen-gate-open"
             return mockBridge.geometryLoading ? "loading" : "ready"
@@ -51,6 +62,8 @@ Item {
             function cnProbePreparePen() { return true }
             function cnProbeExpectedBounds(i) { return Qt.rect(10,20,300,50) }
             function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
+            function cnAdmissionInputsDetached() { return !!cnHost && cnHost.inputGeometryPending }
+            function cnAdmissionConstrainToPane() { return cnAdmissionInputsDetached() }
             function cnInputGeometryReadiness() { return mockBridge.geometryLoading ? "loading" : "ready" }
             function cnNativeClose() { closed = true; mockBridge.closeCount++ }
             function cnAction(name) { mockBridge.lastAction = name }

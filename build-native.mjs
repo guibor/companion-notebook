@@ -48,7 +48,9 @@ if (visualProbe) {
     probeBridge=probeBridge.slice(0,start)+inc('visual-open')+probeBridge.slice(end);
     assert(!probeBridge.includes('createDocument('));
 }
-const main = inc('main').replace('// PROBE_BRIDGE', probeBridge);
+let main = inc('main').replace('// PROBE_BRIDGE', probeBridge);
+if (!diagnostic) main = main.replace('cnHost.closeSecondary(false); cnHost.error = "The companion could not load."',
+    'cnHost.transitionFail("native document failed to load")');
 q += affect('qml/device/view/main/MainView.qml','Background#root',insert((diagnostic && !inkProbe ? 'enabled: false\n' : '') + main) + `
  TRAVERSE FocusScope#rootItem > FocusScope#viewRoot
  LOCATE AFTER Loader#documentView
@@ -117,6 +119,26 @@ Connections {
 }
 `;
 }
+if (!diagnostic) {
+    document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/,
+        'readonly property bool cnInkAllowed: (!cnHost || !cnHost.inputGeometryPending) && ((!cnPaired && !cnSecondary) || (!!cnHost && cnHost.inkQualified && cnPaired))');
+    const start = document.indexOf('function cnNativeClose() {');
+    const end = document.indexOf('function cnRefresh() {');
+    assert(start > 0 && end > start);
+    document = document.slice(0,start) + `function cnNativeClose() {
+    if (!cnHost || !cnHost.transitionApplying || !cnHost.transitionOwnsPark()) throw new Error("close outside native park")
+    cnStockClose()
+}
+function close() {
+    if (cnHost) return cnHost.nativeOperation(root, function() { root.cnStockClose() })
+    cnStockClose()
+}
+` + document.slice(end);
+    document += `
+function cnAdmissionInputsDetached() { return sceneView.cnAdmissionInputsDetached() }
+function cnAdmissionConstrainToPane() { return sceneView.cnAdmissionConstrainToPane() }
+`;
+}
 if (diagnostic) {
     document = document.replace(/readonly property bool cnInkAllowed:[^\n]+/, inkProbe
         ? 'readonly property bool cnInkAllowed: !!cnHost && cnHost.probeAllows(root)'
@@ -170,7 +192,7 @@ q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  ${insert('when: root.cnOwnsGlobals; restoreMode: Binding.RestoreNone')}
  END TRAVERSE
  TRAVERSE DeviceSceneView#sceneView
- ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (inkProbe ? '!!root.cnHost && (!root.cnHost.probeWriting || root.cnHost.inputGeometryPending)' : diagnostic ? 'true' : '!!root.cnHost && (root.cnHost.dragging || root.cnHost.modalOpen || root.cnHost.inputGeometryPending)'))}
+ ${insert('cnPaired: root.cnPaired; cnSelected: root.cnSelected; cnInkAllowed: root.cnInkAllowed; cnInputHeight: root.cnInputHeight; cnLayoutBusy: ' + (inkProbe ? '!!root.cnHost && (!root.cnHost.probeWriting || root.cnHost.inputGeometryPending)' : diagnostic ? 'true' : '!!root.cnHost && root.cnHost.inputGeometryPending') + (!diagnostic ? '; cnAdmissionLocked: !!root.cnHost && root.cnHost.transitionBusy' : ''))}
  END TRAVERSE
  TRAVERSE DocumentToolSettings#documentViewTools
  ${replace('onDocumentAboutToChange','Settings.setLastWritingTool(toolSettings());','if (root.cnOwnsGlobals) Settings.setLastWritingTool(toolSettings());')}
@@ -178,6 +200,18 @@ q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  TRAVERSE Item#_uiContainer > Toolbar#toolbar
  ${replace('visible','!inSuspend','!root.cnSecondary && root.cnSelected && !inSuspend')}
  END TRAVERSE
+`);
+if (!diagnostic) q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+ REBUILD _open_helper
+ LOCATE BEFORE ALL
+ INSERT {
+    // First statement: preserve BetterTOC's stock anchors in every load order.
+    if (cnHost && !cnHost.transitionApplying && (cnHost.secondary || (cnHost.transitionBusy && cnHost.transitionPhase !== "cold"))) {
+        cnHost.nativeOperation(root, function() { root._open_helper(documentToOpen, pageToOpen, highlightDetails); });
+        return;
+    }
+ }
+ END REBUILD
 `);
 if (inkProbe) q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
  REBUILD _open_helper
@@ -256,18 +290,33 @@ if (paneNavigation) {
  ${replace('limitScrollingToPaper','true','!root.cnPaired')}
  END TRAVERSE
  TRAVERSE Navigation#sceneNavigation
- ${insert('cnPaired: root.cnPaired; cnLayoutBusy: root.cnLayoutBusy; anchors.bottomMargin: root.cnPaired ? Math.max(0, root.height - root.cnInputHeight) : 0' + (admissionProbe ? '; cnAdmissionLocked: root.cnProbeDocumentLocked' : ''))}
+ ${insert('cnPaired: root.cnPaired; cnLayoutBusy: root.cnLayoutBusy; anchors.bottomMargin: root.cnPaired ? Math.max(0, root.height - root.cnInputHeight) : 0' + (admissionProbe ? '; cnAdmissionLocked: root.cnProbeDocumentLocked' : !diagnostic ? '; cnAdmissionLocked: root.cnAdmissionLocked' : ''))}
  END TRAVERSE
  ${replace('availableSceneRect','root.height - root.keyboardMargin','(root.cnPaired ? root.cnInputHeight : root.height) - root.keyboardMargin')}
 `);
     let navigation=inc('navigation');
-    if (admissionProbe) navigation='property bool cnAdmissionLocked: false\n'+navigation
+    if (admissionProbe || !diagnostic) navigation='property bool cnAdmissionLocked: false\n'+navigation
         .replace('function cnConstrainToPane() {','function cnConstrainToPane(whileParked) {\n    if (cnAdmissionLocked && whileParked !== true) return')
         .replace('!cnPaired || cnLayoutBusy ||', '!cnPaired || (cnLayoutBusy && whileParked !== true) ||');
     q += affect('qml/device/view/documentview/Navigation.qml','Item#root',insert(navigation) + `
  ${replace('scrollDown','const nearestAlignment = function()','if (cnJump(-1)) return; const nearestAlignment = function()')}
  ${replace('scrollUp','const nearestAlignment = function()','if (cnJump(1)) return; const nearestAlignment = function()')}
  ${replace('updateDragAndZoom','updateScrollbars();','cnConstrainToPane(); updateScrollbars();')}
+`);
+}
+if (!diagnostic) {
+    q += affect('qml/device/view/documentview/DeviceSceneView.qml','FocusScope#root',insert(`
+property bool cnAdmissionLocked: false
+function cnAdmissionInputsDetached() { return inputSurface.handler === null }
+function cnAdmissionConstrainToPane() {
+    if (root.cnInkAllowed || !root.cnLayoutBusy || !root.cnAdmissionLocked) return false
+    sceneNavigation.cnConstrainToPane(true)
+    return true
+}
+`) + `
+ TRAVERSE ScenePenInputHandler#strokeHandler
+ ${replace('gestureMode','const quickSwitch =','if (root.cnPaired) return 0; const quickSwitch =')}
+ END TRAVERSE
 `);
 }
 q += affect('qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','ToolbarTool#root',`
@@ -359,8 +408,9 @@ fs.writeFileSync(output+'/companion-notebook.qmd',q);
 if (diagnostic) exact('native/DiagnosticHost.qml','7b76db63188dfc4065cf88301fb0591e0b2213e4483285061c9b08e9f10621e7');
 let host=fs.readFileSync(diagnostic ? 'native/DiagnosticHost.qml' : 'native/NativeHost.qml','utf8');
 if (retirementProbe) host = 'import Companion.Lifecycle 1.0 as Lifecycle\n'+host;
-if (admissionProbe) host = 'import Companion.Admission 1.0 as Admission\n'+host;
-if (paneNavigation) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
+if (admissionProbe || !diagnostic) host = 'import Companion.Admission 1.0 as Admission\n'+host;
+if (!diagnostic) host = host.replace(/}\s*$/, inc('transactions')+'\n}\n');
+if (paneNavigation && diagnostic) host=host.replace(/}\s*$/, inc('input-geometry')+'\n}\n')
     .replace('if (!penDown) hideWhenUnavailable()', 'if (!penDown) { hideWhenUnavailable(); scheduleInputGeometry() }');
 if (diagnostic) {
     let driver=inc(admissionProbe ? 'admission-probe' : visualProbe ? 'visual-reopen' : retirementProbe ? 'retirement-probe' : inkProbe ? 'ink-probe' : noCaptureProbe ? 'structural-probe' : 'render-probe');

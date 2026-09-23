@@ -23,7 +23,7 @@ function visualStable() {
         && secondary.sceneController === visualControllers[1]
         && !bridge.primary.cnInkAllowed && !secondary.cnInkAllowed
         && width === 1620 && height === 2160 && !dragging && !restoring
-        && revealHeight === (visualStage === 1 ? 1320 : 1680)
+        && revealHeight === (visualStage === 1 ? 1080 : 1440)
 }
 Timer {
     id: visualTimer; interval: 100; repeat: true; running: true
@@ -49,7 +49,7 @@ Timer {
                 if (!bridge.probeSeparate(host)) throw new Error("saved note identities changed")
                 host.visualViews = [bridge.primary, host.secondary]
                 host.visualControllers = [bridge.primary.sceneController, host.secondary.sceneController]
-                host.visualStage = 1; host.revealHeight = 1320; host.probePhase = 3
+                host.visualStage = 1; host.revealHeight = 1080; host.probePhase = 3
                 bridge.primary.cnRefresh(); host.secondary.cnRefresh(); break
             case 3:
                 if (!host.visualStable()) throw new Error("visual pane structure changed")
@@ -61,7 +61,7 @@ Timer {
                     + "; docs=" + host.probeDocuments.join(",") + "; pen=false; epoch=" + Date.now())
                 if (host.visualStage === 1 && ++host.visualHeld >= 200) {
                     console.log("Companion visual: gate closed")
-                    host.visualStage = 2; host.revealHeight = 1680; host.visualSettled = 0
+                    host.visualStage = 2; host.revealHeight = 1440; host.visualSettled = 0
                     bridge.primary.cnRefresh(); host.secondary.cnRefresh()
                 }
                 break

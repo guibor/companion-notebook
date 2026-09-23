@@ -1,8 +1,8 @@
 // One reviewed diagnostic's already-created disposable notes only.
 function probeCreate() {
     if (!probeMayStart || Values.cnProbeStarted) throw new Error("Visual reopen unavailable")
-    var ids = ["9baaab38-b382-4f8c-9871-2932c2afe4ca", "3ded6fc6-4f79-401e-99ec-dae6a934ae4a"]
-    var pages = ["eefe9ee2-0396-4688-b7f7-8328e186007d", "59506a8a-b6fe-4d3c-8d91-acc427d5fac4"]
+    var ids = ["3fe4ae5a-a74e-4de3-994c-b1c40b1ccbe2", "e761bdbe-f6b0-495d-8224-cacd07fff3c8"]
+    var pages = ["363535fe-0e4d-4953-b623-87875ebd58e6", "75c51ba3-c1f1-49ed-b47c-d0374af12c1c"]
     for (var i = 0; i < ids.length; ++i) {
         var entry = Library.entryForId(ids[i])
         var prefix = "Companion test " + (i === 0 ? "Reference " : "Notes ")

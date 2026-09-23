@@ -5,12 +5,13 @@ set -Eeuo pipefail
 umask 077
 ID=${1:-}; P=${2:-}; STAGE=${3:-}
 [[ "$ID" =~ ^[0-9]{8}T[0-9]{6}Z-[0-9]+$ && "$P" =~ ^[1-9][0-9]*$ ]] || exit 2
-case "$STAGE" in 1) HEIGHT=1320;; 2) HEIGHT=1680;; *) exit 2;; esac
+case "$STAGE" in 1) HEIGHT=1080;; 2) HEIGHT=1440;; *) exit 2;; esac
 B=/home/root/.codex-backups/companion-$ID
 LOG=$B/probe.log
 OUT=$B/frame-$STAGE.rgb32
-DOCS=9baaab38-b382-4f8c-9871-2932c2afe4ca,3ded6fc6-4f79-401e-99ec-dae6a934ae4a
-BYTES=14100480
+DOCS=3fe4ae5a-a74e-4de3-994c-b1c40b1ccbe2,e761bdbe-f6b0-495d-8224-cacd07fff3c8
+BYTES=13996800
+READER=$(dirname "$(readlink -f "$0")")/read-frame
 START=$(awk '{print $22}' "/proc/$P/stat")
 [[ "$START" =~ ^[1-9][0-9]*$ ]] || exit 1
 guard() {
@@ -36,14 +37,13 @@ guard
 [ "$(grep -c '^Found framebuffer! Config string is ' "$LOG")" = 1 ]
 CONFIG=$(sed -n 's/^Found framebuffer! Config string is //p' "$LOG")
 [[ "$CONFIG" =~ ^0x([0-9a-f]{1,12}),1620,2160,2,6528,0$ ]] || exit 1
-ADDRESS=$(( 16#${BASH_REMATCH[1]} ))
-[ "$ADDRESS" -ge 65536 ] && [ "$ADDRESS" -le 281474962610175 ]
+ADDRESS=0x${BASH_REMATCH[1]}
+[ -f "$READER" ] && [ ! -L "$READER" ] && [ "$(stat -c %u:%g:%a "$READER")" = 0:0:700 ]
 trap 'rm -f "$OUT.part"' EXIT
-# noclobber ensures this capsule never overwrites another artifact. dd reads
-# only one bounded native RGB32 image; it cannot write tablet memory.
+# noclobber prevents overwriting another artifact. The pinned read-only helper
+# reads only 6480 visible bytes per row, skipping all 48 padding bytes in memory.
 set -C
-/usr/bin/timeout -s KILL 5 dd if="/proc/$P/mem" bs=65536 \
-    iflag=skip_bytes,count_bytes skip="$ADDRESS" count="$BYTES" >"$OUT.part" 2>/dev/null
+/usr/bin/timeout -s KILL 5 "$READER" "$P" "$ADDRESS" >"$OUT.part"
 [ "$(stat -c %s "$OUT.part")" = "$BYTES" ]
 guard
 mv "$OUT.part" "$OUT"

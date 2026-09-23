@@ -31,14 +31,16 @@ Item {
     readonly property real maximumHeight: height * 0.85
     readonly property bool paired: secondary !== null && revealHeight > 0
     readonly property bool mayShow: bridge.available && bridge.portrait
-    readonly property bool idle: !penDown && !dragging && !restoring
+    readonly property bool idle: !transitionBusy && !penDown && !dragging && !restoring
         && !(bridge.primary && bridge.primary.cnGestureBusy)
         && !(secondary && secondary.cnGestureBusy)
     readonly property real mainInputHeight: paired ? height - revealHeight : height
     readonly property real secondaryInputHeight: Math.max(0, revealHeight - barHeight)
     readonly property var activeView: secondarySelected && paired ? secondary : bridge.primary
     readonly property bool modalOpen: choosing || !!error
-    visible: mayShow
+    // Availability changes request a transaction; never hide an owned native
+    // surface merely because a binding changed before its worker drained.
+    visible: true
     clip: true
 
     Core.Settings { id: settings; location: host.settingsLocation; category: "companion"; property string pairsJson: '{"version":1,"pairs":{}}' }
@@ -56,14 +58,15 @@ Item {
         catch (e) { error = "Could not save this pairing. Your documents are unchanged."; return false }
     }
     function checkpoint() {
-        if (!secondary || !primaryId || !companionId || !storeReady) return
+        if ((transitionBusy && !transitionApplying) || !secondary || !primaryId || !companionId || !storeReady) return
         pairs = Store.set(pairs, primaryId, companionId, savedRatio, String(secondary.currentPageId || ""))
         persist()
     }
     function synchronizePrimary() {
         var id = bridge.primary && bridge.primary.document ? String(bridge.primary.document.id) : ""
         if (id === primaryId) return
-        closeSecondary(false)
+        if (secondary && !transitionApplying) { transitionFail("primary changed outside parked lifecycle"); return }
+        if (secondary) closeSecondaryParked(false)
         primaryId = id
         var p = pairs.pairs[id]
         companionId = p ? p.companion : ""
@@ -72,38 +75,40 @@ Item {
     }
     function choose() {
         if (renderProbeOnly || !idle || !mayShow || !primaryId || !storeReady) return
-        bridge.primary.cnCloseFoldout()
-        bridge.refreshDocuments()
-        choosing = true
+        requestTransition("choose", function() {
+            bridge.primary.cnCloseFoldout()
+            bridge.refreshDocuments()
+            choosing = true
+            return "choosing"
+        })
     }
     function pick(id) {
-        if (!idle || !Store.isId(id) || id === primaryId || !bridge.canOpen(id)) return false
+        if (transitionPhase !== "choosing" || !Store.isId(id) || id === primaryId || !bridge.canOpen(id)) return false
         if (bridge.sharingActive) { error = "Stop screen sharing before revealing another notebook."; return false }
-        closeSecondary(false)
-        companionId = id; choosing = false
-        return openSecondary()
+        return requestTransition("pair", function() {
+            closeSecondaryParked(false)
+            companionId = id; choosing = false
+            openSecondaryParked()
+        })
     }
     function openSecondary() {
         if (!idle || !mayShow || !companionId || companionId === primaryId || !bridge.canOpen(companionId)) {
             error = "This companion is unavailable. Choose a different local notebook."; return false
         }
         if (bridge.sharingActive) { error = "Stop screen sharing before revealing another notebook."; return false }
-        if (secondary) { revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio)); return true }
-        try {
-            openGeneration++
-            secondary = bridge.createView(nativeContainer, host)
-            if (!secondary) throw new Error("Native view creation failed")
-            var p = pairs.pairs[primaryId]
-            restorePage = p && p.companion === companionId ? p.pageId : ""
-            bridge.openView(secondary, companionId, restorePage)
-            restoring = true
-            revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio))
-            nativeReady.restart(); openTimeout.restart()
-            return true
-        } catch (e) {
-            closeSecondary(false); error = "The native companion could not open. The main document is unchanged."
-            console.warn("Companion: native open failed"); return false
-        }
+        return requestTransition("reveal", function() { openSecondaryParked() })
+    }
+    function openSecondaryParked() {
+        if (!transitionApplying || !transitionOwnsPark()) throw new Error("open outside park")
+        if (secondary) { revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio)); return }
+        openGeneration++
+        secondary = bridge.createView(nativeContainer, host)
+        if (!secondary) throw new Error("Native view creation failed")
+        var p = pairs.pairs[primaryId]
+        restorePage = p && p.companion === companionId ? p.pageId : ""
+        bridge.openView(secondary, companionId, restorePage)
+        restoring = true
+        revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio))
     }
     function selectPane(secondaryPane) {
         if (!idle || choosing || (secondaryPane && !paired)) return false
@@ -114,13 +119,19 @@ Item {
     }
     function tuck() {
         if (!idle) return false
-        checkpoint(); secondarySelected = false; revealHeight = 0
-        return true
+        return requestTransition("tuck", function() {
+            checkpoint(); secondarySelected = false; revealHeight = 0
+        })
     }
     function closeSecondary(detach) {
+        if (transitionApplying) return closeSecondaryParked(detach)
+        return requestTransition("close", function() { closeSecondaryParked(detach) })
+    }
+    function closeSecondaryParked(detach) {
+        if (!transitionApplying || !transitionOwnsPark()) throw new Error("close outside park")
         if (closing) return
         closing = true
-        checkpoint(); nativeReady.stop(); openTimeout.stop(); restoring = false
+        checkpoint(); restoring = false
         openGeneration++
         secondarySelected = false; revealHeight = 0
         var view = secondary
@@ -131,7 +142,19 @@ Item {
         }
         closing = false
     }
-    function detach() { if (idle) closeSecondary(true) }
+    function detach() { if (idle || transitionPhase === "choosing") closeSecondary(true) }
+    function dismissChooser() {
+        if (transitionPhase === "choosing") requestTransition("cancel", function() { choosing = false; error = "" })
+        else if (!transitionBusy) error = ""
+    }
+    function nativeOperation(view, operation) {
+        if (transitionApplying || (!secondary && (transitionPhase === "cold" || transitionPhase === "idle"))) { operation(); return true }
+        return requestTransition("document", function() {
+            if (view === bridge.primary) closeSecondaryParked(false)
+            operation()
+            synchronizePrimary()
+        })
+    }
     function action(name) {
         if (!idle || !secondary || !secondarySelected || !inkQualified) return
         secondary.cnAction(name)
@@ -145,18 +168,16 @@ Item {
     function chooseSize(ratio) {
         if (!idle || !mayShow || !secondary || typeof ratio !== "number" || !isFinite(ratio)
                 || Math.abs(nearestSize(ratio) - ratio) > 0.000001) return false
-        // This host remains pen-disabled until the native transition is qualified.
-        // No deferred resize is queued to run unexpectedly after a stroke.
-        savedRatio = nearestSize(ratio)
-        if (paired) revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio))
-        checkpoint()
-        bridge.endAnimation()
-        return true
+        return requestTransition("resize", function() {
+            savedRatio = nearestSize(ratio)
+            if (paired) revealHeight = Math.min(maximumHeight, Math.max(minimumHeight, height * savedRatio))
+        })
     }
     function hideWhenUnavailable() {
-        if (!mayShow && !penDown) {
-            choosing = false; revealHeight = 0; secondarySelected = false
-        }
+        if (mayShow) return
+        if (secondary || transitionBusy || choosing) transitionAvailabilityLost = true
+        if ((secondary || choosing) && (transitionPhase === "idle" || transitionPhase === "choosing"))
+            requestTransition("unavailable", function() { choosing = false; closeSecondaryParked(false) })
     }
     onMayShowChanged: hideWhenUnavailable()
     onPenDownChanged: { if (!penDown) hideWhenUnavailable() }
@@ -164,7 +185,11 @@ Item {
         loadStore(); synchronizePrimary()
         console.log("Companion: host ready; ink=" + inkQualified + "; settings=" + storeReady)
     }
-    Component.onDestruction: { if (secondary) closeSecondary(false) }
+    Component.onDestruction: {
+        // A destructor is not an input completion barrier. Candidate recovery
+        // owns unexpected host loss; never mutate or resume native work here.
+        if (secondary) console.warn("Companion transition: host destroyed with a retained view")
+    }
     Connections {
         target: bridge.primary
         function onDocumentChanged() { host.synchronizePrimary() }
@@ -172,18 +197,6 @@ Item {
     Connections {
         target: bridge.penInput
         function onPenDownChanged(down) { host.penDown = down }
-    }
-    Timer {
-        id: nativeReady; interval: 100; repeat: true
-        onTriggered: {
-            if (!host.secondary || !bridge.viewReady(host.secondary)) return
-            host.restoring = false; stop(); openTimeout.stop(); host.checkpoint()
-            console.log("Companion: native rendering ready; ink=" + host.inkQualified)
-        }
-    }
-    Timer {
-        id: openTimeout; interval: 12000
-        onTriggered: { host.closeSecondary(false); host.error = "The companion took too long to open. Try another local notebook." }
     }
     Timer {
         interval: 2000; repeat: true; running: host.paired && host.idle
@@ -243,7 +256,7 @@ Item {
     }
     Rectangle {
         objectName: "reopenCompanion"
-        visible: !!host.companionId && !host.paired
+        visible: host.mayShow && !!host.companionId && !host.paired
         width: 420 * host.unit; height: 94 * host.unit
         anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
         color: "#efefea"; radius: 25 * host.unit; border.color: "#888"
@@ -251,7 +264,7 @@ Item {
         TapHandler { onTapped: host.openSecondary() }
     }
     Rectangle {
-        visible: host.choosing || !!host.error; anchors.fill: parent; color: "white"
+        visible: host.choosing; anchors.fill: parent; color: "white"
         MouseArea { anchors.fill: parent }
         Column {
             x: 90 * host.unit; y: 100 * host.unit; width: parent.width - 180 * host.unit; spacing: 30 * host.unit
@@ -275,7 +288,7 @@ Item {
                         required property string modelData
                         width: 360 * host.unit; height: 100 * host.unit; color: "#e9e9e4"; radius: 14 * host.unit
                         Text { anchors.centerIn: parent; text: modelData; font.pixelSize: 32 * host.unit }
-                        MouseArea { anchors.fill: parent; onClicked: { if (modelData === "Remove pairing") host.detach(); host.choosing = false; host.error = "" } }
+                        MouseArea { anchors.fill: parent; onClicked: { if (modelData === "Remove pairing") host.detach(); else host.dismissChooser() } }
                     }
                 }
             }

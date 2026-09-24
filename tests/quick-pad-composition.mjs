@@ -31,10 +31,13 @@ for(const [name,patches] of [['after-toc',[toc,candidate,app,...peerFiles.filter
     const qml=files(out).filter(p=>p.endsWith('.qml'));
     for(const p of qml) run('qmlformat',['--ignore-settings',p],{stdio:['ignore','ignore','pipe']});
     const scene=fs.readFileSync(out+'/qml/device/view/documentview/DeviceSceneView.qml','utf8');
-    assert.equal((scene.replace(/\s/g,'').match(/height:root.cnQuickPadReadOnly\?0:Math.max/g)||[]).length,2,'Both pen region and blocker are empty on source');
+    assert.equal((scene.replace(/\s/g,'').match(/height:Math.max\(0,root.cnInputHeight\)/g)||[]).length,2,'Both native regions use the actual viewport bounds');
+    assert.doesNotMatch(scene,/cnQuickPadReadOnly/);
+    assert.match(scene.replace(/\s/g,''),/\(root.cnPaired\|\|root.cnQuickPadCompositing\)\?null:EPFramebuffer/);
+    assert.match(scene.replace(/\s/g,''),/cnQuickPad:root.cnQuickPad/);
     assert.match(scene,/tileManager.setFocalPoint/);
     const document=fs.readFileSync(out+'/qml/device/view/documentview/DocumentView.qml','utf8');
-    assert.match(document,/!cnHost.quickPadActive \|\| cnSecondary/);
+    assert.doesNotMatch(document,/!cnHost.quickPadActive \|\| cnSecondary/);
     assert.match(document,/Values.ndiAddPage/); assert.match(document,/requestTableOfContents\(true\)/);
     const main=fs.readFileSync(out+'/qml/device/view/main/MainView.qml','utf8');
     assert.match(main.replace(/\s/g,''),/entry.pageCount-1/); assert.match(main,/Document.Notebook/);

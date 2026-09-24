@@ -1,6 +1,88 @@
 # Architecture and implementation status
 
+## Public documentation (2026-09-25)
+
+README presents ordinary Companion and Quick Pad as two layouts sharing one
+native secondary-view slot. It documents first-use selection, toolbar toggling,
+settings, width-fit presets and lifecycle, and separates user-accepted behavior
+from the remaining late-refresh feedback. Firmware caches and generated device
+payloads remain excluded; developer test entry points link to docs/quick-pad.md.
+
+## Quick Pad warm tuck/reveal (2026-09-24)
+
+Late-refresh refinement: `cnFitQuickPad` skips setFocalPoint when the current
+native center/scale already match width fit within0.25screen pixels. Genuine zoom,
+centering or out-of-bounds changes still refit under the same parked gate. This
+removes redundant native rendering work on warm reveal; no native stroke cleanup
+timer or global refresh policy is disabled. Hardware flash reduction remains
+user feedback, not inferred from the no-op regression.
+
+Toolbar stability: both native views share ToolbarProvider. Stock Toolbar's
+onShowableToolsCountChanged publishes its own capacity even when hidden; the
+small secondary toolbar could therefore shrink the visible source tool model.
+`cnPublishToolbarCapacity` now ignores secondary owners both before scheduling
+and inside the queued callback. Primary/unowned stock toolbars still publish,
+and owner assignment schedules a fresh check. This fixes ownership at the writer,
+not by pinning icon positions or suppressing native layout globally.
+
+User accepted192000 behavior except flashing. `quickPadCached` distinguishes a
+tucked native secondary from an actively visible pad. `closeQuickPad` retains
+the native view when no former bottom split needs restoring: reveal becomes0,
+source focus/companion metadata return, autosave remains owned by the native
+controller. The actual sheet dimensions/position remain unchanged while hidden.
+`checkpoint` excludes both active and cached pads from ordinary pair metadata.
+The existing cnPaired/inputGeometryPending pen eligibility excludes hidden ink;
+publication and geometry still pass through the same worker park.
+
+`openQuickPadParked` reuses only a matching cached document/current last-page ID,
+checked through `padViewIsCurrent`. Otherwise it retires and reloads normally.
+Width fit is reapplied under park, preserving vertical context. Settings and
+source/unavailability changes close the cache through existing native close/save.
+Normal layout choices retire a hidden cache before replaying the requested size,
+never accidentally resize the pad into an ordinary pairing. Returning to a
+previously visible normal split retains its existing full close/reopen behavior.
+No third native document, idle timer, new disk cache or refresh-mode override.
+
+## Quick Pad width-fit and refresh refinement (2026-09-24)
+
+User accepted native corner handwriting from191500. `quickPadSize` now drives
+Compact (1/2 x 1/3), Wide (2/3 x 1/3 default), Roomy (2/3 x 1/2) geometry. The
+validated optional size field extends version1 settings without rewriting old
+records on load; missing size means Wide. Picker drafts size/corner and allows
+Apply to current pad without reselecting a document. Cancel discards both drafts.
+
+`cnFitQuickPad` fits width with4percent padding, retaining a valid native saved
+vertical center. It never fits height. Quick-Pad-only Navigation injection gives
+notebook pages80percent of one visible pane of blank tail beyond their exterior;
+as native ink extends the bounds, this writing headroom advances too. Source and
+ordinary Companion/PDF clamps are unchanged. No document metadata is edited.
+
+`quickPadCompositing` retains the existing composed viewport mode after first
+pad open until primary-document identity changes. This avoids returning to the
+direct framebuffer and back on every toggle; text fast-mono is disabled for the
+same interval. The flag changes only in parked open/source-change operations.
+`quickPadTransition` skips Companion's unconditional full-viewport refresh at
+completion of pad-related transitions, relying on native loading and Qt scene
+damage. No global e-ink mode or GhostBuster preference is modified. Physical
+flashing improvements are feedback-dependent, not established by unit tests.
+
+Native close/save still runs on every close. No extra hidden document cache,
+worker bypass or firmware changes were added. Quick Pad remains an opt-in build
+of this repository and shares the same native libraries as Companion.
+
 ## Quick Pad — offline candidate (2026-09-24)
+
+Update: corrected personal pilot183200 is installed on the Pro with host-ready
+and active recovery guard. Existing pairing field matches its original backup
+exactly. This proves startup/migration, not scaled native handwriting acceptance.
+See playbook/log/quick_pad_install_2026-09-24.md for the initial failed migration
+and corrected receipt. No automated tablet pen or document interaction was run.
+
+Quick Pad now uses the native `formatting_checkbox` task-list icon directly via
+ToolbarTool.iconSource. Native rendering owns size, press and selected contrast;
+there are no custom frames, masks, scales or overlays. No proprietary SVG is
+bundled. Companion's notebook pair is unchanged. The screen-share composition
+and later nested-box drawing were rejected and are removed, not runtime options.
 
 Quick Pad is an opt-in `CN_USER_PILOT=1 CN_QUICK_PAD=1` build in
 `build/quick-pad-native`. The ordinary deployed pilot path is unchanged.
@@ -11,8 +93,12 @@ bridge methods and a scaled corner sheet. No native library changes are needed.
 `native/quick-pad.qml.inc` owns the UI state and principal functions:
 
 - `loadQuickPad`/`saveQuickPad`: validated version1 document ID and left/right
-  preference in `quickPadJson` in the existing pairs.ini settings file. Pair JSON
-  stays independent; malformed settings are not overwritten.
+  preference in `quickPadJson` in a separate `quickPad` settings category/object
+  within the existing pairs.ini file. Do not add a default property ahead of
+  pairsJson in the original Settings object: the first hardware migration reset
+  those existing pairings. Keep the original pairing Settings declaration intact.
+  Malformed settings are not overwritten; seeded-file upgrade/recreation tests
+  cover preserving existing pairs when the new Quick Pad defaults are created.
 - `toggleQuickPad`/`openQuickPadParked`: capture the prior split, close its native
   view under the existing worker park, and open the configured notebook's last
   page in the same secondary slot. Settings reject self, PDF, missing/locked,
@@ -1270,3 +1356,20 @@ elapsed uptime. Its one-second loop still recovers after 31 missed polls while
 executing, but suspended time alone cannot expire the deadline. Startup identity,
 native-failure, process-exit, manual-stop and backup/recovery checks are unchanged.
 No input tests or notebook-content writes are part of this correction.
+# Quick Pad corner viewport revision (2026-09-24)
+
+Quick Pad now reuses the ordinary Companion pen eligibility and guarded native
+transform publication for both documents. `quickPadHost` builds a real half-width,
+half-height native container, flush bottom-right by default (bottom-left optional).
+It does not scale a full-size QML DocumentView. `cnFitQuickPad` fits the page using
+native tile-manager zoom against that actual viewport. `quickPadX` and the width/
+height properties are the sole corner geometry source. The primary keeps its
+full navigation/input bounds; native manager region subtraction arbitrates the
+foreground pad. No additional stroke handler or binary patch is introduced.
+
+The header and transient opening label are removed. The toolbar glyph toggles
+the pad; notebook/corner configuration remains in the overflow settings. Only
+the inner top/side hairlines remain. Completion skips the redundant explicit
+secondary full-viewport refresh for Quick Pad; the source refresh remains to
+clear the newly covered/uncovered area. This reduces redraw requests, not a
+promise of zero e-ink flashes. Ordinary Companion behavior is unchanged.

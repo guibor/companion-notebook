@@ -3,6 +3,8 @@
 A writable companion pane for reMarkable Paper Pro: keep your reading in view
 while taking notes in a second document. Two native document views, shared pen
 controls, independent scrolling, and just a thin line between the pages.
+Use a lower companion for sustained reading and writing, or toggle **Quick Pad**
+in a corner to capture a to-do without leaving your document.
 
 **Experimental source release — developed on Paper Pro firmware 3.29.0.148.**
 This is a working personal pilot, not a general-purpose or one-click installer.
@@ -17,9 +19,13 @@ native notebook artwork at two sizes.*
 
 ## What it does
 
-**In development:** [Quick Pad](docs/quick-pad.md), a configurable last-page
-notebook in a compact corner pane. Prepared offline; not yet tested or installed
-on a tablet. The existing pilot below remains the installed feature set.
+Two layouts share the same native writing integration:
+
+- **Companion:** a lower pane paired with the document you are reading.
+- **Quick Pad:** your chosen notebook's last page in a bottom corner, available
+  across documents on this tablet. One toolbar tap opens or tucks it away.
+
+For the ordinary companion:
 
 - Write directly in either pane without a tap-to-select step.
 - Choose a small, medium or half-height companion; medium is the default.
@@ -30,8 +36,8 @@ on a tablet. The existing pilot below remains the installed feature set.
 
 | Target | Status |
 | --- | --- |
-| Paper Pro,3.29.0.148, portrait | Personal pilot; hands-on feedback ongoing |
-| Other firmware, Paper Pro Move, reMarkable2 | Not qualified; do not assume compatibility |
+| Paper Pro, 3.29.0.148, portrait | Personal pilot; hands-on feedback ongoing |
+| Other firmware, Paper Pro Move, reMarkable 2 | Not qualified; do not assume compatibility |
 | Landscape, same-document dual locations | Not supported |
 | Generic installer / binary release | Not available |
 
@@ -40,6 +46,8 @@ This project uses XOVI/QMLDiff integration; it does not install old rm-hacks pat
 It is an independent project, not affiliated with reMarkable.
 
 ## Use the installed pilot
+
+### Companion
 
 1. Open a notebook or PDF in portrait.
 2. Tap **Companion notebook** on the full toolbar, above Dates.
@@ -52,16 +60,59 @@ It is an independent project, not affiliated with reMarkable.
    companion without forgetting the pair. Companion-only swaps roles: the lower
    document becomes the main document, and split pictures now reveal the previous
    main document below it. No controls or labels
-   sit between the pages. Split sizes are25%,37.5%,50%; no fractions in the UI.
+   sit between the pages. Split sizes are 25%, 37.5%, 50%; no fractions in the UI.
 6. You can also start with a size picture: if unpaired, the picker opens directly.
    Choosing a partner creates a reverse default without replacing an existing
    pair; explicitly swapping makes the previous main document its partner.
    There is no separate menu off switch;
    the independent recovery controller remains available to the operator.
 
+### Quick Pad
+
+1. Open a notebook or PDF and tap the **task-list icon** on the full toolbar.
+2. On first use, choose a notebook from **Recent** or **Favorites**. This becomes
+   your default pad on this tablet, independent of ordinary companion pairings.
+3. Write on its **current last page**, or keep writing in the exposed source.
+   Both use the same pen controls. The pad fits its width rather than shrinking
+   a long page to fit its height; pinch and scroll remain available.
+4. Scroll below the existing content for blank writing room. New handwriting
+   extends the note through the native notebook system.
+5. Tap the same toolbar icon to tuck the pad away; tap again to reopen it.
+
+The default is a wide, short pad anchored **bottom-right**, with only thin inner
+edges and no header. In **⋯ → Quick Pad settings**, choose bottom-left instead,
+change the notebook, or select a size:
+
+| Size | Width | Height |
+| --- | --- | --- |
+| Compact | Half | One-third |
+| **Wide (default)** | Two-thirds | One-third |
+| Roomy | Two-thirds | Half |
+
+Use **Apply to current pad** to change size or corner without choosing the
+notebook again. Cancel leaves your previous settings untouched.
+
+Quick Pad uses the same secondary view as Companion: it temporarily replaces an
+open lower split and restores it when closed. Otherwise, repeated toggles reuse
+the loaded native pad with autosave alive. Leaving the source document or
+sleeping retires it normally. The source toolbar stays in place when opening the
+pad; its buttons should not disappear or jump.
+
+The pad must be a different, available portrait notebook, not a PDF or the source
+itself. Opening is refused during screen sharing. It does not create notebooks
+or pages automatically. See [Quick Pad details and developer notes](docs/quick-pad.md).
+
+**Current feedback:** corner handwriting, sizing, scrolling and toolbar stability
+have been accepted in personal use. Refresh work has reduced redundant rendering,
+but a final extra flash was still reported. The latest adjustment avoids repeating
+an already-correct width fit; its visible effect awaits user feedback. This is
+not a flash-free or fully qualified release.
+
+### Safety and release boundaries
+
 Start with a disposable notebook: mid-stroke sleep, boundary/eraser edge cases
 and full extension interactions remain unqualified. A background runtime guard
-restores normal apps on a reported Companion failure or a30second UI stall.
+restores normal apps on a reported Companion failure or a 30-second UI stall.
 It is a fallback, not a guarantee against losing an in-progress stroke.
 Activation is runtime-only; reboot does not automatically reactivate Companion.
 Your existing app payloads, notebook files, firmware and boot configuration are
@@ -88,6 +139,11 @@ node --test tests/pilot-layout.test.cjs
 node tests/pilot-menu.mjs
 node tests/pilot-picker.mjs
 ```
+
+For the opt-in Quick Pad build and its composition, geometry, settings and
+warm-toggle regressions, follow [the Quick Pad test commands](docs/quick-pad.md#offline-build-and-tests).
+Composition checks require the private exact-firmware cache and local base-app
+inventory; this public repository intentionally does not include those resources.
 
 These tests do not connect to a tablet or establish native handwriting safety.
 There is no promise that the historical full test suite describes today's UI:

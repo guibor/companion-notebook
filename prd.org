@@ -3,6 +3,45 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Publication (2026-09-25)
+- Publish current Quick Pad refinements on the existing Pro branch and document
+  the actual installed workflow, settings and limitations in README.
+- Documentation/publishing only; do not interrupt the tablet session.
+** Next steps
+- Collect user feedback on the remaining late flash in the installed adjustment;
+  do not claim its elimination from local tests alone.
+
+* Quick Pad warm toggles (2026-09-24)
+- User accepts192600 toolbar/reuse behavior; remove a remaining extra late flash
+  without altering working interaction. Avoid redundant native width-fit writes.
+- Keep all source toolbar buttons and their positions stable when the pad opens.
+  Hidden secondary toolbars must not reconfigure the shared toolbar provider.
+- User accepts192000 size, zoom and scrolling; remaining defect is flashing.
+- Keep the working geometry and pen handling. Reuse the loaded native pad for
+  toolbar tuck/reveal rather than reload every time, with autosave alive.
+- Fully retire on source change, sleep/unavailability, pad/settings change or
+  returning to an open normal Companion. Revalidate last-page identity on reveal.
+** Changed requirement
+- Toggling off no longer always destroys the native pad; it normally hides it.
+  No notebook data is cached by custom code, only the existing native view.
+** Next steps
+- Guarded installation and user feedback on repeat-toggle flashes; no pen trials.
+
+* Quick Pad accepted refinement (2026-09-24)
+- User confirms corner handwriting works. Preserve both-document native ink.
+- Default Wide pad: two-thirds width, one-third height, flush bottom-right.
+- Settings offer Compact (half width/third height), Wide, and Roomy (two-thirds
+  width/half height), with bottom-left/right preference and existing-pad Apply.
+- Always initially fit width, never height; preserve saved vertical context.
+- Allow scrolling into blank space beneath the page to extend handwritten notes.
+- Reduce toggling flashes without global refresh-policy or pen-handler changes.
+** Changed requirements
+- The fixed half-by-half pane and whole-page fit are superseded by presets and
+  width fit. A long page must not force tiny writing. Thin edges/icon toggle stay.
+** Immediate next steps
+- Install the guarded revision with preserved settings; user assesses remaining
+  flashes and native extension. No automatic tablet pen trials.
+
 * Quick Pad (2026-09-24, offline candidate)
 - Same repository/application; a distinct toolbar button with a pad/task icon.
 - A device-wide configurable notebook, separate from per-document companion pairs.
@@ -48,6 +87,14 @@ Read and write without losing context or compromising native handwriting.
 - Pro only initially; no changes to Move or shared servers.
 
 * Requirements changed
+- Further icon feedback: remove the composed task-list drawing. Use the native
+  formatting_checkbox task-list glyph directly, without a custom surrounding box.
+- User selected task-list option C: closed native-style frame, two unchecked
+  boxes and short rules. Replace the rejected screen-sharing composition below;
+  no dots, open outlines, floating checkmark or overlapping notebooks.
+- Quick Pad icon: replace the custom checklist/corner drawing with the native
+  screen-sharing frame and native checkmark in place of its arrow. Do not reuse
+  Companion's overlapping notebooks. Keep native selected-state contrast.
 - Add a global corner-pad mode alongside the existing per-document bottom split.
   The two modes are mutually exclusive, not three simultaneously writable views.
 - Icon-only refinement: retain the full-size native notebook; overlap a baby
@@ -123,6 +170,11 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. Quick Pad183200 installed on Pro3.29.0.148, UI372703/guard372402 active.
+   First182400 reset pairing defaults;183200 isolates the settings category and
+   restores all three original pairings with exact post-startup field hash match.
+   Native task-list icon; hand over for user feedback, no automated pen tests.
+0. Icon revision installed with183200: stock formatting_checkbox, no overlays.
 0. Quick Pad offline implementation, tests and package are complete:
    20260924T120500Z-1, 18 focused Node tests, 12 Qt Quick Pad checks, menu/picker
    regressions and 33 QML resources parsed in each of three dependency-respecting
@@ -456,3 +508,15 @@ Read and write without losing context or compromising native handwriting.
 - ReManager explicitly handed over after restoration. Read-only checks matched
   the accepted runtime. Companion remains unqualified and separate from its
   installed 11-plugin base; all trials need their own inventory and controller.
+* Quick Pad revised requirements (2026-09-24)
+- Flush bottom-right by default, configurable bottom-left; thin boundaries only.
+- Handwriting on both exposed source and pad, with Companion's shared tools.
+- Reuse native Companion document/pen lifecycle with native full-page zoom.
+- Keep accepted native task-list glyph; toolbar tap opens/closes quickly.
+- Reduce open/close flashes without bypassing native input synchronization.
+** Superseded requirements
+- Inset/scaled card, large pen-here header, and source read-only restriction are
+  rejected by user feedback. Native pen alignment needs hands-on confirmation.
+** Immediate next steps
+- Install the guarded corner-viewport revision and collect handwriting/refresh
+  feedback. Do not describe desktop tests as physical pen qualification.

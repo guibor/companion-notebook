@@ -1,11 +1,13 @@
 import QtQuick
 import QtTest
+import QtCore as Core
 import "../build/quick-pad-native" as Quick
 
 Item {
     id: surface; width: 810; height: 1080
     Component { id: candidate; Quick.NativeHost { anchors.fill: parent } }
     Component { id: factory; NativeFixture { hostFactory: candidate } }
+    Component { id: seedFactory; Core.Settings { category: "companion"; property string pairsJson: "" } }
     TestCase {
         name: "QuickPadOffline"; when: windowShown
         property var f
@@ -26,11 +28,28 @@ Item {
             openPad()
             compare(f.bridge.padOpenCount,1); compare(f.bridge.lastPageOpened,6)
             compare(f.bridge.fitCount,1); compare(f.host.quickPadId,pad)
-            compare(f.host.quickPadScale,.5); verify(f.host.secondarySelected)
+            compare(f.host.quickPadWidth,f.host.width*2/3); verify(f.host.secondarySelected)
             verify(f.host.toggleQuickPad()); settle(); verify(!f.host.paired)
             compare(f.host.companionId,"")
             verify(f.host.toggleQuickPad()); settle()
-            compare(f.bridge.padOpenCount,2); compare(f.bridge.fitCount,2)
+            compare(f.bridge.padOpenCount,1); compare(f.bridge.fitCount,2)
+        }
+        function test_upgrade_preserves_preexisting_pairs() {
+            var url=Qt.resolvedUrl("../build/test-settings/upgrade-"+Date.now()+".ini")
+            var seed=seedFactory.createObject(surface,{location:url})
+            var pairs={version:1,pairs:{}}
+            pairs.pairs[f.primary.document.id]={companion:pad,ratio:0.25,pageId:"33333333-3333-4333-8333-333333333333"}
+            seed.pairsJson=JSON.stringify(pairs); seed.sync(); seed.destroy(); wait(20)
+            f.destroy(); f=null; wait(20)
+            f=createTemporaryObject(factory,surface,{storeLocation:url})
+            tryCompare(f.host,"transitionPhase","idle")
+            compare(JSON.stringify(f.host.pairs),JSON.stringify(pairs))
+            verify(f.host.saveQuickPad(pad,"left"))
+            f.destroy(); f=null; wait(20)
+            f=createTemporaryObject(factory,surface,{storeLocation:url})
+            tryCompare(f.host,"transitionPhase","idle")
+            compare(JSON.stringify(f.host.pairs),JSON.stringify(pairs))
+            compare(f.host.quickPadId,pad)
         }
         function test_no_geometry_change_before_native_park_or_during_stroke() {
             verify(f.host.saveQuickPad(pad,"right"))
@@ -48,9 +67,9 @@ Item {
             verify(f.host.pick(pad)); settle()
             var before=JSON.stringify(f.host.pairs)
             verify(f.host.saveQuickPad(pad,"left")); verify(f.host.toggleQuickPad()); settle()
-            compare(f.host.quickPadCorner,"left"); compare(f.host.quickPadX,144*f.host.unit)
+            compare(f.host.quickPadCorner,"left"); compare(f.host.quickPadX,0)
             f.host.checkpoint(); compare(JSON.stringify(f.host.pairs),before)
-            verify(!f.host.selectPane(false))
+            verify(f.host.selectPane(false)); settle()
             verify(f.host.toggleQuickPad()); settle(); verify(f.host.paired)
             verify(!f.host.quickPadActive); compare(JSON.stringify(f.host.pairs),before)
         }
@@ -70,15 +89,17 @@ Item {
             tryCompare(f.host,"transitionPhase","idle")
             compare(f.host.quickPadId,pad); verify(!f.host.paired); verify(!f.host.quickPadActive)
         }
-        function test_corner_bounds_and_real_close_button() {
+        function test_native_corner_bounds_and_toolbar_toggle() {
             openPad()
             var sheet=findChild(f.host,"quickPadSheet")
-            verify(sheet); compare(sheet.scale,.5)
-            verify(sheet.x >= 144*f.host.unit)
-            verify(sheet.x + sheet.width*sheet.scale <= f.host.width-144*f.host.unit+.01)
-            verify(sheet.y > 0); verify(sheet.y+sheet.height*sheet.scale < f.host.height)
-            var button=findChild(f.host,"quickPadClose")
-            verify(button); mouseClick(button,button.width/2,button.height/2)
+            verify(sheet); compare(sheet.scale,1)
+            fuzzyCompare(sheet.x,f.host.width/3,.001)
+            compare(sheet.x + sheet.width,f.host.width)
+            fuzzyCompare(sheet.y,f.host.height*2/3,.001); compare(sheet.y+sheet.height,f.host.height)
+            compare(f.host.mainInputHeight,f.host.height)
+            compare(f.host.secondaryInputHeight,sheet.height-f.host.barHeight)
+            verify(!findChild(f.host,"quickPadClose"))
+            verify(f.host.toggleQuickPad())
             settle(); verify(!f.host.quickPadActive)
         }
         function test_unavailable_and_self_notebooks_do_not_create_views() {
@@ -88,6 +109,61 @@ Item {
             f.host.dismissChooser(); settle()
             verify(f.host.saveQuickPad(f.primary.document.id,"right"))
             verify(!f.host.toggleQuickPad()); compare(f.bridge.padOpenCount,0)
+        }
+        function test_presets_cancel_apply_and_reload() {
+            openPad()
+            for(var size of ["compact","roomy","wide"]) {
+                verify(f.host.configureQuickPad()); tryCompare(f.host,"transitionPhase","choosing")
+                verify(f.host.setQuickPadSize(size)); verify(f.host.setQuickPadCorner("left"))
+                var old=f.host.quickPadSize; f.host.dismissChooser(); settle(); compare(f.host.quickPadSize,old)
+                verify(f.host.configureQuickPad()); tryCompare(f.host,"transitionPhase","choosing")
+                verify(f.host.setQuickPadSize(size)); verify(f.host.setQuickPadCorner("left"))
+                var apply=findChild(f.host,"quickPadApplySettings"); verify(apply.visible)
+                mouseClick(apply,apply.width/2,apply.height/2); settle()
+                compare(f.host.quickPadSize,size); compare(f.host.quickPadX,0)
+                fuzzyCompare(f.host.quickPadHeight,f.host.height*(size === "roomy" ? .5 : 1/3),.001)
+                f.host.loadQuickPad(); compare(f.host.quickPadSize,size)
+            }
+        }
+        function test_toggles_keep_compositor_and_skip_forced_whole_page_refresh() {
+            var before=f.bridge.refreshCount
+            openPad(); verify(f.host.quickPadCompositing)
+            verify(f.host.toggleQuickPad()); settle(); verify(f.host.quickPadCompositing)
+            verify(f.host.toggleQuickPad()); settle(); verify(f.host.quickPadCompositing)
+            compare(f.bridge.refreshCount,before)
+            verify(f.host.nativeOperation(f.primary,function(){f.primary.document={id:"44444444-4444-4444-8444-444444444444"}}))
+            settle(); verify(!f.host.quickPadCompositing)
+        }
+        function test_warm_tuck_preserves_view_geometry_and_pairings() {
+            openPad(); var view=f.host.secondary; var sheet=findChild(f.host,"quickPadSheet")
+            var width=sheet.width, height=sheet.height, x=sheet.x, y=sheet.y
+            var before=JSON.stringify(f.host.pairs), closed=f.bridge.closeCount
+            verify(f.host.toggleQuickPad()); settle()
+            verify(f.host.quickPadCached); verify(!f.host.quickPadActive); verify(!f.host.paired)
+            compare(f.host.secondary,view); verify(!sheet.visible)
+            compare(sheet.width,width); compare(sheet.height,height); compare(sheet.x,x); compare(sheet.y,y)
+            f.host.checkpoint(); compare(JSON.stringify(f.host.pairs),before)
+            verify(f.host.toggleQuickPad()); settle()
+            compare(f.host.secondary,view); compare(f.bridge.closeCount,closed)
+            verify(!f.host.quickPadCached); verify(f.host.quickPadActive)
+        }
+        function test_cached_pad_is_retired_on_source_change_or_sleep() {
+            openPad(); verify(f.host.toggleQuickPad()); settle()
+            verify(f.host.nativeOperation(f.primary,function(){f.primary.document={id:"44444444-4444-4444-8444-444444444444"}})); settle()
+            verify(!f.host.secondary); verify(!f.host.quickPadCached)
+            verify(f.host.toggleQuickPad()); settle(); verify(f.host.toggleQuickPad()); settle()
+            f.bridge.available=false; tryCompare(f.host,"transitionPhase","suspended",4000)
+            verify(!f.host.secondary); verify(!f.host.quickPadCached)
+        }
+        function test_changed_last_page_reloads_and_layout_choices_do_not_resize_cached_pad() {
+            openPad(); verify(f.host.toggleQuickPad()); settle()
+            f.bridge.padCurrent=false; verify(f.host.toggleQuickPad()); settle()
+            compare(f.bridge.padOpenCount,2)
+            verify(f.host.toggleQuickPad()); settle()
+            verify(f.host.applyLayoutChoice(.25)); tryCompare(f.host,"transitionPhase","choosing",4000)
+            verify(!f.host.quickPadCached); verify(!f.host.quickPadChoosing)
+            verify(f.host.pick(pad)); settle(); verify(!f.host.quickPadActive)
+            compare(f.host.revealHeight,f.host.height*.25)
         }
         function test_sharing_blocks_open_and_failed_fit_never_publishes() {
             verify(f.host.saveQuickPad(pad,"right")); f.bridge.sharingActive=true
@@ -104,8 +180,7 @@ Item {
         }
         function test_settings_button_and_availability_loss() {
             openPad()
-            var button=findChild(f.host,"quickPadSettings")
-            verify(button); mouseClick(button,button.width/2,button.height/2)
+            verify(f.host.configureQuickPad())
             tryCompare(f.host,"transitionPhase","choosing"); verify(f.host.quickPadChoosing)
             f.host.dismissChooser(); settle()
             f.bridge.available=false

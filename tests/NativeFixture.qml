@@ -88,6 +88,7 @@ Item {
         property bool failGeometry: false
         property bool failFit: false
         property bool padEligible: true
+        property bool padCurrent: true
         property int fitCount: 0
         property int padOpenCount: 0
         property int lastPageOpened: -1
@@ -107,6 +108,7 @@ Item {
         property var favorites: documents
         function canOpen(id) { return id === documents[0].id }
         function canOpenPad(id) { return padEligible && canOpen(id) }
+        function padViewIsCurrent(view, id) { return padCurrent && view.document && view.document.id === id }
         function openPadView(view, id) { padOpenCount++; lastPageOpened=6; view.document={id:id, visibleName:"Quick notes"} }
         function refreshDocuments() {}
         function createView(parent, host) {
@@ -116,7 +118,8 @@ Item {
         function openView(view, id, pageId) { view.document = {id:id, visibleName:"Test notes"} }
         function viewReady(view) { return ready }
         function beginAnimation() {}
-        function endAnimation() {}
+        property int refreshCount: 0
+        function endAnimation() { refreshCount++ }
         function probeCreate() {
             probeCreateCount++; probeOriginal = primaryView.document
             primaryView.document = {id:"55555555-5555-4555-8555-555555555555"}

@@ -3,6 +3,27 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Quick Pad (2026-09-24, offline candidate)
+- Same repository/application; a distinct toolbar button with a pad/task icon.
+- A device-wide configurable notebook, separate from per-document companion pairs.
+- First tap opens Recent/Favorites notebook selection; later taps toggle the pad.
+- Bottom-right by default, configurable bottom-left. Roughly half width and half
+  height (quarter of the screen), inset to keep either toolbar side unobstructed.
+- Open the notebook's current last page every time and fit its full bounds before
+  publishing pen input; preserve native handwriting and shared writing tools.
+- Small header with settings and close; no resizing/dragging in this first version.
+- Reuse one secondary native view slot. Temporarily replace an open bottom split;
+  close restores it and never overwrites ordinary pairing metadata.
+- Prepare offline only: user explicitly says the tablet is unavailable. No device
+  discovery, SSH, runtime changes, firmware writes or Move work in this session.
+- Conservative initial candidate: native source handwriting is paused while the
+  pad is visible, avoiding an unverified L-shaped overlapping pen region. Source
+  navigation remains available; this is not a general document-edit lock. The
+  header says "pen here". Both-pane writing for this geometry is deferred until
+  separate native routing proof; ordinary bottom-split behavior is unchanged.
+- Native scaled-ink, pen-boundary and scrolling acceptance remain hardware checks,
+  not outcomes implied by local Qt/Node mocks or QML composition.
+
 * Accepted requirements (2026-09-21)
 - Portrait-first bottom pull-out writable margin overlays the main document.
 - Main viewport and page scale do not shrink as the margin is pulled.
@@ -27,6 +48,8 @@ Read and write without losing context or compromising native handwriting.
 - Pro only initially; no changes to Move or shared servers.
 
 * Requirements changed
+- Add a global corner-pad mode alongside the existing per-document bottom split.
+  The two modes are mutually exclusive, not three simultaneously writable views.
 - Icon-only refinement: retain the full-size native notebook; overlap a baby
   instance of the same notebook at its corner, replacing the square/minus badge.
   Add clearly labeled public UI mockups to the README and Reddit announcement.
@@ -100,6 +123,13 @@ Read and write without losing context or compromising native handwriting.
 - No claim of native support or inclusion in reinstalls before these gates pass.
 
 * Next steps
+0. Quick Pad offline implementation, tests and package are complete:
+   20260924T120500Z-1, 18 focused Node tests, 12 Qt Quick Pad checks, menu/picker
+   regressions and 33 QML resources parsed in each of three dependency-respecting
+   orders. Normal pilot output is byte-identical to installed234000; opt in with
+   CN_QUICK_PAD=1. No tablet contact or deployment. Next device work
+   must start with current identity/firmware/base/backup checks and a bounded
+   scaled-input check, not an automatic rollout or a new firmware adaptation.
 0.234000 installed with big/baby native notebook icon; UI185793 host-ready.
    Public README mockups committed/pushed. No picker, layout, input, pairing or
    Move behavior changes. Reddit image/caption approval remains pending.

@@ -8,6 +8,8 @@ assert(/^\d{8}T\d{6}Z-\d+$/.test(id||''));
 const previous=process.argv[3];
 assert(!previous || (/^\d{8}T\d{6}Z-\d+$/.test(previous) && previous !== id));
 const prior='build/probe-20260923T052500Z-1',out='build/pilot-'+id;
+const quickPad = process.env.CN_QUICK_PAD === '1';
+const generated = quickPad ? 'build/quick-pad-native' : 'build/pilot-native';
 assert(!fs.existsSync(out), 'Do not overwrite an existing pilot package');
 const hash=b=>createHash('sha256').update(b).digest('hex');
 execFileSync(process.execPath,['build-native.mjs'],{env:{...process.env,CN_USER_PILOT:'1'},stdio:'inherit'});
@@ -96,7 +98,7 @@ assert(!/ink-events|pen-injection-started|probeCreate|Companion ink: gate open/.
 execFileSync('/bin/bash',['-n'],{input:source});
 const bytes={'probe.sh':Buffer.from(source)};
 for(const name of ['NativeHost.qml','PairStore.js','SizeRuler.qml','companion-notebook.qmd'])
-    bytes[name]=fs.readFileSync('build/pilot-native/'+name);
+    bytes[name]=fs.readFileSync(generated+'/'+name);
 for(const name of ['libcompanionbootstrap.so','libcompanionadmissionplugin.so','admission-qmldir']) {
     bytes[name]=fs.readFileSync(prior+'/'+name);
     const expected=fs.readFileSync(prior+'/SHA256SUMS','utf8').split('\n').find(x=>x.endsWith('  '+name)).split(' ')[0];
@@ -107,4 +109,4 @@ fs.mkdirSync(out,{mode:0o700});
 for(const [name,data] of Object.entries(bytes))fs.writeFileSync(out+'/'+name,data,{mode:name==='probe.sh'?0o700:0o600,flag:'wx'});
 const manifest=Object.keys(bytes).sort().map(name=>hash(bytes[name])+'  '+name+'\n').join('');
 fs.writeFileSync(out+'/SHA256SUMS',manifest,{mode:0o600,flag:'wx'});
-console.log(JSON.stringify({id,stage:out,manifestSha256:hash(manifest),controllerSha256:hash(source),userPilot:true,releaseQualified:false}));
+console.log(JSON.stringify({id,stage:out,manifestSha256:hash(manifest),controllerSha256:hash(source),userPilot:true,quickPad,releaseQualified:false}));

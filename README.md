@@ -17,6 +17,10 @@ native notebook artwork at two sizes.*
 
 ## What it does
 
+**In development:** [Quick Pad](docs/quick-pad.md), a configurable last-page
+notebook in a compact corner pane. Prepared offline; not yet tested or installed
+on a tablet. The existing pilot below remains the installed feature set.
+
 - Write directly in either pane without a tap-to-select step.
 - Choose a small, medium or half-height companion; medium is the default.
 - Switch the companion to the main view and invert the two documents' roles.

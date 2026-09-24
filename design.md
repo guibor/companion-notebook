@@ -1,5 +1,62 @@
 # Architecture and implementation status
 
+## Quick Pad — offline candidate (2026-09-24)
+
+Quick Pad is an opt-in `CN_USER_PILOT=1 CN_QUICK_PAD=1` build in
+`build/quick-pad-native`. The ordinary deployed pilot path is unchanged.
+`ops/quick-pad-build.mjs` adds exact-anchor QMD/host deltas only for this profile:
+the task-pad toolbar icon, settings entry, global button signals, notebook-only
+bridge methods and a scaled corner sheet. No native library changes are needed.
+
+`native/quick-pad.qml.inc` owns the UI state and principal functions:
+
+- `loadQuickPad`/`saveQuickPad`: validated version1 document ID and left/right
+  preference in `quickPadJson` in the existing pairs.ini settings file. Pair JSON
+  stays independent; malformed settings are not overwritten.
+- `toggleQuickPad`/`openQuickPadParked`: capture the prior split, close its native
+  view under the existing worker park, and open the configured notebook's last
+  page in the same secondary slot. Settings reject self, PDF, missing/locked,
+  empty and nonportrait documents via the existing eligibility checks.
+- `configureQuickPad`/`pickQuickPad`: reuse the Recent/Favorites popup with a
+  draft corner selection. Cancel changes neither the live corner nor settings.
+  Choosing a notebook applies the draft and opens it; settings may be changed
+  from the three-dot menu or the pad header.
+- `fitQuickPadIfNeeded`: after native loading and before input publication, call
+  the fit adapter once and wait another ready turn for tiles. Every explicit
+  reopen uses the current last page, not an old per-pair page ID.
+- `closeQuickPad`/`restoreAfterQuickPad`: close/save through native controllers,
+  restore original pairing metadata, and reopen the prior bottom split if it was
+  visible. Native document navigation closes the pad without reopening the old
+  split over a different source. Quick Pad checkpoints never enter PairStore.
+
+`native/quick-pad-fit.qml.inc::cnFitQuickPad` validates finite page bounds and an
+owned detached state, then calls native `setFocalPoint` with whole-page fit and
+4 percent padding. The full-size native secondary view is visually scaled0.5
+around its top-left corner. Its existing input transform includes item-to-screen
+mapping; whether this scaled path actually preserves ink alignment is a remaining
+hardware gate, not established by desktop testing.
+
+The corner stays144 device-scaled units clear of both toolbar sides. Height and
+width are halved with a bottom inset. Native worker ownership precedes all mode,
+geometry, notebook or transform changes. Source pen eligibility and its surface
+and blocker heights are zero while the pad is active; source navigation retains
+the full viewport. This deliberately avoids overlapping native pen regions.
+It is a handwriting restriction, not a general content-edit lock. Close restores
+normal handwriting. Existing bottom split remains directly writable in both
+panes. Size controls are visibly disabled while Quick Pad owns the secondary slot.
+
+`tests/tst_quickpad.qml` exercises the real generated host with a desktop-only
+mock bridge/admission gate. `tests/quick-pad-logic.test.cjs` checks settings,
+last-page bridge calls and native-fit math. `tests/quick-pad-composition.mjs`
+parses full plugin composition in three dependency-respecting orders; BetterTOC
+must precede the existing toolbar insertion. None of these tests access a device.
+`ops/build-pilot.mjs` can package this profile with the same nine payload files,
+native library hashes, retained settings and independent recovery controller.
+
+No hardware connection, activation, private document read, or public announcement
+of Quick Pad is part of the offline preparation. See [Quick Pad](docs/quick-pad.md)
+for the operator handover and remaining device checks.
+
 ## Native icon and favorites
 
 The toolbar now uses reMarkable's own qrc:/ark/icons/notebook through its native

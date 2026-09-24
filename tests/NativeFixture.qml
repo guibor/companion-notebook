@@ -23,6 +23,7 @@ Item {
         id: primaryView
         anchors.fill: parent
         property var document: ({id: "11111111-1111-4111-8111-111111111111"})
+        property string currentPageId: "66666666-6666-4666-8666-666666666666"
         property bool cnGestureBusy: false
         property var sceneController: ({})
         property var penHandler: ({})
@@ -34,6 +35,8 @@ Item {
         readonly property var cnProbeViewport: primaryView
         readonly property var cnProbeScene: primaryView
         function cnCloseFoldout() {}
+        function cnToolState() { return ({}) }
+        function cnNormalizeTools() {}
         function cnProbePreparePen() { return true }
         function cnProbeExpectedBounds(i) { return Qt.rect(10,20,300,50) }
         function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
@@ -61,6 +64,8 @@ Item {
             readonly property var cnProbeScene: secondaryView
             property bool closed: false
             function cnCloseFoldout() {}
+            function cnApplyToolState(state) {}
+            function cnFitQuickPad() { mockBridge.fitCount++; return cnHost.transitionOwnsPark() && cnHost.inputGeometryPending && !mockBridge.failFit }
             function cnProbePreparePen() { return true }
             function cnProbeExpectedBounds(i) { return Qt.rect(10,20,300,50) }
             function cnUpdateInputGeometry() { mockBridge.geometryCount++; return !mockBridge.failGeometry }
@@ -81,6 +86,11 @@ Item {
         property bool sharingActive: false
         property bool failCreate: false
         property bool failGeometry: false
+        property bool failFit: false
+        property bool padEligible: true
+        property int fitCount: 0
+        property int padOpenCount: 0
+        property int lastPageOpened: -1
         property bool geometryLoading: false
         property int geometryCount: 0
         property bool ready: true
@@ -94,7 +104,10 @@ Item {
         property int probeRestoreCount: 0
         property var probeOriginal: null
         property var documents: [{id: "22222222-2222-4222-8222-222222222222", title: "Test notes"}]
+        property var favorites: documents
         function canOpen(id) { return id === documents[0].id }
+        function canOpenPad(id) { return padEligible && canOpen(id) }
+        function openPadView(view, id) { padOpenCount++; lastPageOpened=6; view.document={id:id, visibleName:"Quick notes"} }
         function refreshDocuments() {}
         function createView(parent, host) {
             if (failCreate) throw new Error("injected load failure")

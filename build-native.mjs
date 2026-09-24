@@ -3,6 +3,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {quickPadHost, quickPadQmd} from './ops/quick-pad-build.mjs';
 const firmware = process.env.RM_FIRMWARE || '/Users/mdf/code/remarkable-beta-os/.cache/firmware/3.29.0.148';
 const tool = process.env.QMLDIFF_BIN || '/Users/mdf/code/remarkable-beta-os/.cache/tools/qmldiff-25681c3-bin';
 const renderProbe = process.env.CN_PROBE === 'render';
@@ -14,6 +15,8 @@ const visualProbe = process.env.CN_PROBE === 'visual';
 const lifecycleProbe = process.env.CN_PROBE === 'lifecycle';
 const sleepProbe = process.env.CN_PROBE === 'sleep';
 const userPilot = process.env.CN_USER_PILOT === '1';
+const quickPad = process.env.CN_QUICK_PAD === '1';
+assert(!quickPad || userPilot, 'Quick Pad is an explicit experimental pilot candidate');
 const ordinaryProbe = process.env.CN_ORDINARY_PROBE === '1' || lifecycleProbe || sleepProbe;
 const inkProbe = process.env.CN_PROBE === 'ink' || retirementProbe || admissionProbe;
 const noCaptureProbe = structuralProbe || geometryProbe || inkProbe || visualProbe;
@@ -24,7 +27,7 @@ const paneNavigation = !diagnostic || geometryProbe || inkProbe;
 assert(!process.env.CN_PROBE || diagnostic || lifecycleProbe || sleepProbe, 'Unknown probe profile');
 assert(!ordinaryProbe || !diagnostic, 'Ordinary lifecycle probe is separate from historical profiles');
 assert(!userPilot || (!process.env.CN_PROBE && !ordinaryProbe), 'User pilot never includes a diagnostic driver');
-const output = userPilot ? 'build/pilot-native' : sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
+const output = quickPad ? 'build/quick-pad-native' : userPilot ? 'build/pilot-native' : sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
@@ -713,6 +716,7 @@ END AFFECT
 }
 fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
+if (quickPad) q = quickPadQmd(q, {affect, insert});
 fs.writeFileSync(output+'/companion-notebook.qmd',q);
 // Keep consumed diagnostic receipts reproducible while the product UI evolves.
 if (diagnostic) exact('native/DiagnosticHost.qml','7b76db63188dfc4065cf88301fb0591e0b2213e4483285061c9b08e9f10621e7');
@@ -824,6 +828,7 @@ if (noCaptureProbe || ordinaryProbe) {
     for (const content of [q, host])
         assert(!/grabToImage|grabWindow|probeCapture|saveToFile|ShaderEffect|layer\s*\./.test(content), 'Forbidden offscreen capture in structural profile');
 }
+if (quickPad) host = quickPadHost(host);
 fs.writeFileSync(output+'/NativeHost.qml',host);
 fs.copyFileSync('src/PairStore.js',output+'/PairStore.js');
 if (!diagnostic) {

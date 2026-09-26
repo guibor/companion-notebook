@@ -19,6 +19,9 @@ Read and write without losing context or compromising native handwriting.
   previous working combined build, preserving latest settings and highlighter.
 - Obtain user confirmation of restored normal operation before another tablet
   experiment. Local fix/test covers the actual document bridge, not only mocks.
+- User confirmed normal operation after rollback and authorized installing the
+  corrected guard. Preserve existing highlighter and settings; hand back for
+  manual feedback, without automated tablet interaction tests.
 
 * Publication (2026-09-25)
 - Publish current Quick Pad refinements on the existing Pro branch and document

@@ -38,3 +38,13 @@ bad artifact and passes after the correction (29 focused Node tests and three
 composition orders pass). The earlier Qt fixture bypassed this wrapper, so its
 passing result was insufficient. No corrected deployment until user-confirmed
 recovery; do not present startup success as interaction acceptance.
+
+## Corrected installation after confirmed recovery
+
+The user confirmed restored normal operation and authorized reinstalling the
+corrected feature. The combined package retains the highlighter/native libraries
+unchanged and seeds the latest working settings. The only feature-code delta
+from the failed build is the fitting-wrapper guard correction. Both combined
+composition orders pass; guarded startup reached host-ready, all services stayed
+active with zero restarts, and settings matched before/after. No automated tablet
+interaction tests were run. Corner interaction acceptance remains user feedback.

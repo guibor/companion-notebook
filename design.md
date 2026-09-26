@@ -12,6 +12,13 @@ regression executes the actual composed DocumentView wrapper across both modes;
 it fails against the installed failing artifact. No corrected corner deployment
 until the user confirms normal operation after restoring the prior combined build.
 
+The user subsequently confirmed normal recovery and requested installation.
+The corrected combined package changes only the fit-wrapper guard relative to
+the failed feature build (plus the settings-seed pointer in its controller).
+Highlighter/native library bytes remain unchanged. The regression exercises the
+composed wrapper across both corner modes and all park/input-gate combinations.
+No automatic tablet interaction is used to substitute for user acceptance.
+
 `native/corner-companion.qml.inc` adds `chooseCompanionCorner` and derived corner
 geometry state to the opt-in Quick Pad host. The layout menu adds a sixth corner
 pictogram (internal choice 2, not a size ratio). Unpaired selection opens the

@@ -17,10 +17,10 @@ remembered per source document; any lower-split picture returns to full width.
 
 The native zoom multiplier is hidden inside either kind of corner pane; normal
 document/split feedback and pinch zoom remain unchanged. This revision has passed
-offline checks, but user testing revealed a corner-transition failure. That
-revision is withdrawn from the tablet in favor of the previous working combined
-build. The source fix awaits a future installation after confirmed recovery;
-the old build still has the original zoom badge.
+offline checks. An initial corner-transition failure was rolled back; following
+user-confirmed recovery, the corrected fitting-wrapper guard is installed in the
+personal pilot. Both corner modes retain native input safety gates. Hands-on
+acceptance of the corrected corner transition is still pending.
 
 ## Intended interaction
 

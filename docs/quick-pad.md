@@ -17,8 +17,10 @@ remembered per source document; any lower-split picture returns to full width.
 
 The native zoom multiplier is hidden inside either kind of corner pane; normal
 document/split feedback and pinch zoom remain unchanged. This revision has passed
-offline checks and is installed in the personal Pro pilot. Startup is verified;
-the new corner layout and badge behavior still await hands-on feedback.
+offline checks, but user testing revealed a corner-transition failure. That
+revision is withdrawn from the tablet in favor of the previous working combined
+build. The source fix awaits a future installation after confirmed recovery;
+the old build still has the original zoom badge.
 
 ## Intended interaction
 

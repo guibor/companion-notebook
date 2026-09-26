@@ -67,12 +67,15 @@ It is an independent project, not affiliated with reMarkable.
    There is no separate menu off switch;
    the independent recovery controller remains available to the operator.
 
-**New in the personal pilot (installed; hands-on feedback pending):** the corner-shaped
+**Temporarily withdrawn from the tablet after a failed transition:** the corner-shaped
 layout picture places your regular companion in a Quick Pad-sized corner,
 using the same configured size and position. It keeps the paired document and
 page—not your global ToDo pad—and remembers the layout for this pair. Choose
 any lower-split picture to return to a full-width companion. The corner view
 also hides the persistent zoom multiplier without disabling zoom gestures.
+The failed revision has a fix in source, but it will not be reinstalled until
+normal operation is confirmed after rollback. Ordinary split and Quick Pad remain
+the working baseline; the rollback also restores the prior zoom-badge behavior.
 
 ### Quick Pad
 

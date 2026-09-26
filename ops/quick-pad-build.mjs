@@ -173,7 +173,7 @@ END TRAVERSE
 `);
     q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',insert(`
 function cnFitQuickPad() {
-    if (!cnSecondary || !cnHost || !cnHost.quickPadActive || !cnHost.transitionOwnsPark() || !cnHost.inputGeometryPending) return false
+    if (!cnSecondary || !cnHost || !cnHost.cornerPaneActive || !cnHost.transitionOwnsPark() || !cnHost.inputGeometryPending) return false
     return sceneView.cnFitQuickPad()
 }`)+`
 TRAVERSE DeviceSceneView#sceneView

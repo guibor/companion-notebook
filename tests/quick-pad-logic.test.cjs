@@ -3,6 +3,19 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const Store=require('../src/PairStore.js');
+test('actual document fit bridge accepts both corner modes, never bypassing the parked input gate',()=>{
+    const source=fs.readFileSync('build/quick-pad-composed-last/qml/device/view/documentview/DocumentView.qml','utf8');
+    const start=source.indexOf('function cnFitQuickPad(');
+    let end=source.indexOf('{',start)+1,depth=1;
+    while(depth){if(source[end]==='{')depth++;if(source[end]==='}')depth--;end++;}
+    for(const pad of [false,true])for(const corner of [false,true])for(const secondary of [false,true])for(const parked of [false,true])for(const detached of [false,true]) {
+        let calls=0;
+        const s={cnSecondary:secondary,cnHost:{quickPadActive:pad,cornerPaneActive:pad||corner,transitionOwnsPark:()=>parked,inputGeometryPending:detached},sceneView:{cnFitQuickPad:()=>{calls++;return true;}}};
+        vm.createContext(s);vm.runInContext(source.slice(start,end),s);
+        const allowed=secondary&&(pad||corner)&&parked&&detached;
+        assert.equal(s.cnFitQuickPad(),allowed);assert.equal(calls,Number(allowed));
+    }
+});
 test('pair metadata preserves optional corner layout without changing legacy records',()=>{
     const a='11111111-1111-4111-8111-111111111111', b='22222222-2222-4222-8222-222222222222';
     const base=Store.set(Store.empty(),a,b,.375,'');

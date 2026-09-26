@@ -15,9 +15,10 @@ Read and write without losing context or compromising native handwriting.
 - Companion is no longer restricted to full-width lower splits. Quick Pad still
   selects one device-wide notebook independently; the two modes share one view.
 ** Next steps
-- Combined-runtime update installed with the existing highlighter extension
-  unchanged and pairing/Quick Pad settings retained. Startup checks pass;
-  hardware zoom-badge and corner behavior remain user acceptance.
+- Corner transition failed in user use despite healthy startup. Restore the
+  previous working combined build, preserving latest settings and highlighter.
+- Obtain user confirmation of restored normal operation before another tablet
+  experiment. Local fix/test covers the actual document bridge, not only mocks.
 
 * Publication (2026-09-25)
 - Publish current Quick Pad refinements on the existing Pro branch and document

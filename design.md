@@ -2,6 +2,16 @@
 
 ## Shared corner layout (2026-09-26)
 
+Failure and rollback: selecting corner from a working split hit the DocumentView
+`cnFitQuickPad` wrapper's leftover `quickPadActive` guard. The shared host requested
+fit correctly, but this wrapper rejected non-Quick-Pad corners and triggered the
+normal native-failure recovery. The desktop fixture mocked the wrapper, so its
+lifecycle tests missed this integration mismatch. Source now gates on
+`cornerPaneActive` while retaining secondary/park/detached-input checks. A new
+regression executes the actual composed DocumentView wrapper across both modes;
+it fails against the installed failing artifact. No corrected corner deployment
+until the user confirms normal operation after restoring the prior combined build.
+
 `native/corner-companion.qml.inc` adds `chooseCompanionCorner` and derived corner
 geometry state to the opt-in Quick Pad host. The layout menu adds a sixth corner
 pictogram (internal choice 2, not a size ratio). Unpaired selection opens the

@@ -23,3 +23,18 @@ Both combined composition orders passed. Startup reached host-ready with zero
 restarts; settings matched before/after and the system partition stayed read-only.
 Physical behavior awaits user feedback. Device-specific receipts and operational
 handoff details are retained privately rather than included in this public log.
+
+## User-reported failure and withdrawal
+
+Switching a working lower split to corner failed with `Quick Pad page fit refused`.
+The DocumentView fit wrapper still required `quickPadActive` rather than the
+shared `cornerPaneActive` state. The guard recovered to the base runtime; the
+new feature was withdrawn and a restoration of the previous combined build was
+initiated with latest retained settings, not the older pre-update snapshot.
+
+The corrected source keeps every native park/detached-input/secondary gate. A
+new regression executes the actual composed wrapper: it fails on the deployed
+bad artifact and passes after the correction (29 focused Node tests and three
+composition orders pass). The earlier Qt fixture bypassed this wrapper, so its
+passing result was insufficient. No corrected deployment until user-confirmed
+recovery; do not present startup success as interaction acceptance.

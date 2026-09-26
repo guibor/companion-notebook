@@ -11,8 +11,10 @@ Read and write without losing context or compromising native handwriting.
 - Prepare a concise r/RemarkableTablet update with demo links, Self-Promotion
   flair and no generic feedback-seeking closing. Preview before submission.
 ** Next steps
-- Review final clips, publish media/documentation on the current branch, and
-  obtain approval of the actual Reddit text before submitting it.
+- Three reviewed GIFs and MP4 alternatives are published in the README on the
+  current branch. Library browsing and sharing/address banner are excluded.
+- Reddit text has been previewed for explicit approval; submit only after that
+  approval. No Reddit post has been created for this update yet.
 
 * Normal operation while screen sharing (2026-09-27)
 - User explicitly wants Companion and Quick Pad to operate normally during

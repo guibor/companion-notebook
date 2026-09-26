@@ -116,11 +116,12 @@ The pad must be a different, available portrait notebook, not a PDF or the sourc
 itself. Opening is refused during screen sharing. It does not create notebooks
 or pages automatically. See [Quick Pad details and developer notes](docs/quick-pad.md).
 
-**Current feedback:** corner handwriting, sizing, scrolling and toolbar stability
-have been accepted in personal use. Refresh work has reduced redundant rendering,
-but a final extra flash was still reported. The latest adjustment avoids repeating
-an already-correct width fit; its visible effect awaits user feedback. This is
-not a flash-free or fully qualified release.
+**Current feedback:** corner handwriting, sizing and scrolling work in personal
+use. Remaining flashes and intermittent toolbar-button disappearance were reported
+after the corner-layout addition. The latest adjustment preserves warm corner
+fits, avoids a redundant chooser-to-corner refresh, and publishes toolbar capacity
+only from the settled primary view. Its visible effect awaits user feedback.
+This is not a flash-free or fully qualified release.
 
 ### Safety and release boundaries
 

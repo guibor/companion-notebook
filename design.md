@@ -23,6 +23,12 @@ Corner transition completion also skips the old whole-page refresh when entered
 from an already-parked chooser. Native page loads/stroke cleanup retain their
 normal refresh policy; fewer requests do not prove flash-free hardware behavior.
 
+Installed on the current Pro pilot after 30 logic tests, 24 Qt interaction checks,
+menu checks and both combined highlighter composition orders. Startup reported
+native ink/settings ready, no UI restarts, Dates active and the unchanged
+highlighter loaded. Pairing/pad settings matched the preinstallation backup.
+No automatic tablet input or notebook-content edits were performed.
+
 ## Shared corner layout (2026-09-26)
 
 Failure and rollback: selecting corner from a working split hit the DocumentView

@@ -17,3 +17,8 @@ toolbar ownership/visibility/transition races. Device installation uses the
 existing bounded runtime guard, retaining the installed highlighter unchanged.
 Private backup identities and deployment receipts remain outside public docs.
 Physical flash reduction and toolbar stability remain hands-on feedback.
+
+Installed directly as requested. Startup, active recovery supervision, preserved
+settings, Dates and unchanged highlighter loading were verified. Thirty logic
+tests, twenty-four Qt interaction checks and three menu checks pass; each of
+three base and two combined composition orders validates 33 QML resources.

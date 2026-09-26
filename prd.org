@@ -15,7 +15,7 @@ Read and write without losing context or compromising native handwriting.
 - An unchanged warm corner preserves its current zoom instead of fitting again;
   new views and actual corner-size changes still fit to width before native input.
 ** Next steps
-- Install directly as requested, preserving current settings and highlighter.
+- Installed directly on Pro with unchanged settings/highlighter; startup healthy.
 - User feedback determines remaining physical flashing/toolbar behavior; no
   automated pen tests or global e-ink refresh-policy changes.
 

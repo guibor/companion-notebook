@@ -67,7 +67,7 @@ It is an independent project, not affiliated with reMarkable.
    There is no separate menu off switch;
    the independent recovery controller remains available to the operator.
 
-**New in source (not yet installed/verified on-device):** the corner-shaped
+**New in the personal pilot (installed; hands-on feedback pending):** the corner-shaped
 layout picture places your regular companion in a Quick Pad-sized corner,
 using the same configured size and position. It keeps the paired document and
 page—not your global ToDo pad—and remembers the layout for this pair. Choose

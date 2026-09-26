@@ -15,9 +15,9 @@ Read and write without losing context or compromising native handwriting.
 - Companion is no longer restricted to full-width lower splits. Quick Pad still
   selects one device-wide notebook independently; the two modes share one view.
 ** Next steps
-- Offline corner/split/Quick Pad lifecycle and composition checks pass. Obtain
-  the authorized combined-runtime handoff before installation to preserve the
-  highlighter extension; hardware behavior remains user acceptance.
+- Combined-runtime update installed with the existing highlighter extension
+  unchanged and pairing/Quick Pad settings retained. Startup checks pass;
+  hardware zoom-badge and corner behavior remain user acceptance.
 
 * Publication (2026-09-25)
 - Publish current Quick Pad refinements on the existing Pro branch and document

@@ -16,7 +16,10 @@ Offline checks: 28 Node tests; 21 Qt lifecycle checks; three Qt menu checks;
 33 QML resources in each of three dependency-respecting composition orders.
 These are not physical pen or screen acceptance evidence.
 
-No tablet files changed. The current tablet runtime also includes the separate
-highlighter extension. Installation needs a coordinated handoff to preserve it;
-do not replace it with an older Companion-only bundle. Device-specific receipts
-and operational handoff details are not included in this public log.
+The user subsequently authorized installation and the combined-runtime handoff.
+Installed with the existing highlighter payload and native libraries unchanged,
+using the existing guard, a verified private Mac backup and retained settings.
+Both combined composition orders passed. Startup reached host-ready with zero
+restarts; settings matched before/after and the system partition stayed read-only.
+Physical behavior awaits user feedback. Device-specific receipts and operational
+handoff details are retained privately rather than included in this public log.

@@ -18,6 +18,12 @@ The zoom-button visibility patch wraps the entire native expression with a
 secondary-corner guard; source and ordinary split zoom feedback is unchanged.
 No gesture handler, refresh policy, admission library or notebook file changes.
 
+Installation: the user-authorized combined pilot retains the previously installed
+highlighter payload and native libraries byte-for-byte. Only Companion UI/metadata
+files and the guard's previous-settings seed pointer change. Both composition
+orders pass; startup and preserved settings were checked on the Pro. Physical
+corner behavior remains user feedback, not inferred from startup health.
+
 ## Public documentation (2026-09-25)
 
 README presents ordinary Companion and Quick Pad as two layouts sharing one

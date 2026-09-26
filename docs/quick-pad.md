@@ -17,7 +17,8 @@ remembered per source document; any lower-split picture returns to full width.
 
 The native zoom multiplier is hidden inside either kind of corner pane; normal
 document/split feedback and pinch zoom remain unchanged. This revision has passed
-offline checks but has not yet been installed or accepted on hardware.
+offline checks and is installed in the personal Pro pilot. Startup is verified;
+the new corner layout and badge behavior still await hands-on feedback.
 
 ## Intended interaction
 

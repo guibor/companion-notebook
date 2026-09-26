@@ -1,5 +1,24 @@
 # Architecture and implementation status
 
+## Quiet corner closing and overflow identity (2026-09-26)
+
+`quickPadHost` now derives both native input heights from `cornerPaneGeometry`,
+which includes a cached pad, rather than active visibility alone. Previously,
+`closeQuickPad` set cached=true, active=false, then revealHeight=0. In between,
+the main height synchronously changed from full height to zero and back. The
+offline QML signal regression reproduces [0, fullHeight] against the old build.
+Retained geometry avoids this native viewport churn and keeps the cached pad's
+own height stable. Hidden input remains blocked by `paired=false` and the same
+native park/publication gate. No framebuffer, screen-mode or pen-library changes.
+This removes a demonstrated geometry defect; its physical flash effect needs
+user feedback rather than inference from the regression alone.
+
+`quickPadQmd` gives the overflow settings separate native glyphs. Quick Pad uses
+`formatting_checkbox` directly. Companion keeps the stock notebook icon and adds
+a baby instance within its native FoldoutItem icon slot, positioned from the
+loaded item's content origin and token icon size, not from the wide text row.
+Native icon resources are referenced, not copied into the repository.
+
 ## Consistent toggles and settled toolbar updates (2026-09-26)
 
 `toggleCompanion` in `native/corner-companion.qml.inc` tucks a visible pair,

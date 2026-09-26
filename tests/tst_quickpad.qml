@@ -34,6 +34,23 @@ Item {
             verify(f.host.toggleQuickPad()); settle()
             compare(f.bridge.padOpenCount,1); compare(f.bridge.fitCount,1)
         }
+        function test_warm_close_does_not_collapse_source_or_cached_pad_geometry() {
+            openPad()
+            var mainHeights=[], padHeights=[]
+            var recordMain=function() { mainHeights.push(f.host.mainInputHeight) }
+            var recordPad=function() { padHeights.push(f.host.secondaryInputHeight) }
+            f.host.mainInputHeightChanged.connect(recordMain)
+            f.host.secondaryInputHeightChanged.connect(recordPad)
+            var padHeight=f.host.secondaryInputHeight
+            verify(f.host.toggleQuickPad()); settle()
+            f.host.mainInputHeightChanged.disconnect(recordMain)
+            f.host.secondaryInputHeightChanged.disconnect(recordPad)
+            compare(JSON.stringify(mainHeights),"[]")
+            compare(JSON.stringify(padHeights),"[]")
+            compare(f.host.mainInputHeight,f.host.height)
+            compare(f.host.secondaryInputHeight,padHeight)
+            verify(f.host.quickPadCached); verify(!f.host.paired)
+        }
         function test_companion_toolbar_first_use_and_warm_toggle() {
             verify(f.host.toggleCompanion()); tryCompare(f.host,"transitionPhase","choosing")
             verify(!f.host.quickPadChoosing)

@@ -165,3 +165,18 @@ test('toolbar toggles Companion while overflow retains its chooser',()=>{
     const qmd=fs.readFileSync('ops/quick-pad-build.mjs','utf8');
     assert.match(qmd,/label: "Companion settings"/);
 });
+test('overflow settings distinguish Companion and Quick Pad with their native glyphs',()=>{
+    const menu=fs.readFileSync('build/quick-pad-composed-last/qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','utf8');
+    function tool(id) {
+        const start=menu.lastIndexOf('ToolbarTool {',menu.indexOf('id: '+id));
+        let end=menu.indexOf('{',start)+1,depth=1;
+        while(depth){if(menu[end]==='{')depth++;if(menu[end]==='}')depth--;end++;}
+        return menu.slice(start,end);
+    }
+    const companion=tool('cnCompanionSettingsButton'),pad=tool('cnQuickPadSettingsButton');
+    assert.match(companion,/iconSource:\s*"qrc:\/ark\/icons\/notebook"/);
+    assert.match(companion,/source:\s*"qrc:\/ark\/icons\/notebook"/);
+    assert.match(companion,/button\.tokens\.content\.icon\.idle\.sizing/);
+    assert.match(companion,/button\.contentItem\.x/);
+    assert.match(pad,/iconSource:\s*"qrc:\/ark\/icons\/formatting_checkbox"/);
+});

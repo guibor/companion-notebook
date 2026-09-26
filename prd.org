@@ -3,6 +3,18 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Quiet closing and distinct overflow icons (2026-09-26)
+- User confirms opening no longer flashes; preserve that working path.
+- Reduce the remaining closing flash without global waveform changes.
+- Companion settings uses the paired-native-notebooks glyph; Quick Pad settings
+  uses the native task-list glyph, matching their respective toolbar buttons.
+** Changed requirements
+- Replace the two identical plain-notebook settings icons with distinct glyphs.
+** Next steps
+- Keep cached corner input dimensions stable during hide; verify no transient
+  source collapse in offline signal tests, then guarded install with settings kept.
+- Hardware feedback establishes whether this removes the closing flash.
+
 * Consistent toolbar toggles and settled corner redraws (2026-09-26)
 - Companion toolbar tap opens/closes the remembered pair, matching Quick Pad.
 - First use, or an unavailable partner, opens the Recent/Favorites chooser.

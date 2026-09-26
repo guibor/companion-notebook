@@ -53,7 +53,8 @@ It is an independent project, not affiliated with reMarkable.
 2. Tap **Companion notebook** on the full toolbar, above Dates, to open or close
    the remembered companion—just like Quick Pad.
 3. On first use, choose a different local portrait notebook or PDF from **Recent**
-   or **Favorites**. To change it later, use **⋯ → Companion settings**.
+   or **Favorites**. To change it later, use **⋯ → Companion settings**
+   (the overlapping-notebooks icon).
    The list scrolls; tap × or outside the popup to cancel.
 4. Write directly in either pane. Only a hairline separates the pages. The native
    toolbar stays above both canvases, with shared writing-tool settings.
@@ -116,12 +117,12 @@ The pad must be a different, available portrait notebook, not a PDF or the sourc
 itself. Opening is refused during screen sharing. It does not create notebooks
 or pages automatically. See [Quick Pad details and developer notes](docs/quick-pad.md).
 
-**Current feedback:** corner handwriting, sizing and scrolling work in personal
-use. Remaining flashes and intermittent toolbar-button disappearance were reported
-after the corner-layout addition. The latest adjustment preserves warm corner
-fits, avoids a redundant chooser-to-corner refresh, and publishes toolbar capacity
-only from the settled primary view. Its visible effect awaits user feedback.
-This is not a flash-free or fully qualified release.
+**Current feedback:** opening now has no flash in the user's latest feedback;
+writing, sizing, scrolling and toolbar behavior are working well. A large closing
+flash remains. The latest refinement prevents a transient zero-height source
+viewport while hiding the pad; its physical effect still needs feedback. Both
+settings entries now match their toolbar icons: paired notebooks for Companion,
+task list for Quick Pad. This is not a flash-free or fully qualified release.
 
 ### Safety and release boundaries
 

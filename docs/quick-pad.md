@@ -1,8 +1,8 @@
 # Quick Pad
 
-**Experimental personal pilot on Paper Pro 3.29.0.148. Corner handwriting,
-width-fit layout and scrolling work in user feedback. Current refinements address
-remaining flashes and intermittent toolbar-button disappearance in both corners.**
+**Experimental personal pilot on Paper Pro 3.29.0.148. Latest user feedback
+confirms no opening flash and otherwise good behavior. Current refinements
+address the remaining closing flash and distinguish the two overflow icons.**
 Part of Companion Notebook, not a separate app or repo.
 
 ## Corner layout for a regular companion
@@ -21,7 +21,8 @@ user-confirmed recovery, the corrected fitting-wrapper guard is installed in the
 personal pilot. Both corner modes retain native input safety gates. Hands-on
 feedback now concerns refresh and toolbar stability rather than a failed fit.
 The Companion toolbar toggles its remembered pair. Use **⋯ → Companion settings**
-to change the paired document; first use still opens the chooser automatically.
+with the paired-notebooks icon to change the paired document; first use still
+opens the chooser automatically. Quick Pad settings uses the task-list icon.
 
 ## Intended interaction
 

@@ -50,8 +50,11 @@ export function quickPadHost(host) {
     host = host.replaceAll('(host.quickPadActive || host.quickPadCached)', 'host.cornerPaneGeometry');
     host = host.replaceAll('host.quickPadActive ? host.quickPad', 'host.cornerPaneActive ? host.quickPad');
     host = host.replaceAll('visible: host.quickPadActive;', 'visible: host.cornerPaneActive;');
-    host = once(host, 'quickPadActive ? height : paired', 'cornerPaneActive ? height : paired');
-    host = once(host, 'quickPadActive ? quickPadHeight : revealHeight', 'cornerPaneActive ? quickPadHeight : revealHeight');
+    // A tucked corner keeps its native geometry, even between the sequential
+    // active/cache/reveal property writes. Visibility and pen eligibility still
+    // follow paired, not this retained geometry.
+    host = once(host, 'quickPadActive ? height : paired', 'cornerPaneGeometry ? height : paired');
+    host = once(host, 'quickPadActive ? quickPadHeight : revealHeight', 'cornerPaneGeometry ? quickPadHeight : revealHeight');
     host = once(host, 'host.quickPadActive ? (p.position.y', 'host.cornerPaneActive ? (p.position.y');
     host = once(host, 'host.quickPadActive ? 2 * host.unit', 'host.cornerPaneActive ? 2 * host.unit');
     host = once(host, '(host.restoring && !host.quickPadActive)', '(host.restoring && !host.cornerPaneActive)');
@@ -227,16 +230,36 @@ TRAVERSE RowLayout#cnLayoutControls
 ${insert('enabled: !Values.cnQuickPadActive\nopacity: enabled ? 1 : 0.35')}
 END TRAVERSE
 ${insert(`ToolbarTool {
+    id: cnCompanionSettingsButton
     toolbar: root.toolbar; type: ToolbarTool.Type.FoldoutButton
     Layout.fillWidth: true; label: "Companion settings"
     iconSource: "qrc:/ark/icons/notebook"
+    content: Item {
+        anchors.fill: parent
+        // Place the baby notebook relative to the native icon slot, never the
+        // entire text row. The stock FoldoutItem owns icon size and padding.
+        readonly property var button: cnCompanionSettingsButton.item
+        readonly property real iconSize: button ? button.tokens.content.icon.idle.sizing : 48
+        Rectangle {
+            x: (parent.button ? parent.button.contentItem.x : 0) + parent.iconSize * 0.55
+            y: (parent.button ? parent.button.contentItem.y : 0) + parent.iconSize * 0.53
+            width: parent.iconSize * 0.55; height: width
+            color: "white"
+            ArkControls.Icon {
+                anchors.centerIn: parent
+                size: 48; scale: parent.width / 48
+                source: "qrc:/ark/icons/notebook"; color: "black"
+            }
+        }
+    }
     visible: root.documentType === "note" || root.documentType === "pdf"; shouldShow: visible
     onPressed: { root.toolbar.closeFoldout(); Values.cnChooseRequested() }
 }
 ToolbarTool {
+    id: cnQuickPadSettingsButton
     toolbar: root.toolbar; type: ToolbarTool.Type.FoldoutButton
     Layout.fillWidth: true; label: "Quick Pad settings"
-    iconSource: "qrc:/ark/icons/notebook"
+    iconSource: "qrc:/ark/icons/formatting_checkbox"
     visible: root.documentType === "note" || root.documentType === "pdf"; shouldShow: visible
     onPressed: { root.toolbar.closeFoldout(); Values.cnQuickPadSettingsRequested() }
 }`)}

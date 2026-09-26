@@ -14,3 +14,8 @@ padding/sizing rather than proportional placement across a text row.
 
 Preserve both settings stores and installed highlighter in the guarded update.
 No synthetic tablet interactions; actual close-flash improvement is user feedback.
+
+Installed with healthy startup, no restarts observed, unchanged settings and
+active Dates/highlighter. Checks passed: 31 logic tests, 25 Qt interaction checks,
+3 menu checks, three base composition orders and two highlighter composition
+orders (33 QML resources each). Private backup/installation receipt stays ignored.

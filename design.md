@@ -19,6 +19,11 @@ a baby instance within its native FoldoutItem icon slot, positioned from the
 loaded item's content origin and token icon size, not from the wide text row.
 Native icon resources are referenced, not copied into the repository.
 
+This revision is installed on the Pro with settings preserved and healthy
+startup. Thirty-one logic tests, twenty-five Qt interactions, menu checks and
+all base/combined composition orders passed; physical closing-flash feedback
+remains separate from those checks.
+
 ## Consistent toggles and settled toolbar updates (2026-09-26)
 
 `toggleCompanion` in `native/corner-companion.qml.inc` tucks a visible pair,

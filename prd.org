@@ -11,8 +11,8 @@ Read and write without losing context or compromising native handwriting.
 ** Changed requirements
 - Replace the two identical plain-notebook settings icons with distinct glyphs.
 ** Next steps
-- Keep cached corner input dimensions stable during hide; verify no transient
-  source collapse in offline signal tests, then guarded install with settings kept.
+- Cached corner dimensions now stay stable during hide. The signal regression
+  passes and the guarded Pro update is installed with settings preserved.
 - Hardware feedback establishes whether this removes the closing flash.
 
 * Consistent toolbar toggles and settled corner redraws (2026-09-26)

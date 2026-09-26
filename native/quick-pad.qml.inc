@@ -133,7 +133,7 @@ function closeQuickPad() {
     })
 }
 function fitQuickPadIfNeeded() {
-    if (!quickPadActive || !quickPadFitPending) return true
+    if (!cornerPaneActive || !quickPadFitPending) return true
     if (!transitionOwnsPark() || !inputGeometryPending || !secondary) throw new Error("Quick Pad fit outside park")
     if (!secondary.cnFitQuickPad()) throw new Error("Quick Pad page fit refused")
     quickPadFitPending = false

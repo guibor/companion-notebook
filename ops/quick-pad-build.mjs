@@ -1,4 +1,4 @@
-// Opt-in, local-only integration. The deployed pilot build stays byte-identical.
+// Opt-in corner UI integration; ordinary pilot UI does not gain these controls.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const inc = name => fs.readFileSync(`native/${name}.qml.inc`, 'utf8');
@@ -11,7 +11,7 @@ export function quickPadHost(host) {
         ['Core.Settings { id: settings;', 'Core.Settings { id: quickPadSettings; location: host.settingsLocation; category: "quickPad"; property string quickPadJson: \'{"version":1,"document":"","corner":"right"}\' }\n    Core.Settings { id: settings;'],
         ['loadStore(); synchronizePrimary()', 'loadStore(); loadQuickPad(); synchronizePrimary()'],
         ['primaryId = id', 'quickPadCompositing = false\n        primaryId = id'],
-        ['transitionBefore = transitionSnapshot()\n    transitionIntent', 'quickPadTransition = quickPadActive || name.indexOf("quick-pad") === 0\n    transitionBefore = transitionSnapshot()\n    transitionIntent'],
+        ['transitionBefore = transitionSnapshot()\n    transitionIntent', 'quickPadTransition = cornerPaneActive || name === "corner-layout" || name.indexOf("quick-pad") === 0\n    transitionBefore = transitionSnapshot()\n    transitionIntent'],
         ['bridge.endAnimation()\n    console.log', 'if (!quickPadTransition) bridge.endAnimation()\n    quickPadTransition = false\n    console.log'],
         ['height: parent.height - 395 * host.unit', 'height: parent.height - (host.quickPadChoosing ? 620 : 395) * host.unit'],
         ['function checkpoint() {', 'function checkpoint() {\n        if (quickPadActive || quickPadCached) return'],
@@ -46,6 +46,24 @@ export function quickPadHost(host) {
     // A tucked pad retains geometry and tiles, but not visibility or pen input.
     host = host.replaceAll('host.quickPadActive ? host.quickPad', '(host.quickPadActive || host.quickPadCached) ? host.quickPad');
     host = host.replace('host.quickPadActive ? host.height - host.quickPadHeight', '(host.quickPadActive || host.quickPadCached) ? host.height - host.quickPadHeight');
+    // Share corner geometry while keeping the two document-selection models separate.
+    host = host.replaceAll('(host.quickPadActive || host.quickPadCached)', 'host.cornerPaneGeometry');
+    host = host.replaceAll('host.quickPadActive ? host.quickPad', 'host.cornerPaneActive ? host.quickPad');
+    host = host.replaceAll('visible: host.quickPadActive;', 'visible: host.cornerPaneActive;');
+    host = once(host, 'quickPadActive ? height : paired', 'cornerPaneActive ? height : paired');
+    host = once(host, 'quickPadActive ? quickPadHeight : revealHeight', 'cornerPaneActive ? quickPadHeight : revealHeight');
+    host = once(host, 'host.quickPadActive ? (p.position.y', 'host.cornerPaneActive ? (p.position.y');
+    host = once(host, 'host.quickPadActive ? 2 * host.unit', 'host.cornerPaneActive ? 2 * host.unit');
+    host = once(host, '(host.restoring && !host.quickPadActive)', '(host.restoring && !host.cornerPaneActive)');
+    host = once(host, 'String(secondary.currentPageId || ""))', 'String(secondary.currentPageId || ""), companionLayout)');
+    host = once(host, 'var p = pairs.pairs[id]', 'var p = pairs.pairs[id]\n        companionLayout = p && p.layout === "corner" ? "corner" : "split"');
+    host = once(host, 'companionId = id; choosing = false; rememberReversePair()', 'companionId = id; choosing = false;\n            if (pickerLayout === 2) companionLayout = "corner"\n            else if (pickerLayout >= 0 && pickerLayout < 1) companionLayout = "split"\n            rememberReversePair()');
+    host = once(host, 'if (quickPadCached) closeSecondaryParked(false)\n', 'if (quickPadCached) closeSecondaryParked(false)\n        quickPadFitPending = companionLayout === "corner"\n        if (quickPadFitPending) quickPadCompositing = true\n');
+    host = once(host, 'host.savedRatio = requestedRatio', 'host.companionLayout = "split"\n            host.quickPadFitPending = false\n            host.savedRatio = requestedRatio');
+    host = once(host, '[0, 0.25, 0.375, 0.5, 1].indexOf(ratio)', '[0, 0.25, 0.375, 0.5, 1, 2].indexOf(ratio)');
+    host = once(host, 'function applyLayoutChoice(ratio) {', 'function applyLayoutChoice(ratio) {\n    if (ratio === 2) return chooseCompanionCorner()');
+    host = once(host, 'savedRatio = ratio\n    return openSecondary()', 'companionLayout = "split"\n    savedRatio = ratio\n    return openSecondary()');
+    host = once(host, 'function dismissChooser() {', 'function dismissChooser() {\n        pickerLayout = -1');
     host = host.replace(/}\s*$/, `
     Column {
         parent: pickerCard
@@ -86,11 +104,30 @@ export function quickPadHost(host) {
         }
     }
 ${inc('quick-pad')}
+${inc('corner-companion')}
 }\n`);
     host = once(host, 'quickPadChoosing = true; choosing = true', 'quickPadDraftCorner = quickPadCorner; quickPadDraftSize = quickPadSize\n        quickPadChoosing = true; choosing = true');
     return host;
 }
 export function quickPadQmd(q, {affect, insert}) {
+    q = once(q, 'sizeIndex < 5', 'sizeIndex < 6');
+    q = once(q, '[0, 0.25, 0.375, 0.5, 1][sizeIndex]', '[0, 0.25, 0.375, 0.5, 2, 1][sizeIndex]');
+    q = once(q, 'cnHost && cnHost.paired ? cnHost.savedRatio : 0', 'cnHost && cnHost.paired ? (cnHost.cornerPaneActive ? 2 : cnHost.savedRatio) : 0');
+    q = once(q, 'model: 5', 'model: 6');
+    q = once(q, '[0, 0.25, 0.375, 0.5, 1][index]', '[0, 0.25, 0.375, 0.5, 2, 1][index]');
+    q = once(q, 'anchors.left: parent.left; anchors.right: parent.right', 'anchors.left: modelData === 2 ? undefined : parent.left; anchors.right: parent.right\n                    width: (parent.width - 6) * 2 / 3');
+    q = once(q, '(modelData === 0 ? 1 : modelData); color:', '(modelData === 0 ? 1 : modelData === 2 ? 1 / 3 : modelData); color:');
+    // Preserve the stock visibility expression, with a corner-only outer gate.
+    q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',`
+TRAVERSE Item > ZoomButton#zoomButton
+REBUILD visible
+LOCATE BEFORE ALL
+INSERT { !(root.cnSecondary && root.cnHost && root.cnHost.cornerPaneActive) && ( }
+LOCATE AFTER ALL
+INSERT { ) }
+END REBUILD
+END TRAVERSE
+`);
     q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScope#root',insert(`
 function cnPublishToolbarCapacity() {
     if (cnDocumentViewOwner && cnDocumentViewOwner.cnSecondary) return
@@ -140,7 +177,7 @@ function cnFitQuickPad() {
     return sceneView.cnFitQuickPad()
 }`)+`
 TRAVERSE DeviceSceneView#sceneView
-${insert('cnQuickPad: root.cnSecondary && !!root.cnHost && root.cnHost.quickPadActive\ncnQuickPadCompositing: !!root.cnHost && root.cnHost.quickPadCompositing')}
+${insert('cnQuickPad: root.cnSecondary && !!root.cnHost && root.cnHost.cornerPaneActive\ncnQuickPadCompositing: !!root.cnHost && root.cnHost.quickPadCompositing')}
 END TRAVERSE
 `);
     q += affect('qml/device/view/documentview/Navigation.qml','Item#root',insert('property bool cnQuickPad: false'));

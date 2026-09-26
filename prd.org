@@ -3,6 +3,22 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Corner Companion and clean pad chrome (2026-09-26)
+- Hide the native persistent zoom multiplier in the Quick Pad corner only;
+  keep native zoom gestures and normal document zoom feedback.
+- Add a corner layout icon alongside ordinary Companion size choices. Reuse
+  Quick Pad's configured size/corner, thin edges and width fitting, but retain
+  the paired document and its page, not the global pad's last-page semantics.
+- Remember corner versus split per source pairing. First use without a pair
+  opens the ordinary Recent/Favorites picker, including eligible PDFs.
+** Changed requirement
+- Companion is no longer restricted to full-width lower splits. Quick Pad still
+  selects one device-wide notebook independently; the two modes share one view.
+** Next steps
+- Offline corner/split/Quick Pad lifecycle and composition checks pass. Obtain
+  the authorized combined-runtime handoff before installation to preserve the
+  highlighter extension; hardware behavior remains user acceptance.
+
 * Publication (2026-09-25)
 - Publish current Quick Pad refinements on the existing Pro branch and document
   the actual installed workflow, settings and limitations in README.

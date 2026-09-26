@@ -1,5 +1,23 @@
 # Architecture and implementation status
 
+## Shared corner layout (2026-09-26)
+
+`native/corner-companion.qml.inc` adds `chooseCompanionCorner` and derived corner
+geometry state to the opt-in Quick Pad host. The layout menu adds a sixth corner
+pictogram (internal choice 2, not a size ratio). Unpaired selection opens the
+ordinary picker; paired selection resizes the existing view under the native
+park. Page identity, document choice and native saving stay with Companion.
+Quick Pad retains its own notebook ID and current-last-page behavior.
+
+Both modes use the same corner dimensions, width-fit function, native input
+publication and thin boundary. Quick Pad temporarily replaces/restores a corner
+Companion just as it does a lower split. `PairStore` accepts an optional
+`layout: "corner"` field; legacy records remain unchanged and selecting a lower
+split drops the field on checkpoint. Geometry changes and fitting stay parked.
+The zoom-button visibility patch wraps the entire native expression with a
+secondary-corner guard; source and ordinary split zoom feedback is unchanged.
+No gesture handler, refresh policy, admission library or notebook file changes.
+
 ## Public documentation (2026-09-25)
 
 README presents ordinary Companion and Quick Pad as two layouts sharing one

@@ -34,6 +34,59 @@ Item {
             verify(f.host.toggleQuickPad()); settle()
             compare(f.bridge.padOpenCount,1); compare(f.bridge.fitCount,2)
         }
+        function test_companion_corner_picker_geometry_and_split_return() {
+            verify(f.host.layoutChoice(2)); tryCompare(f.host,"transitionPhase","choosing")
+            verify(!f.host.quickPadChoosing)
+            verify(f.host.pick(pad)); settle()
+            compare(f.host.companionLayout,"corner"); verify(!f.host.quickPadActive)
+            compare(f.bridge.padOpenCount,0); compare(f.bridge.fitCount,1)
+            var sheet=findChild(f.host,"quickPadSheet")
+            compare(sheet.width,f.host.quickPadWidth); compare(sheet.height,f.host.quickPadHeight)
+            compare(sheet.x,f.host.width-sheet.width); compare(sheet.y,f.host.height-sheet.height)
+            compare(f.host.mainInputHeight,f.host.height)
+            compare(f.host.secondaryInputHeight,sheet.height-f.host.barHeight)
+            f.host.checkpoint()
+            compare(f.host.pairs.pairs[f.host.primaryId].layout,"corner")
+            var view=f.host.secondary
+            verify(f.host.layoutChoice(0)); tryCompare(f.host,"paired",false); settle()
+            verify(f.host.layoutChoice(2)); tryCompare(f.host,"paired",true); settle()
+            compare(f.host.secondary,view)
+            verify(f.host.layoutChoice(0.25)); tryCompare(f.host,"companionLayout","split"); settle()
+            compare(sheet.width,f.host.width); compare(f.host.revealHeight,f.host.height/4)
+            f.host.checkpoint(); verify(f.host.pairs.pairs[f.host.primaryId].layout === undefined)
+        }
+        function test_companion_corner_persists_and_quickpad_restores_it() {
+            verify(f.host.layoutChoice(2)); tryCompare(f.host,"transitionPhase","choosing")
+            verify(f.host.pick(pad)); settle(); f.host.checkpoint()
+            var url=f.storeLocation
+            f.destroy(); f=null; wait(20)
+            f=createTemporaryObject(factory,surface,{storeLocation:url})
+            tryCompare(f.host,"transitionPhase","idle")
+            compare(f.host.companionLayout,"corner"); verify(!f.host.paired)
+            verify(f.host.openSecondary()); settle()
+            var page=f.host.secondary.currentPageId
+            verify(f.host.saveQuickPad(pad,"left","compact"))
+            verify(f.host.toggleQuickPad()); settle(); verify(f.host.quickPadActive)
+            verify(f.host.toggleQuickPad()); settle()
+            verify(!f.host.quickPadActive); verify(f.host.paired)
+            compare(f.host.companionLayout,"corner"); compare(f.host.secondary.currentPageId,page)
+            compare(findChild(f.host,"quickPadSheet").x,0)
+            compare(f.host.quickPadId,pad)
+        }
+        function test_corner_picker_cancel_and_geometry_stays_parked() {
+            verify(f.host.layoutChoice(2)); tryCompare(f.host,"transitionPhase","choosing")
+            f.host.dismissChooser(); settle()
+            compare(f.host.companionLayout,"split"); verify(!f.host.paired)
+            f.host.choose(); tryCompare(f.host,"transitionPhase","choosing")
+            // Cancelled corner intent must not leak into a later normal picker.
+            verify(f.host.pick(pad)); settle()
+            var sheet=findChild(f.host,"quickPadSheet")
+            compare(sheet.width,f.host.width)
+            f.pen.penDownChanged(true); verify(f.host.layoutChoice(2)); wait(150)
+            compare(f.host.companionLayout,"split"); compare(sheet.width,f.host.width)
+            f.pen.penDownChanged(false); tryCompare(f.host,"companionLayout","corner"); settle()
+            compare(sheet.width,f.host.quickPadWidth)
+        }
         function test_upgrade_preserves_preexisting_pairs() {
             var url=Qt.resolvedUrl("../build/test-settings/upgrade-"+Date.now()+".ini")
             var seed=seedFactory.createObject(surface,{location:url})

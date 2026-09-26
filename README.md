@@ -67,6 +67,13 @@ It is an independent project, not affiliated with reMarkable.
    There is no separate menu off switch;
    the independent recovery controller remains available to the operator.
 
+**New in source (not yet installed/verified on-device):** the corner-shaped
+layout picture places your regular companion in a Quick Pad-sized corner,
+using the same configured size and position. It keeps the paired document and
+page—not your global ToDo pad—and remembers the layout for this pair. Choose
+any lower-split picture to return to a full-width companion. The corner view
+also hides the persistent zoom multiplier without disabling zoom gestures.
+
 ### Quick Pad
 
 1. Open a notebook or PDF and tap the **task-list icon** on the full toolbar.

@@ -3,6 +3,25 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const Store=require('../src/PairStore.js');
+test('pair metadata preserves optional corner layout without changing legacy records',()=>{
+    const a='11111111-1111-4111-8111-111111111111', b='22222222-2222-4222-8222-222222222222';
+    const base=Store.set(Store.empty(),a,b,.375,'');
+    assert.equal(base.pairs[a].layout,undefined);
+    const corner=Store.set(base,a,b,.375,'','corner');
+    assert.equal(Store.parse(JSON.stringify(corner)).pairs[a].layout,'corner');
+    assert.deepEqual(Store.set(corner,a,b,.375,''),base);
+    corner.pairs[a].layout='invalid';assert.throws(()=>Store.parse(JSON.stringify(corner)),/Invalid/);
+});
+test('native zoom badge is suppressed only on a corner secondary, preserving stock conditions elsewhere',()=>{
+    const q=fs.readFileSync('build/quick-pad-composed-last/qml/device/view/documentview/DocumentView.qml','utf8');
+    const zoom=q.slice(q.indexOf('ZoomButton {'));
+    const expression=zoom.match(/visible:\s*([^\n]+)/)[1];
+    for(const secondary of [false,true])for(const corner of [false,true])for(const zoomed of [false,true])for(const cue of [false,true]) {
+        const s={root:{cnSecondary:secondary,cnHost:{cornerPaneActive:corner}},zoomLevel:zoomed?.5:1,defaultScale:1,adjustViewPopup:{visible:false},scrollLockVisualCue:{visible:cue},sceneView:{scrollbarsVisible:false},toolbar:{expanded:false},didZoom:false};
+        assert.equal(vm.runInNewContext(expression,s),!(secondary&&corner)&&(zoomed||cue));
+    }
+    assert.match(zoom,/sceneView.singleStepZoom/,'Pinch and native zoom controls remain implemented');
+});
 function functions(path) {
     const source=fs.readFileSync(path,'utf8'); let result='';
     for(const match of source.matchAll(/^function \w+\([^\n]*\) \{/gm)) {

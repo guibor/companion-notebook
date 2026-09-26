@@ -6,6 +6,19 @@ toolbar stability accepted in user feedback. The final extra-flash adjustment
 still awaits visual feedback.**
 Part of Companion Notebook, not a separate app or repo.
 
+## Corner layout for a regular companion
+
+The new source revision adds a corner pictogram to the Companion layout row.
+It uses these same size and position settings, but opens the ordinary paired
+document at its retained page. It neither changes the global Quick Pad notebook
+nor forces the paired document to its last page. Without an existing pair, the
+normal Recent/Favorites picker opens, including eligible PDFs. Layout choice is
+remembered per source document; any lower-split picture returns to full width.
+
+The native zoom multiplier is hidden inside either kind of corner pane; normal
+document/split feedback and pinch zoom remain unchanged. This revision has passed
+offline checks but has not yet been installed or accepted on hardware.
+
 ## Intended interaction
 
 1. Tap the new task-pad icon above Companion on the full document toolbar.
@@ -61,7 +74,8 @@ QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner \
 ```
 
 The build writes `build/quick-pad-native`, leaving `build/pilot-native` alone.
-Without `CN_QUICK_PAD=1`, the current pilot's generated payloads stay unchanged.
+Without `CN_QUICK_PAD=1`, the corner UI is not included. The shared PairStore now
+accepts optional corner-layout metadata while preserving legacy records.
 The native bootstrap and admission libraries are reused unchanged. No new native
 code, notebook-file serialization, firmware/root write, boot persistence, or
 automatic deployment is introduced.

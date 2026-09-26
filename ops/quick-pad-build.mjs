@@ -12,7 +12,7 @@ export function quickPadHost(host) {
         ['loadStore(); synchronizePrimary()', 'loadStore(); loadQuickPad(); synchronizePrimary()'],
         ['primaryId = id', 'quickPadCompositing = false\n        primaryId = id'],
         ['transitionBefore = transitionSnapshot()\n    transitionIntent', 'quickPadTransition = cornerPaneActive || name === "corner-layout" || name.indexOf("quick-pad") === 0\n    transitionBefore = transitionSnapshot()\n    transitionIntent'],
-        ['bridge.endAnimation()\n    console.log', 'if (!quickPadTransition) bridge.endAnimation()\n    quickPadTransition = false\n    console.log'],
+        ['bridge.endAnimation()\n    console.log', 'if (!quickPadTransition && !cornerPaneActive) bridge.endAnimation()\n    quickPadTransition = false\n    console.log'],
         ['height: parent.height - 395 * host.unit', 'height: parent.height - (host.quickPadChoosing ? 620 : 395) * host.unit'],
         ['function checkpoint() {', 'function checkpoint() {\n        if (quickPadActive || quickPadCached) return'],
         ['function closeSecondaryParked(detach) {', 'function closeSecondaryParked(detach) {\n        if (quickPadActive || quickPadCached) detach = false'],
@@ -58,8 +58,9 @@ export function quickPadHost(host) {
     host = once(host, 'String(secondary.currentPageId || ""))', 'String(secondary.currentPageId || ""), companionLayout)');
     host = once(host, 'var p = pairs.pairs[id]', 'var p = pairs.pairs[id]\n        companionLayout = p && p.layout === "corner" ? "corner" : "split"');
     host = once(host, 'companionId = id; choosing = false; rememberReversePair()', 'companionId = id; choosing = false;\n            if (pickerLayout === 2) companionLayout = "corner"\n            else if (pickerLayout >= 0 && pickerLayout < 1) companionLayout = "split"\n            rememberReversePair()');
-    host = once(host, 'if (quickPadCached) closeSecondaryParked(false)\n', 'if (quickPadCached) closeSecondaryParked(false)\n        quickPadFitPending = companionLayout === "corner"\n        if (quickPadFitPending) quickPadCompositing = true\n');
-    host = once(host, 'host.savedRatio = requestedRatio', 'host.companionLayout = "split"\n            host.quickPadFitPending = false\n            host.savedRatio = requestedRatio');
+    host = once(host, 'if (quickPadCached) closeSecondaryParked(false)\n', 'if (quickPadCached) closeSecondaryParked(false)\n        quickPadFitPending = companionLayout === "corner" && !cornerFitIsCurrent()\n        if (companionLayout === "corner") quickPadCompositing = true\n');
+    host = once(host, 'var view = secondary\n        secondary = null', 'var view = secondary\n        fittedCornerView = null\n        secondary = null');
+    host = once(host, 'host.savedRatio = requestedRatio', 'host.companionLayout = "split"\n            host.fittedCornerView = null\n            host.quickPadFitPending = false\n            host.savedRatio = requestedRatio');
     host = once(host, '[0, 0.25, 0.375, 0.5, 1].indexOf(ratio)', '[0, 0.25, 0.375, 0.5, 1, 2].indexOf(ratio)');
     host = once(host, 'function applyLayoutChoice(ratio) {', 'function applyLayoutChoice(ratio) {\n    if (ratio === 2) return chooseCompanionCorner()');
     host = once(host, 'savedRatio = ratio\n    return openSecondary()', 'companionLayout = "split"\n    savedRatio = ratio\n    return openSecondary()');
@@ -110,6 +111,7 @@ ${inc('corner-companion')}
     return host;
 }
 export function quickPadQmd(q, {affect, insert}) {
+    q = once(q, 'onPressed: { Values.cnChooseRequested(); root.closeFoldout() }', 'implicitlySelected: Values.cnCompanionVisible\n onPressed: { Values.cnCompanionToggleRequested(); root.closeFoldout() }');
     q = once(q, 'sizeIndex < 5', 'sizeIndex < 6');
     q = once(q, '[0, 0.25, 0.375, 0.5, 1][sizeIndex]', '[0, 0.25, 0.375, 0.5, 2, 1][sizeIndex]');
     q = once(q, 'cnHost && cnHost.paired ? cnHost.savedRatio : 0', 'cnHost && cnHost.paired ? (cnHost.cornerPaneActive ? 2 : cnHost.savedRatio) : 0');
@@ -130,13 +132,27 @@ END TRAVERSE
 `);
     q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScope#root',insert(`
 function cnPublishToolbarCapacity() {
-    if (cnDocumentViewOwner && cnDocumentViewOwner.cnSecondary) return
+    // This firmware creates Toolbar only within DocumentView. Do not publish
+    // before its owner is attached, from a hidden secondary, or mid-transition.
+    if (!cnDocumentViewOwner || cnDocumentViewOwner.cnSecondary || !visible) return
+    if (cnDocumentViewOwner.cnHost && cnDocumentViewOwner.cnHost.transitionBusy) return
     Qt.callLater(function() {
-        if (!root.cnDocumentViewOwner || !root.cnDocumentViewOwner.cnSecondary)
-            root.toolbarProvider.updateToolbarTools(root.showableToolsCount)
+        var owner = root.cnDocumentViewOwner
+        if (!owner || owner.cnSecondary || !root.visible || (owner.cnHost && owner.cnHost.transitionBusy)) return
+        if (root.cnCapacityProvider === root.toolbarProvider && root.cnPublishedCapacity === root.showableToolsCount) return
+        root.toolbarProvider.updateToolbarTools(root.showableToolsCount)
+        root.cnCapacityProvider = root.toolbarProvider
+        root.cnPublishedCapacity = root.showableToolsCount
     })
 }
+property var cnCapacityProvider: null
+property int cnPublishedCapacity: -1
 onCnDocumentViewOwnerChanged: cnPublishToolbarCapacity()
+onVisibleChanged: cnPublishToolbarCapacity()
+Connections {
+    target: root.cnDocumentViewOwner ? root.cnDocumentViewOwner.cnHost : null
+    function onTransitionBusyChanged() { root.cnPublishToolbarCapacity() }
+}
 `)+`
 REBUILD onShowableToolsCountChanged
 LOCATE BEFORE ALL
@@ -149,13 +165,15 @@ END REBUILD
     q = once(q, 'if (cnHost?.secondary) cnHost.secondary.cnRefresh()', 'if (cnHost?.secondary && !cnHost.quickPadActive) cnHost.secondary.cnRefresh()');
     // Reuse Companion's native surfaces and manager occlusion. The actual
     // viewport is corner-sized; no QML scale sits above the pen transform.
-    q += affect('qml/common/Values.qml','Item',insert('signal cnQuickPadRequested()\nsignal cnQuickPadSettingsRequested()\nproperty bool cnQuickPadActive: false'));
+    q += affect('qml/common/Values.qml','Item',insert('signal cnQuickPadRequested()\nsignal cnQuickPadSettingsRequested()\nsignal cnCompanionToggleRequested()\nproperty bool cnCompanionVisible: false\nproperty bool cnQuickPadActive: false'));
     q += affect('qml/device/view/main/MainView.qml','Background#root',insert(`
 Connections {
     target: Values
     function onCnQuickPadRequested() { if (cnHost) cnHost.toggleQuickPad() }
     function onCnQuickPadSettingsRequested() { if (cnHost) cnHost.configureQuickPad() }
+    function onCnCompanionToggleRequested() { if (cnHost) cnHost.toggleCompanion() }
 }
+Binding { target: Values; property: "cnCompanionVisible"; value: !!cnHost && cnHost.paired && !cnHost.quickPadActive }
 Binding { target: Values; property: "cnQuickPadActive"; value: !!cnHost && cnHost.quickPadActive }`)+`
 TRAVERSE Item#cnBridge
 ${insert(`function canOpenPad(id) { return canOpen(id) && Library.entryForId(id).fileType === Document.Notebook }
@@ -209,6 +227,13 @@ TRAVERSE RowLayout#cnLayoutControls
 ${insert('enabled: !Values.cnQuickPadActive\nopacity: enabled ? 1 : 0.35')}
 END TRAVERSE
 ${insert(`ToolbarTool {
+    toolbar: root.toolbar; type: ToolbarTool.Type.FoldoutButton
+    Layout.fillWidth: true; label: "Companion settings"
+    iconSource: "qrc:/ark/icons/notebook"
+    visible: root.documentType === "note" || root.documentType === "pdf"; shouldShow: visible
+    onPressed: { root.toolbar.closeFoldout(); Values.cnChooseRequested() }
+}
+ToolbarTool {
     toolbar: root.toolbar; type: ToolbarTool.Type.FoldoutButton
     Layout.fillWidth: true; label: "Quick Pad settings"
     iconSource: "qrc:/ark/icons/notebook"

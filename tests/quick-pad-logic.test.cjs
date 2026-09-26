@@ -131,16 +131,37 @@ test('actual generated ink gate excludes a tucked secondary but enables the sour
         assert.equal(vm.runInNewContext(expr,c),!pending&&(!secondary||paired));
     }
 });
-test('hidden toolbar cannot publish capacity, including a queued callback after owner assignment',()=>{
+test('only settled visible primary toolbar publishes changed capacity',()=>{
     const source=fs.readFileSync('build/quick-pad-composed-last/qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','utf8');
     const start=source.indexOf('function cnPublishToolbarCapacity(');
     let end=source.indexOf('{',start)+1,depth=1;
     while(depth) { if(source[end]==='{')depth++; if(source[end]==='}')depth--; end++; }
     const queued=[],calls=[];
-    const c={cnDocumentViewOwner:null,showableToolsCount:15,Qt:{callLater:fn=>queued.push(fn)},toolbarProvider:{updateToolbarTools:n=>calls.push(n)}};
+    const c={cnDocumentViewOwner:null,visible:true,cnCapacityProvider:null,cnPublishedCapacity:-1,showableToolsCount:15,Qt:{callLater:fn=>queued.push(fn)},toolbarProvider:{updateToolbarTools:n=>calls.push(n)}};
     c.root=c;vm.createContext(c);vm.runInContext(source.slice(start,end),c);
-    c.cnPublishToolbarCapacity();c.cnDocumentViewOwner={cnSecondary:true};queued.shift()();assert.deepEqual(calls,[]);
     c.cnPublishToolbarCapacity();assert.equal(queued.length,0);
-    c.cnDocumentViewOwner={cnSecondary:false};c.cnPublishToolbarCapacity();queued.shift()();assert.deepEqual(calls,[15]);
+    c.cnDocumentViewOwner={cnSecondary:true};
+    c.cnPublishToolbarCapacity();assert.equal(queued.length,0);
+    c.cnDocumentViewOwner={cnSecondary:false,cnHost:{transitionBusy:true}};
+    c.cnPublishToolbarCapacity();assert.equal(queued.length,0);
+    c.cnDocumentViewOwner.cnHost.transitionBusy=false;
+    c.cnPublishToolbarCapacity();c.cnDocumentViewOwner.cnHost.transitionBusy=true;
+    queued.shift()();assert.deepEqual(calls,[]);
+    c.cnDocumentViewOwner.cnHost.transitionBusy=false;c.visible=false;
+    c.cnPublishToolbarCapacity();assert.equal(queued.length,0);
+    c.visible=true;c.cnPublishToolbarCapacity();queued.shift()();assert.deepEqual(calls,[15]);
+    c.cnPublishToolbarCapacity();queued.shift()();assert.deepEqual(calls,[15]);
+    c.showableToolsCount=16;c.cnPublishToolbarCapacity();queued.shift()();assert.deepEqual(calls,[15,16]);
+    c.toolbarProvider={updateToolbarTools:n=>calls.push(n)};
+    c.cnPublishToolbarCapacity();queued.shift()();assert.deepEqual(calls,[15,16,16]);
+    c.cnPublishToolbarCapacity();c.cnDocumentViewOwner={cnSecondary:true};
+    queued.shift()();assert.deepEqual(calls,[15,16,16]);
     assert.match(source,/onShowableToolsCountChanged:\s*\{\s*cnPublishToolbarCapacity\(\)/);
+});
+test('toolbar toggles Companion while overflow retains its chooser',()=>{
+    const toolbar=fs.readFileSync('build/quick-pad-composed-last/qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','utf8');
+    assert.match(toolbar,/implicitlySelected:\s*Values.cnCompanionVisible/);
+    assert.match(toolbar,/onPressed:\s*\{\s*Values.cnCompanionToggleRequested\(\)/);
+    const qmd=fs.readFileSync('ops/quick-pad-build.mjs','utf8');
+    assert.match(qmd,/label: "Companion settings"/);
 });

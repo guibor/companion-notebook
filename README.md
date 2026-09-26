@@ -50,9 +50,11 @@ It is an independent project, not affiliated with reMarkable.
 ### Companion
 
 1. Open a notebook or PDF in portrait.
-2. Tap **Companion notebook** on the full toolbar, above Dates.
-3. Choose a different local portrait notebook or PDF from **Recent** or
-   **Favorites**. The list scrolls; tap × or outside the popup to cancel.
+2. Tap **Companion notebook** on the full toolbar, above Dates, to open or close
+   the remembered companion—just like Quick Pad.
+3. On first use, choose a different local portrait notebook or PDF from **Recent**
+   or **Favorites**. To change it later, use **⋯ → Companion settings**.
+   The list scrolls; tap × or outside the popup to cancel.
 4. Write directly in either pane. Only a hairline separates the pages. The native
    toolbar stays above both canvases, with shared writing-tool settings.
 5. In the three-dot menu, layout pictures select source-only,
@@ -67,16 +69,17 @@ It is an independent project, not affiliated with reMarkable.
    There is no separate menu off switch;
    the independent recovery controller remains available to the operator.
 
-**Corrected personal pilot (hands-on feedback pending):** the corner-shaped
+**Corner companion:** the corner-shaped
 layout picture places your regular companion in a Quick Pad-sized corner,
 using the same configured size and position. It keeps the paired document and
 page—not your global ToDo pad—and remembers the layout for this pair. Choose
 any lower-split picture to return to a full-width companion. The corner view
 also hides the persistent zoom multiplier without disabling zoom gestures.
-An initial revision rejected the corner transition and was rolled back. After
-user-confirmed recovery, the corrected revision was installed with a regression
-covering the actual native-view fitting wrapper. Physical interaction acceptance
-is still pending; startup checks alone do not establish that acceptance.
+An initial revision rejected the corner transition and was rolled back; the
+corrected fitting wrapper is covered by an integration regression. Current
+refinements address repeated flashes and intermittent toolbar-button movement.
+Unchanged warm corners retain their zoom instead of fitting again. Native e-ink
+refreshes may still occur; startup checks do not establish visual acceptance.
 
 ### Quick Pad
 

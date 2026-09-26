@@ -3,6 +3,22 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Consistent toolbar toggles and settled corner redraws (2026-09-26)
+- Companion toolbar tap opens/closes the remembered pair, matching Quick Pad.
+- First use, or an unavailable partner, opens the Recent/Favorites chooser.
+- Move partner selection into Companion settings in the three-dot menu; retain
+  the layout pictures there. Preserve both independent pairing/settings stores.
+- Prevent temporary corner layouts from hiding or moving source toolbar buttons.
+- Reduce repeated corner fitting and whole-page refresh requests for both modes.
+** Changed requirements
+- The Companion toolbar no longer opens its chooser on every tap.
+- An unchanged warm corner preserves its current zoom instead of fitting again;
+  new views and actual corner-size changes still fit to width before native input.
+** Next steps
+- Install directly as requested, preserving current settings and highlighter.
+- User feedback determines remaining physical flashing/toolbar behavior; no
+  automated pen tests or global e-ink refresh-policy changes.
+
 * Corner Companion and clean pad chrome (2026-09-26)
 - Hide the native persistent zoom multiplier in the Quick Pad corner only;
   keep native zoom gestures and normal document zoom feedback.

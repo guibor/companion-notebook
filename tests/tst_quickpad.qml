@@ -32,7 +32,42 @@ Item {
             verify(f.host.toggleQuickPad()); settle(); verify(!f.host.paired)
             compare(f.host.companionId,"")
             verify(f.host.toggleQuickPad()); settle()
-            compare(f.bridge.padOpenCount,1); compare(f.bridge.fitCount,2)
+            compare(f.bridge.padOpenCount,1); compare(f.bridge.fitCount,1)
+        }
+        function test_companion_toolbar_first_use_and_warm_toggle() {
+            verify(f.host.toggleCompanion()); tryCompare(f.host,"transitionPhase","choosing")
+            verify(!f.host.quickPadChoosing)
+            verify(f.host.pick(pad)); settle()
+            var view=f.host.secondary
+            verify(f.host.toggleCompanion()); settle(); verify(!f.host.paired)
+            compare(f.host.companionId,pad)
+            verify(f.host.toggleCompanion()); settle(); verify(f.host.paired)
+            compare(f.host.secondary,view)
+            f.host.choose(); tryCompare(f.host,"transitionPhase","choosing")
+            f.host.dismissChooser(); settle(); verify(f.host.paired)
+        }
+        function test_corner_toggle_skips_redundant_fit_and_full_refresh() {
+            verify(f.host.layoutChoice(2)); tryCompare(f.host,"transitionPhase","choosing")
+            var refreshes=f.bridge.refreshCount
+            verify(f.host.pick(pad)); settle()
+            compare(f.bridge.refreshCount,refreshes); compare(f.bridge.fitCount,1)
+            var view=f.host.secondary
+            verify(f.host.toggleCompanion()); settle(); verify(!f.host.paired)
+            verify(f.host.toggleCompanion()); settle(); verify(f.host.paired)
+            compare(f.host.secondary,view); compare(f.bridge.fitCount,1)
+            compare(f.bridge.refreshCount,refreshes)
+            verify(f.host.layoutChoice(.25)); tryCompare(f.host,"companionLayout","split"); settle()
+            verify(f.host.layoutChoice(2)); tryCompare(f.host,"companionLayout","corner"); settle(); compare(f.bridge.fitCount,2)
+        }
+        function test_quickpad_to_companion_and_first_pair_picker() {
+            openPad()
+            verify(f.host.toggleCompanion()); tryCompare(f.host,"transitionPhase","choosing")
+            verify(!f.host.quickPadChoosing); verify(!f.host.quickPadActive)
+            verify(f.host.pick(pad)); settle(); verify(f.host.paired)
+            verify(f.host.toggleQuickPad()); settle(); verify(f.host.quickPadActive)
+            verify(f.host.toggleCompanion()); settle(); verify(f.host.paired)
+            verify(!f.host.quickPadActive); compare(f.host.companionId,pad)
+            compare(f.host.quickPadId,pad)
         }
         function test_companion_corner_picker_geometry_and_split_return() {
             verify(f.host.layoutChoice(2)); tryCompare(f.host,"transitionPhase","choosing")

@@ -1,9 +1,8 @@
 # Quick Pad
 
-**Experimental personal pilot installed on Paper Pro 3.29.0.148. Startup and
-pairing migration verified; corner handwriting, width-fit layout, scrolling and
-toolbar stability accepted in user feedback. The final extra-flash adjustment
-still awaits visual feedback.**
+**Experimental personal pilot on Paper Pro 3.29.0.148. Corner handwriting,
+width-fit layout and scrolling work in user feedback. Current refinements address
+remaining flashes and intermittent toolbar-button disappearance in both corners.**
 Part of Companion Notebook, not a separate app or repo.
 
 ## Corner layout for a regular companion
@@ -20,7 +19,9 @@ document/split feedback and pinch zoom remain unchanged. This revision has passe
 offline checks. An initial corner-transition failure was rolled back; following
 user-confirmed recovery, the corrected fitting-wrapper guard is installed in the
 personal pilot. Both corner modes retain native input safety gates. Hands-on
-acceptance of the corrected corner transition is still pending.
+feedback now concerns refresh and toolbar stability rather than a failed fit.
+The Companion toolbar toggles its remembered pair. Use **⋯ → Companion settings**
+to change the paired document; first use still opens the chooser automatically.
 
 ## Intended interaction
 
@@ -37,6 +38,7 @@ acceptance of the corrected corner transition is still pending.
 5. Tap the pad button again to close. If a bottom companion was visible
    before, it returns at its saved size/page. No ordinary pairing is replaced.
    Otherwise the pad stays loaded but hidden, making repeated toggles lighter.
+   The same warm view and corner size retain their zoom/scroll without refitting.
    Native autosave continues; leaving the document or sleeping retires it normally.
 6. Use **Quick Pad settings** in the document's three-dot
    menu to change the notebook, corner or size. **Compact** is narrower; **Roomy**

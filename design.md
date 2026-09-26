@@ -1,5 +1,28 @@
 # Architecture and implementation status
 
+## Consistent toggles and settled toolbar updates (2026-09-26)
+
+`toggleCompanion` in `native/corner-companion.qml.inc` tucks a visible pair,
+reveals a remembered pair, or enters the ordinary chooser on first use. Switching
+from Quick Pad restores the ordinary pair within the same guarded transaction;
+it never changes the device-wide pad selection. The toolbar emits a dedicated
+toggle signal and reflects visibility. Overflow Companion settings retains the
+existing chooser signal, while the pictorial layout row stays in overflow.
+
+`cornerFitIsCurrent` remembers only the fitted native view and corner dimensions.
+`fitQuickPadIfNeeded` records these after a successful guarded fit. Warm toggles
+of that same view and geometry preserve zoom/scroll and avoid another fit; closing
+the view or selecting a lower split invalidates it. New views and changed corner
+dimensions still fit before native input publication. No admission gate changes.
+
+`cnPublishToolbarCapacity` in the generated source toolbar ignores unassigned,
+secondary, hidden and transitioning owners, including in queued callbacks. It
+retries when the host reaches idle and skips a duplicate provider/count update.
+This keeps temporary layouts from reconfiguring the shared toolbar provider.
+Corner transition completion also skips the old whole-page refresh when entered
+from an already-parked chooser. Native page loads/stroke cleanup retain their
+normal refresh policy; fewer requests do not prove flash-free hardware behavior.
+
 ## Shared corner layout (2026-09-26)
 
 Failure and rollback: selecting corner from a working split hit the DocumentView

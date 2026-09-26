@@ -93,7 +93,7 @@ function openQuickPadParked() {
     if (quickPadCached && secondary && bridge.padViewIsCurrent(secondary, quickPadId)) {
         quickPadCached = false; quickPadActive = true; companionId = quickPadId
         secondarySelected = true; revealHeight = height
-        restoring = true; quickPadFitPending = true
+        restoring = true; quickPadFitPending = !cornerFitIsCurrent()
         return
     }
     if (quickPadCached) closeSecondaryParked(false)
@@ -136,6 +136,8 @@ function fitQuickPadIfNeeded() {
     if (!cornerPaneActive || !quickPadFitPending) return true
     if (!transitionOwnsPark() || !inputGeometryPending || !secondary) throw new Error("Quick Pad fit outside park")
     if (!secondary.cnFitQuickPad()) throw new Error("Quick Pad page fit refused")
+    fittedCornerView = secondary
+    fittedCornerWidth = quickPadWidth; fittedCornerHeight = quickPadHeight
     quickPadFitPending = false
     return false // Fit may request native tiles; wait for the next ready turn.
 }

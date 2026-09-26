@@ -134,15 +134,20 @@ END REBUILD
 END TRAVERSE
 `);
     q += affect('qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','FocusScope#root',insert(`
-function cnPublishToolbarCapacity() {
+function cnPublishToolbarCapacity(force) {
     // This firmware creates Toolbar only within DocumentView. Do not publish
     // before its owner is attached, from a hidden secondary, or mid-transition.
-    if (!cnDocumentViewOwner || cnDocumentViewOwner.cnSecondary || !visible) return
+    if (!cnDocumentViewOwner || cnDocumentViewOwner.cnSecondary) return
+    // Tool visibility can change without changing the numerical capacity.
+    // Retain that invalidation through a parked layout transition.
+    if (force) cnCapacityDirty = true
+    if (!visible) return
     if (cnDocumentViewOwner.cnHost && cnDocumentViewOwner.cnHost.transitionBusy) return
     Qt.callLater(function() {
         var owner = root.cnDocumentViewOwner
         if (!owner || owner.cnSecondary || !root.visible || (owner.cnHost && owner.cnHost.transitionBusy)) return
-        if (root.cnCapacityProvider === root.toolbarProvider && root.cnPublishedCapacity === root.showableToolsCount) return
+        if (!root.cnCapacityDirty && root.cnCapacityProvider === root.toolbarProvider && root.cnPublishedCapacity === root.showableToolsCount) return
+        root.cnCapacityDirty = false
         root.toolbarProvider.updateToolbarTools(root.showableToolsCount)
         root.cnCapacityProvider = root.toolbarProvider
         root.cnPublishedCapacity = root.showableToolsCount
@@ -150,6 +155,7 @@ function cnPublishToolbarCapacity() {
 }
 property var cnCapacityProvider: null
 property int cnPublishedCapacity: -1
+property bool cnCapacityDirty: false
 onCnDocumentViewOwnerChanged: cnPublishToolbarCapacity()
 onVisibleChanged: cnPublishToolbarCapacity()
 Connections {
@@ -162,6 +168,43 @@ LOCATE BEFORE ALL
 REPLACE { Qt.callLater(() => toolbarProvider.updateToolbarTools(showableToolsCount)); } WITH { cnPublishToolbarCapacity(); }
 END REBUILD
 `);
+    q += affect('qt/qml/xofm/libs/toolbar/qml/ToolLoader.qml','Loader#root',`
+REBUILD onLoaded
+LOCATE BEFORE ALL
+REPLACE {
+    root.model.shown = item.shouldShow;
+    if (root.buttonType === ToolbarTool.Type.ToolbarButton && !root.model.shown) {
+        Qt.callLater(() => root.toolbar.toolbarProvider.updateToolbarTools(root.toolbar.showableToolsCount));
+    }
+} WITH { root.cnSyncToolVisibility(); }
+END REBUILD
+TRAVERSE Connections
+REBUILD onUpdateShown
+LOCATE BEFORE ALL
+REPLACE {
+    root.model.shown = shown;
+    if (root.buttonType === ToolbarTool.Type.ToolbarButton) {
+        Qt.callLater(() => root.toolbar.toolbarProvider.updateToolbarTools(root.toolbar.showableToolsCount));
+    }
+} WITH { root.cnSyncToolVisibility(); }
+END REBUILD
+END TRAVERSE
+`+insert(`
+function cnSyncToolVisibility() {
+    // Both document views read one provider. Only the primary may write it.
+    var owner = root.toolbar.cnDocumentViewOwner
+    if (!owner || owner.cnSecondary || !root.item) return
+    var shown = root.item.shouldShow
+    if (root.model.shown === shown) return
+    root.model.shown = shown
+    if (root.buttonType === ToolbarTool.Type.ToolbarButton)
+        root.toolbar.cnPublishToolbarCapacity(true)
+}
+Connections {
+    target: root.toolbar
+    function onCnDocumentViewOwnerChanged() { root.cnSyncToolVisibility() }
+}
+`));
     q = once(q, 'value: root.cnPaired ? null : EPFramebuffer', 'value: (root.cnPaired || root.cnQuickPadCompositing) ? null : EPFramebuffer');
     q = once(q, 'INSERT { !root.cnPaired && }', 'INSERT { !(root.cnPaired || root.cnQuickPadCompositing) && }');
     q = once(q, 'bounds.y + bounds.height - visibleHeight)', 'bounds.y + bounds.height - visibleHeight * (cnQuickPad && notePage ? 0.2 : 1))');

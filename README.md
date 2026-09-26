@@ -11,11 +11,31 @@ This is a working personal pilot, not a general-purpose or one-click installer.
 Do not run the device-specific deployment scripts blindly or change the version
 guard to force a different firmware. Back up your documents before experimenting.
 
-![Illustrative portrait split and Recent/Favorites picker](docs/images/companion-overview.png)
+## See it in use
 
-*UI mockups with fictional content, not device screenshots. Portrait only.
-The toolbar illustration is schematic; the installed icon uses the tablet's
-native notebook artwork at two sizes.*
+Real Paper Pro screen recordings, in portrait. Trimmed and slightly sped up;
+these show the interaction, not physical e-ink refresh speed.
+
+### A to-do pad without leaving your notebook
+
+Tap the task-list button, jot something down in the corner, then tuck it away.
+
+![Opening Quick Pad, writing a note, and closing it](docs/images/demos/quick-pad.gif)
+
+### Keep reading with your notes beside you
+
+Scroll the PDF independently while the corner pad stays open.
+
+![Scrolling a PDF with Quick Pad open](docs/images/demos/read-and-scroll.gif)
+
+### More room for notes
+
+A full-width companion below the PDF, with native handwriting and a thin divider.
+
+![Writing in the companion notebook below a PDF](docs/images/demos/companion-writing.gif)
+
+[Download the clips as MP4](docs/images/demos/README.md) ·
+[Earlier schematic mockup](docs/images/companion-overview.png)
 
 ## What it does
 
@@ -114,7 +134,8 @@ sleeping retires it normally. The source toolbar stays in place when opening the
 pad; its buttons should not disappear or jump.
 
 The pad must be a different, available portrait notebook, not a PDF or the source
-itself. Opening is refused during screen sharing. It does not create notebooks
+itself. Companion and Quick Pad remain usable while screen sharing; any notebook
+you reveal may be visible to viewers. It does not create notebooks
 or pages automatically. See [Quick Pad details and developer notes](docs/quick-pad.md).
 
 **Current feedback:** opening now has no flash in the user's latest feedback;

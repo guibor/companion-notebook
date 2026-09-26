@@ -85,7 +85,6 @@ Item {
     }
     function pick(id) {
         if (transitionPhase !== "choosing" || !Store.isId(id) || id === primaryId || !bridge.canOpen(id)) return false
-        if (bridge.sharingActive) { error = "Stop screen sharing before revealing another notebook."; return false }
         return requestTransition("pair", function() {
             closeSecondaryParked(false)
             companionId = id; choosing = false
@@ -96,7 +95,6 @@ Item {
         if (!idle || !mayShow || !companionId || companionId === primaryId || !bridge.canOpen(companionId)) {
             error = "This companion is unavailable. Choose a different local notebook."; return false
         }
-        if (bridge.sharingActive) { error = "Stop screen sharing before revealing another notebook."; return false }
         return requestTransition("reveal", function() { openSecondaryParked() })
     }
     function openSecondaryParked() {

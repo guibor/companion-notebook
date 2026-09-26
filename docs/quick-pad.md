@@ -49,8 +49,9 @@ opens the chooser automatically. Quick Pad settings uses the task-list icon.
 Only one secondary native view is used at a time. Quick Pad and the bottom split
 do not stack into a three-document workspace. The pad cannot open the source
 notebook again. PDFs, locked/unavailable/empty/nonportrait notebooks are excluded
-from pad selection; a PDF can still be the source. Opening is refused during
-screen sharing. It never creates a notebook or page for the user automatically.
+from pad selection; a PDF can still be the source. Screen sharing does not block
+opening or switching panes: notebooks you reveal may be visible to viewers.
+It never creates a notebook or page for the user automatically.
 
 ## Native input and refresh
 

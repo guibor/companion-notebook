@@ -12,7 +12,6 @@ function cornerFitIsCurrent() {
 }
 function toggleCompanion() {
     if (!idle || !mayShow || !primaryId || !storeReady) return false
-    if (bridge.sharingActive && (!paired || quickPadActive || quickPadCached)) return false
     if (quickPadActive || quickPadCached) {
         return requestTransition("quick-pad-to-companion", function() {
             closeSecondaryParked(false)
@@ -39,7 +38,7 @@ function chooseCompanionCorner() {
         choose()
         return true
     }
-    if (!bridge.canOpen(companionId) || bridge.sharingActive) return false
+    if (!bridge.canOpen(companionId)) return false
     return requestTransition("corner-layout", function() {
         if (quickPadCached) closeSecondaryParked(false)
         companionLayout = "corner"

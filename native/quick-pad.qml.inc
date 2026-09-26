@@ -66,7 +66,6 @@ function setQuickPadSize(size) {
 function pickQuickPad(id) {
     if (transitionPhase !== "choosing" || !quickPadChoosing || !Store.isId(id)
             || id === primaryId || !bridge.canOpenPad(id)) return false
-    if (bridge.sharingActive) { error = "Stop screen sharing before opening Quick Pad."; return false }
     return requestTransition("quick-pad-pick", function() {
         var retained = (quickPadActive || quickPadCached) ? quickPadReturn : null
         if (quickPadActive || quickPadCached) closeSecondaryParked(false)
@@ -84,7 +83,6 @@ function toggleQuickPad() {
         return false
     }
     if (!quickPadId || !bridge.canOpenPad(quickPadId)) return configureQuickPad()
-    if (bridge.sharingActive) { error = "Stop screen sharing before opening Quick Pad."; return false }
     return requestTransition("quick-pad-open", function() { openQuickPadParked() })
 }
 function openQuickPadParked() {

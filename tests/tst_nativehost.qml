@@ -35,9 +35,10 @@ Item {
             open(); fixture.host.selectPane(true); fixture.host.action("＋")
             compare(fixture.bridge.lastAction,""); compare(fixture.host.inkQualified,false)
         }
-        function test_streaming_prevents_disclosure() {
-            chooser(); fixture.bridge.sharingActive=true; verify(!fixture.host.pick(notes))
-            compare(fixture.host.secondary,null); verify(fixture.host.error.length>0)
+        function test_streaming_allows_user_selected_companion() {
+            fixture.bridge.sharingActive=true; open()
+            verify(fixture.host.tuck()); settled()
+            verify(fixture.host.openSecondary()); settled(); verify(fixture.host.paired)
         }
         function test_open_failure_preserves_primary() {
             chooser(); fixture.bridge.failCreate=true; verify(!fixture.host.pick(notes))

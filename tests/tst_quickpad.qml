@@ -270,10 +270,22 @@ Item {
             verify(f.host.pick(pad)); settle(); verify(!f.host.quickPadActive)
             compare(f.host.revealHeight,f.host.height*.25)
         }
-        function test_sharing_blocks_open_and_failed_fit_never_publishes() {
+        function test_sharing_allows_pick_toggle_corner_and_companion_switch() {
+            f.bridge.sharingActive=true
+            verify(f.host.configureQuickPad()); tryCompare(f.host,"transitionPhase","choosing")
+            verify(f.host.pickQuickPad(pad)); settle(); verify(f.host.quickPadActive)
+            verify(f.host.toggleQuickPad()); settle(); verify(!f.host.paired)
+            verify(f.host.toggleQuickPad()); settle(); verify(f.host.quickPadActive)
+            verify(f.host.toggleCompanion()); tryCompare(f.host,"transitionPhase","choosing")
+            verify(f.host.pick(pad)); settle(); verify(f.host.paired)
+            verify(f.host.chooseCompanionCorner()); settle(); verify(f.host.companionCornerSelected)
+            verify(f.host.toggleCompanion()); settle(); verify(!f.host.paired)
+            verify(f.host.toggleCompanion()); settle(); verify(f.host.paired)
+            compare(f.host.error,"")
+        }
+        function test_failed_fit_never_publishes_even_while_sharing() {
             verify(f.host.saveQuickPad(pad,"right")); f.bridge.sharingActive=true
-            verify(!f.host.toggleQuickPad()); compare(f.bridge.padOpenCount,0)
-            f.host.error=""; f.bridge.sharingActive=false; f.bridge.failFit=true
+            f.bridge.failFit=true
             verify(f.host.toggleQuickPad()); tryCompare(f.host,"transitionPhase","failed")
             verify(f.host.inputGeometryPending)
         }

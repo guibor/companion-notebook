@@ -1,5 +1,101 @@
 # Architecture and implementation status
 
+## Public recorded demos (2026-09-27)
+
+`ops/render-demo-clips.mjs` accepts the user's original recording as a local
+argument and produces three silent GIF/MP4 pairs in `docs/images/demos` using
+FFmpeg. The clip table defines reviewed cut boundaries and explicit speedups.
+Each output crops the bottom sharing/address banner, strips source metadata,
+retains original pixel width, and uses a per-clip GIF palette. Library/picker
+sequences are omitted. This is a media-only operation with no device connection.
+The README leads with real demos; their adjacent captions disclose editing and
+do not present screen capture as physical e-ink latency evidence.
+
+## User-controlled screen sharing (2026-09-27)
+
+Ordinary NativeHost pick/openSecondary, Quick Pad pick/toggle, and Companion
+toggle/corner no longer reject an action because sharingActive is true. The
+user chooses what to reveal while sharing; there is no replacement prompt.
+Document eligibility and the existing owned-park, stroke, save, availability and
+recovery gates are unchanged. Historical diagnostic sharing restrictions remain
+isolated to their frozen test profiles, not the interactive pilot.
+
+The selected-pair recording helper below was prepared but never activated. The
+user now records manually on the Mac; no capture or scripted tablet interaction
+is installed. Qt regressions cover selection, cold/warm toggles, corner layout,
+switching between modes while sharing, and a failed fit still refusing input.
+
+The packaged host is checked against the accepted toolbar-fix build: exactly
+six privacy checks are removed, and all QMD/native/Restyle/metadata code remains
+byte-identical. The recovery controller seeds the newest retained settings.
+Local results: 26 Quick Pad Qt checks, the focused ordinary-host regression,
+16 logic checks and all three full-stack QMD composition orders pass.
+Pro startup reports writing/settings ready with the updated host hash, no
+automatic restarts, Dates active and unchanged settings. Physical use/recording
+is left to the user; no automated interaction or capture was run.
+
+## Selected-pair media capture (2026-09-27)
+
+User confirms the delegate fix on hardware. The subsequent private movie driver
+is pinned to the two user-selected notebook IDs. It uses only existing host
+toggle/size/corner functions; it does not create pages, insert text, simulate ink
+or alter native admission. A fresh arm file starts a single timed sequence.
+Capture checks the controller's PID, start time and fresh allowed-view heartbeat
+around each read-only framebuffer extraction. View changes, pen input, errors
+or a fixed deadline stop the sequence. Frames carry monotonic timestamps.
+
+Quick Pad's demo target is in memory only. Normal settings and the source pair's
+original size/layout are restored when the sequence completes, and the normal
+accepted payload replaces the private driver afterward. Output is real digital
+screen content, not a measurement of physical e-ink flashing or pen latency.
+
+## Primary-owned toolbar delegates (2026-09-27)
+
+The earlier capacity guard missed two native `ToolLoader` callbacks: `onLoaded`
+and `onUpdateShown` both wrote the shared model and called `updateToolbarTools`
+directly. A hidden corner toolbar could therefore publish its smaller capacity
+despite the protected `Toolbar.onShowableToolsCountChanged` handler.
+
+`cnSyncToolVisibility` now permits only the primary document's loaders to update
+the shared `shown` role. Actual changes invalidate the primary capacity publisher;
+late owner assignment retries the current item state. Secondary loaders continue
+to read the shared model without writing it. `cnPublishToolbarCapacity(force)`
+retains a dirty bit through native transitions, and recalculates after settling
+even when the numeric capacity has not changed. All deferred work rechecks owner
+and visibility. No pen, page, native lifecycle or capture behavior changes.
+
+Installed on the Pro with native modules and settings unchanged. The16 targeted
+logic tests and all five base/combined patch orders pass. Startup is healthy;
+the user-visible open/close toolbar check remains separate. The full repository
+suite has one unrelated pre-existing stale assertion expecting an embedded
+SizeRuler in the unchanged ordinary host (419pass,7skip,1fail).
+
+## Disposable media demonstration (2026-09-27)
+
+The private, one-shot media helper is separate from the shipping build. It creates
+three fresh native notebooks through LibraryController, inserts neutral text
+through the ordinary native text editor, and calls existing Companion layout and
+toggle methods. Only freshly returned document IDs are eligible for edits or
+recording. The device-wide Quick Pad target changes in memory only and is reloaded
+from settings afterward. No synthetic pen events or notebook-file edits occur.
+The helper stops on an unexpected document, pen interaction, error or deadline.
+
+At the time of this superseded attempt, screen sharing blocked Companion for
+privacy. The media workflow preserved that guard: it stopped the broadcast and
+read the already-installed framebuffer
+spy through a bounded read-only SSH capture. No Qt screen grabs, renderer changes,
+new network listener or native admission bypass is used. Temporary demo payloads
+retain the latest combined Restyle module; the ordinary payload is restored when
+the recording finishes. Private receipts and raw captures remain outside Git.
+
+Attempt outcome: the first one-shot driver stopped at an unavailable screen-info
+symbol in an older template-call example. The corrected driver created three
+notebooks but stopped at `pasteClipboardContent`: the native method does not
+accept a plain JavaScript string in that call. No capture was armed and no layout
+demonstration ran. User proposed choosing an existing pair instead; restore the
+accepted payload and keep any next driver limited to layout operations, not text
+creation. The recording pipeline is prepared, not proven or delivered.
+
 ## Quiet corner closing and overflow identity (2026-09-26)
 
 `quickPadHost` now derives both native input heights from `cornerPaneGeometry`,

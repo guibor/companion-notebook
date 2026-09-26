@@ -137,7 +137,7 @@ test('only settled visible primary toolbar publishes changed capacity',()=>{
     let end=source.indexOf('{',start)+1,depth=1;
     while(depth) { if(source[end]==='{')depth++; if(source[end]==='}')depth--; end++; }
     const queued=[],calls=[];
-    const c={cnDocumentViewOwner:null,visible:true,cnCapacityProvider:null,cnPublishedCapacity:-1,showableToolsCount:15,Qt:{callLater:fn=>queued.push(fn)},toolbarProvider:{updateToolbarTools:n=>calls.push(n)}};
+    const c={cnDocumentViewOwner:null,visible:true,cnCapacityProvider:null,cnPublishedCapacity:-1,cnCapacityDirty:false,showableToolsCount:15,Qt:{callLater:fn=>queued.push(fn)},toolbarProvider:{updateToolbarTools:n=>calls.push(n)}};
     c.root=c;vm.createContext(c);vm.runInContext(source.slice(start,end),c);
     c.cnPublishToolbarCapacity();assert.equal(queued.length,0);
     c.cnDocumentViewOwner={cnSecondary:true};
@@ -156,7 +156,36 @@ test('only settled visible primary toolbar publishes changed capacity',()=>{
     c.cnPublishToolbarCapacity();queued.shift()();assert.deepEqual(calls,[15,16,16]);
     c.cnPublishToolbarCapacity();c.cnDocumentViewOwner={cnSecondary:true};
     queued.shift()();assert.deepEqual(calls,[15,16,16]);
+    c.cnDocumentViewOwner={cnSecondary:false,cnHost:{transitionBusy:true}};
+    c.cnPublishToolbarCapacity(true);assert.equal(c.cnCapacityDirty,true);assert.equal(queued.length,0);
+    c.cnDocumentViewOwner.cnHost.transitionBusy=false;
+    c.cnPublishToolbarCapacity();queued.shift()();assert.deepEqual(calls,[15,16,16,16]);
+    assert.equal(c.cnCapacityDirty,false);
     assert.match(source,/onShowableToolsCountChanged:\s*\{\s*cnPublishToolbarCapacity\(\)/);
+});
+test('hidden companion button loaders cannot resize or hide shared native toolbar tools',()=>{
+    const relative='/qt/qml/xofm/libs/toolbar/qml/ToolLoader.qml';
+    const file='build/quick-pad-composed-last'+relative;
+    const source=fs.readFileSync(fs.existsSync(file)?file:'build/quick-pad-composition-input'+relative,'utf8');
+    assert.doesNotMatch(source,/toolbarProvider\.updateToolbarTools/,'Every delegate update must use the owner-scoped publisher');
+    const start=source.indexOf('function cnSyncToolVisibility(');
+    assert(start>=0);
+    let end=source.indexOf('{',start)+1,depth=1;
+    while(depth){if(source[end]==='{')depth++;if(source[end]==='}')depth--;end++;}
+    let writes=0;const requests=[];
+    const model={_shown:true,get shown(){return this._shown},set shown(v){writes++;this._shown=v}};
+    const c={toolbar:{cnDocumentViewOwner:null,cnPublishToolbarCapacity:force=>requests.push(force)},model,item:{shouldShow:false},buttonType:1,ToolbarTool:{Type:{ToolbarButton:1}}};
+    c.root=c;vm.createContext(c);vm.runInContext(source.slice(start,end),c);
+    c.cnSyncToolVisibility();assert.equal(writes,0);
+    c.toolbar.cnDocumentViewOwner={cnSecondary:true};
+    c.cnSyncToolVisibility();assert.equal(writes,0);assert.deepEqual(requests,[]);
+    c.toolbar.cnDocumentViewOwner={cnSecondary:false};
+    c.cnSyncToolVisibility();assert.equal(writes,1);assert.equal(model.shown,false);assert.deepEqual(requests,[true]);
+    c.cnSyncToolVisibility();assert.equal(writes,1);assert.deepEqual(requests,[true]);
+    c.item.shouldShow=true;c.cnSyncToolVisibility();assert.equal(writes,2);assert.deepEqual(requests,[true,true]);
+    c.buttonType=2;c.item.shouldShow=false;c.cnSyncToolVisibility();assert.equal(writes,3);assert.deepEqual(requests,[true,true]);
+    assert.match(source,/onCnDocumentViewOwnerChanged[^\n]*cnSyncToolVisibility/);
+    assert.match(source,/onUpdateShown\(shown\)[\s\S]*?root.cnSyncToolVisibility\(\)/);
 });
 test('toolbar toggles Companion while overflow retains its chooser',()=>{
     const toolbar=fs.readFileSync('build/quick-pad-composed-last/qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','utf8');

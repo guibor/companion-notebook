@@ -3,6 +3,68 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Public demonstration clips (2026-09-27)
+- Edit the user-supplied screen recording into short GIFs and MP4 alternatives.
+- Put real demonstrations near the top of the GitHub README; retain truthful
+  firmware, portrait-only and experimental-installation limitations.
+- Exclude library/picker browsing and crop the sharing banner/local address.
+- Prepare a concise r/RemarkableTablet update with demo links, Self-Promotion
+  flair and no generic feedback-seeking closing. Preview before submission.
+** Next steps
+- Review final clips, publish media/documentation on the current branch, and
+  obtain approval of the actual Reddit text before submitting it.
+
+* Normal operation while screen sharing (2026-09-27)
+- User explicitly wants Companion and Quick Pad to operate normally during
+  native screen sharing and RMStream. Opening another notebook is intentional;
+  no privacy refusal, confirmation prompt or special recording mode.
+- Keep document eligibility, pen-in-flight, native park/save and recovery checks.
+- User will record on the Mac. Do not activate automatic demo drivers.
+** Changed requirements
+- Supersedes the earlier privacy-based refusal to reveal another notebook while
+  sharing, and the prepared selected-pair automated recording workflow below.
+** Next steps
+- Local checks pass: 26 Quick Pad Qt checks, normal-host sharing regression,
+  16 logic checks and three full-stack composition orders. The generated host
+  differs only by removing six sharing refusals; QMD/native modules are unchanged.
+- Installed on the Pro; host reports writing/settings ready, no automatic UI
+  restarts, Dates active and exact saved-settings preservation. User records
+  normally; no automatic demo or pen trials and no Move changes.
+
+* Selected-pair recording (2026-09-27)
+- User confirms toolbar behavior is now good and has selected Notes/Tasks for
+  the public-facing demonstration. Use only that pair, with no content changes.
+- Record actual split sizes, corner layout and Quick Pad open/close. A temporary
+  in-memory pad target may use the selected Tasks notebook; restore the user's
+  real pad and the selected pair's original layout metadata afterward.
+** Next steps
+- Canceled before activation: user chose manual Mac recording. No frames recorded.
+
+* Primary-owned toolbar delegates (2026-09-27)
+- User reports ordinary tools displaced into overflow again while a corner pad
+  is open. Keep the primary toolbar's normal ordering and available space.
+- Hidden secondary button loaders must not resize or hide shared primary tools.
+- Preserve tool-visibility updates even when the numerical capacity is unchanged.
+** Next steps
+- Generated callback regression and all patch-composition orders pass; the
+  toolbar-only correction is installed with current Restyle and unchanged settings.
+- Resume recording only once the visible toolbar is normal; no content edits.
+
+* Real-device demonstration media (2026-09-27)
+- User authorizes creating new demo notebooks and operating the demonstration
+  without asking them to locate or tap documents. Record real interface frames
+  for Reddit; do not post publicly or include personal notebook content.
+- Use neutral typed sample text, not simulated pen strokes. Screen captures are
+  not evidence of physical e-ink refresh performance.
+** Next steps
+- User offered a simpler route: choose an existing non-private paired set.
+- Automatic setup created demo notebooks but stopped on a native text-paste
+  argument mismatch. No frames were recorded; the temporary driver is removed
+  and the accepted runtime is restored with unchanged user settings.
+- Preserve current Restyle payload and user settings. The later sharing change
+  supersedes the privacy block; user records manually instead of this workflow.
+- No automatic content insertion or demo driver; no completed recording claim.
+
 * Quiet closing and distinct overflow icons (2026-09-26)
 - User confirms opening no longer flashes; preserve that working path.
 - Reduce the remaining closing flash without global waveform changes.

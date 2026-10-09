@@ -52,6 +52,10 @@ The safety gates remain mandatory; only their cold-start timing changed.
 app bytes: it verifies the old stage manifest, exact prior/current coordinator
 inputs (only profile may differ), and all eleven unchanged payloads. Backup
 compression is gzip level1 under pipefail, with unchanged coverage and checks.
+ReManager's retry startup receipt confirms the bounded cold-start path completed
+with UI19222, Dates8045 and independent owner/watch active, zero restarts, both
+host readiness messages, unchanged settings and read-only root. This establishes
+installation/startup, not physical pen/selection acceptance.
 
 ## Public recorded demos (2026-09-27)
 

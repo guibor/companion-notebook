@@ -1,10 +1,30 @@
 # Companion / Quick Pad Pro 3.29.0.152 handoff
 
-Status: complete combined stage sealed against the newly committed eleven-QMD
-base, with fresh policy/settings inventory. **No activation performed by this task.** Worktree:
+Status: combined stage installed by ReManager; startup and settings checks passed.
+**No device operations were performed by this task.** Worktree:
 `/Users/mdf/code/.worktrees/companion-pro-3290152`, branch `beta/pro/3.29.0.152`.
 Starts at `40cae4a` (latest accepted Quick Pad/corner/sharing/toolbar behavior).
 ReManager owns all live actions. No tablet, Move or server access from this task.
+
+## Coordinator-reported installation receipt
+
+Retry `20261009T224634Z-34932` reached ready state on 2026-10-09 at 22:48 UTC
+(2026-10-10 Israel time). Evidence was read from ReManager's command results:
+
+- UI19222, Dates8045, owner17906 and independent watchdog18840 all active,
+  with zero automatic restarts; UI remained19222 at the 22:48:27 follow-up.
+- `WebPDF: selection host ready` at 22:48:13.858.
+- `Companion: host ready; ink=true; settings=true` at 22:48:15.528.
+- All eleven recorded settings files matched, including pairs.ini, both Gestik
+  files, Dates settings/token/sync, Dispatch and Smart settings/SSH files.
+- Thirteen external QMD loads passed the exact count check; relevant QML-error
+  scan passed; root remained `ro,relatime`.
+- The controller's mandatory readiness gate includes both Companion native
+  mappings and the reviewed Restyle mapping. Physical writing/selection behavior
+  remains user feedback, not something inferred from this startup receipt.
+
+Move and shared servers were not changed. No manual-test pause or synthetic
+tablet input was part of this installation.
 
 ## Sealed combined stage
 

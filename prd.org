@@ -14,6 +14,10 @@ Read and write without losing context or compromising native handwriting.
 - .148-only installation scope is extended to an explicitly pinned .152 pilot.
   Historical controllers and diagnostic clearances remain .148-only.
 ** Next steps
+- ReManager installed retry =20261009T224634Z-34932=: UI19222, Dates8045,
+  independent owner/watch active, zero restarts, native host readiness and all
+  settings preserved. Installation is complete; use normally for real feedback.
+  No further automated device interaction is requested.
 - First activation recovered cleanly after an early startup-readiness failure.
   Controller-only retry =handoff-48f70087f9ac= retains every safety gate and allows
   bounded cold QML startup. ReManager owns retry; no app behavior/metadata change.

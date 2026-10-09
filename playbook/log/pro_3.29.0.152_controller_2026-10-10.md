@@ -45,3 +45,11 @@ At ReManager's request, gzip level1 speeds the same full-coverage verified archi
 Controller-only reseal `handoff-48f70087f9ac` preserves the other eleven payload
 files byte-for-byte and reuses composition only with identical coordinator inputs.
 ReManager received its new manifest and instructions; no tablet access here.
+
+ReManager's retry `20261009T224634Z-34932` reached native readiness at22:48UTC:
+UI19222, Dates8045, owner17906, watchdog18840 active and zero automatic restarts.
+Both Companion ink/settings-ready and WebPDF selection-host-ready logged. All
+eleven recorded settings hashes passed; thirteen-QMD load count, relevant error
+scan and read-only root passed. Follow-up22:48:27 retained UI19222/no restarts.
+This task read the coordinating task's command evidence, not the device directly.
+Installation/startup complete; no simulated input or physical-acceptance claim.

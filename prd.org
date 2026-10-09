@@ -14,6 +14,11 @@ Read and write without losing context or compromising native handwriting.
 - .148-only installation scope is extended to an explicitly pinned .152 pilot.
   Historical controllers and diagnostic clearances remain .148-only.
 ** Next steps
+- Final real-table/real-peer composition passed; the app-only payload is ready.
+  New combined controller renderer preserves current settings and the accepted
+  watchdog/recovery behavior. ReManager is activating the eleven-QMD base and
+  will supply its fresh effective policy inventory to seal the combined stage.
+  No manual-test pause or additional automated tablet interaction is requested.
 - Source port, four-class metadata comparison, 6 port tests, 29 logic tests,
   26 Qt interactions and 24 C++ admission cases pass offline. Bind to the
   coordinator's verified resource table/runtime/final peers and run the final

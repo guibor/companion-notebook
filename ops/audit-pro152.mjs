@@ -60,6 +60,24 @@ assert.match(readelf(['--dyn-syms','--wide',stock]),/UND _ZN7QObject12moveToThre
 const receipt={status:'static-metaobject-match-runtime-libraries-pending',stockSha256:sha(b.b),buildId:targets['3.29.0.152'].buildId,
     metadata,publicQtInterpositionImport:true,
     limitations:['Metadata equality is not code/worker semantic equivalence','Exact .152 runtime libraries and on-target startup remain coordinator gates'],installable:false};
+if(process.argv[2]) {
+    const observedBytes=fs.readFileSync(process.argv[2]);
+    const observed=JSON.parse(observedBytes);
+    assert.equal(observed.firmware,'3.29.0.152');assert.equal(observed.stockSha256,receipt.stockSha256);
+    assert.equal(observed.buildId,receipt.buildId);assert.equal(observed.build,targets['3.29.0.152'].build);
+    const prior='/Users/mdf/code/companion-notebook/build/admission-arm64';
+    const accepted=JSON.parse(fs.readFileSync(prior+'/elf-review.json','utf8'));
+    const expected={...accepted.module.runtimeHashes,...accepted.bootstrap.runtimeHashes};
+    for(const [name,hash]of Object.entries(expected))assert.equal(observed.libraries[name]?.sha256,hash,'Provider mismatch: '+name);
+    for(const [name,hash]of Object.entries(accepted.sourceHashes))assert.equal(sha(fs.readFileSync('native-admission/'+name)),hash,'Native source changed: '+name);
+    assert.equal(sha(fs.readFileSync(prior+'/libcompanionbootstrap.so')),accepted.bootstrap.sha256);
+    assert.equal(sha(fs.readFileSync(prior+'/qml/Companion/Admission/libcompanionadmissionplugin.so')),accepted.module.sha256);
+    receipt.status='static-metaobject-and-direct-provider-reuse-pass';
+    receipt.runtimeManifestSha256=sha(observedBytes);
+    receipt.matchedDirectProviders=Object.keys(expected).sort();
+    receipt.reusableBinaries={bootstrap:accepted.bootstrap.sha256,module:accepted.module.sha256};
+    receipt.limitations=['Metadata equality is not code/worker semantic equivalence','Final table/combined-stack composition and on-target startup remain coordinator gates','libm is recorded but is not a direct dependency of these two modules'];
+}
 fs.mkdirSync('build/pro-3.29.0.152-audit',{recursive:true});
 fs.writeFileSync('build/pro-3.29.0.152-audit/native-abi.json',JSON.stringify(receipt,null,2)+'\n');
 console.log(JSON.stringify(receipt,null,2));

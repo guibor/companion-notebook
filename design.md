@@ -24,6 +24,22 @@ It neither guesses service pins nor ships settings or a runnable old controller.
 `tests/port152-composition.mjs` is explicitly a preliminary source-only fixture
 against prior peers, not an installable peer port or a final-stack receipt.
 
+`ops/controller-pro152.mjs::validateController` requires fresh .152 base files,
+settings, service policies, native maps and directory inventories. `renderController`
+adapts the hash-pinned accepted watchdog template; its owner/cgroup termination,
+bounded base/stock recovery and suspend-aware heartbeat bodies remain unchanged.
+The new twelve-file stage adds the reviewed Restyle module and combined WebPDF
+QMD in a private runtime over the eleven-QMD base. WebPDF is QML/Go, not a DSO.
+Current Companion data stays in place; the old host moves aside only after the
+independent watchdog is ready and is restored on recovery. Both current Gestik
+preimages are backed up, never replaced. Effective failure-policy shadows must
+come from the freshly qualified base, not from historical service files.
+`ops/assemble-pro152-inputs.mjs` binds coordinator-supplied peer receipts and an
+optional hash-pinned fresh controller inventory. `prepare-pro152.mjs --payload-only`
+explicitly emits only app files; full mode emits controller/base manifest too.
+Neither mode connects to a device. Final actual-table composition has passed in
+two orders; staged activation and physical acceptance are separate evidence.
+
 ## Public recorded demos (2026-09-27)
 
 `ops/render-demo-clips.mjs` accepts the user's original recording as a local

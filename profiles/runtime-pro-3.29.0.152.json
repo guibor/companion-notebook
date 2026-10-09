@@ -1,0 +1,22 @@
+{
+  "firmware": "3.29.0.152",
+  "build": "20261009073202",
+  "stockSha256": "7aa5d67da6850d7021ade5a2232edeb5f34550236eca6f7a102f37f962dd4bd2",
+  "buildId": "3829d2eddadae1a94d7f099809b15770ed38a4e5",
+  "evidence": "Fresh read-only device hashes supplied by ReManager on 2026-10-10; no tablet access by Companion task",
+  "libraries": {
+    "libQt6Core.so.6": {"devicePath":"/usr/lib/libQt6Core.so.6.10.3", "sha256":"e872000b77055d4a50e2c8647f70a96cd3e2c274f89dd33aef4d4d9142543f61"},
+    "libQt6Gui.so.6": {"devicePath":"/usr/lib/libQt6Gui.so.6.10.3", "sha256":"63793cd6fcf2ea6cfb9e61f0b0e63273c1fe0888a78cd1edcb01e58764b2d147"},
+    "libQt6Qml.so.6": {"devicePath":"/usr/lib/libQt6Qml.so.6.10.3", "sha256":"c0f3b1dfdafae658de9986aabe381f956e2ec1b61bf45c3b5483222499985826"},
+    "libstdc++.so.6": {"devicePath":"/usr/lib/libstdc++.so.6.0.36", "sha256":"20837030fc7050dc467032f1647303182177cbb754408c982d4f302b68d5d15c"},
+    "libgcc_s.so.1": {"devicePath":"/usr/lib/libgcc_s.so.1", "sha256":"4eb38311c9289c974f70149d780e6bb1df29d17804af693f0812bdce63a96071"},
+    "libc.so.6": {"devicePath":"/usr/lib/libc.so.6", "sha256":"ac7f8dd9a4d30f7714d3faf480575303b43b90c084e01ede7a53561fd3f04008"},
+    "libm.so.6": {"devicePath":"/usr/lib/libm.so.6", "sha256":"089a4008a35650b5dbf5d971435998fb64b93e05459bce99992527e697cb2afd"},
+    "libdl.so.2": {"devicePath":"/usr/lib/libdl.so.2", "sha256":"ac667407c68a05999e125d1d1532d6988846a7faefaed4556d887e37ce575366"},
+    "libpthread.so.0": {"devicePath":"/usr/lib/libpthread.so.0", "sha256":"9463508bff81a9f395991312d9d630759109d6e13f8fe6c3ff34b21e136e0671"}
+  },
+  "vendorPolicyHashes": {
+    "unit":"23f537cf59d527bfbf4823f372385d613e1ade0961c98831c935a372018f9566",
+    "sameBasenameOverride":"a9432caffacb29d6fcb35136dcc3cb43d8737eb6c2efcb35ea335725f42082d1"
+  }
+}

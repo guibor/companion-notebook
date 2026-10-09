@@ -14,6 +14,9 @@ Read and write without losing context or compromising native handwriting.
 - .148-only installation scope is extended to an explicitly pinned .152 pilot.
   Historical controllers and diagnostic clearances remain .148-only.
 ** Next steps
+- First activation recovered cleanly after an early startup-readiness failure.
+  Controller-only retry =handoff-48f70087f9ac= retains every safety gate and allows
+  bounded cold QML startup. ReManager owns retry; no app behavior/metadata change.
 - Complete twelve-file combined stage sealed against the actual committed base:
   =build/pro-3.29.0.152/handoff-09731879751e=. ReManager has the exact stage hash
   and prepare/run/stop instructions and retains sole activation ownership.

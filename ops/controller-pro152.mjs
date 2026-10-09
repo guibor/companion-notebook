@@ -181,11 +181,34 @@ ${c.hostFiles.map(f=>`    exact "$root/${f.path.slice(H.length+1)}" ${f.sha256} 
     const tarStart=s.indexOf('    tar -czf "$B/preimages.tgz"'),tarEnd=s.indexOf('    tar -tzf',tarStart);
     assert(tarEnd>tarStart);
     const backups=[...new Set([...c.policy.files,...c.settings,...c.files,...c.hostFiles].map(f=>f.path.slice(1)))];
-    s=s.slice(0,tarStart)+`    tar -czf "$B/preimages.tgz" -C / ${backups.map(quote).join(' ')}\n`+s.slice(tarEnd);
+    s=s.slice(0,tarStart)+`    tar -cf - -C / ${backups.map(quote).join(' ')} | gzip -1 >"$B/preimages.tgz"\n`+s.slice(tarEnd);
     const prepStart=s.indexOf('    mkdir -m 0700 "$B/host-prepared" "$B/data-prepared"'),prepEnd=s.indexOf('    cp "$S/NativeHost.qml"',prepStart);
     assert(prepEnd>prepStart);s=s.slice(0,prepStart)+'    mkdir -m 0700 "$B/host-prepared"\n'+s.slice(prepEnd);
     change('absent "$H"; absent "$D"; absent "$B/owner"','verify_old_host "$H"; private "$D"; verify_current_settings; absent "$B/owner"; absent "$B/host-before"');
     change('mv "$B/host-prepared" "$H"\nmv "$B/data-prepared" "$D"','mv "$H" "$B/host-before"\nmv "$B/host-prepared" "$H"');
+    const start=s.indexOf('sleep 3\nhealthy probe\nprobe_pid='),end=s.indexOf('mark pilot-running "$probe_pid"',start);
+    assert(start>0&&end>start,'Startup template drift');
+    s=s.slice(0,start)+`# A cold QML rebuild can outlive the former three-second map check.
+# Keep all readiness gates, but wait for them together under the live watchdog.
+probe_pid=$(pid xochitl.service)
+[[ "$probe_pid" =~ ^[1-9][0-9]*$ ]]
+mark startup-waiting cold-qml-module-readiness
+startup_ready=0
+for n in $(seq 1 60); do
+    systemctl is-active --quiet "$WATCH" || exit 1
+    systemctl is-active --quiet xochitl.service || exit 1
+    [ "$(pid xochitl.service)" = "$probe_pid" ] || exit 1
+    [ "$(systemctl show -p NRestarts --value xochitl.service)" = 0 ] || exit 1
+    if healthy probe &&
+        grep -Fq 'Companion: host ready; ink=true; settings=true' "$B/probe.log" &&
+        grep -Fq 'WebPDF: selection host ready' "$B/probe.log"; then
+        startup_ready=1
+        break
+    fi
+    sleep 1
+done
+[ "$startup_ready" = 1 ] || exit 1
+`+s.slice(end);
     assert(!/202609|3\.29\.0\.148|old_pairs|pairs-seed|data-prepared|settings-retained|BASE_DROP/.test(s),'Historical replay remains');
     assert(!/mount\s|\/dev\/input|\/boot\//.test(s));
     return {source:s,baseManifest};

@@ -11,6 +11,7 @@ assert.equal(qmds.length,12);
 qmds.push({path:'/Users/mdf/code/remarkable-web-pdf-pro-3.29.0.152/.cache/pro-3.29.0.152-reviewed/restyle-with-webpdf.qmd',sha256:'8da621f11a4e0c1e29e33d1c27e3bc69c2fdfed15ee8c2ac4a760e56570973ec'});
 for(const q of qmds)assert.equal(sha(fs.readFileSync(q.path)),q.sha256);
 const spec={firmware:runtime.firmware,build:runtime.build,buildId:runtime.buildId,stockSha256:runtime.stockSha256,
+    controllerProfile:'pro152-combined-cold-start-v2',
     hashtabSha256:'5d5e9e6fe21a9dfbed27306aa57b137e3efdf59f5ba904df4440e222cdd2fe86',
     hashtabCaptureStatus:'two-canonical-captures-equal',
     canonicalTableSha256:'620a29ae311272d471fa87263541b8ad9874b890a5b8aa17681033773cf1f624',

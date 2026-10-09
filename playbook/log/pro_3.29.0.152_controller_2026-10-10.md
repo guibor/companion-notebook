@@ -33,3 +33,15 @@ Exact prepare/run/stop instructions were handed to ReManager. No Companion commi
 action exists: this personal pilot keeps its independent watchdog while active.
 Final focused result: 18 controller/port cases, two final-stack composition orders
 with 34 resources each. Actual device activation remains ReManager-owned.
+
+First native attempt exited before host readiness; supplied log had complete
+resource processing and early launcher/framebuffer construction, no QML error.
+Independent recovery completed to base16337, zero restarts, all settings unchanged.
+ReManager supplied byte-identical fresh inventory after recovery. Replaced the
+inherited premature three-second map assertion with a bounded sixty-poll combined
+readiness gate; PID continuity, zero restarts, watchdog, all module maps and both
+host-ready messages remain required. Added four focused mocked startup cases.
+At ReManager's request, gzip level1 speeds the same full-coverage verified archive.
+Controller-only reseal `handoff-48f70087f9ac` preserves the other eleven payload
+files byte-for-byte and reuses composition only with identical coordinator inputs.
+ReManager received its new manifest and instructions; no tablet access here.

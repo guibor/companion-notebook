@@ -43,6 +43,16 @@ The final sealed stage binds the observed committed base inventory (34 immutable
 file pins plus policy/host/settings), not a synthetic controller fixture. Its
 generation and activation instructions are recorded in the versioned handoff.
 
+The first native activation failed before host readiness at the inherited fixed
+three-second map check; ReManager observed full base/settings recovery. Startup
+now uses one bounded 60-poll wait for the same active PID, no restarts, independent
+watchdog, full module mappings and both Companion/WebPDF readiness messages.
+The safety gates remain mandatory; only their cold-start timing changed.
+`ops/reseal-pro152.mjs` permits a controller-only retry without recomposing identical
+app bytes: it verifies the old stage manifest, exact prior/current coordinator
+inputs (only profile may differ), and all eleven unchanged payloads. Backup
+compression is gzip level1 under pipefail, with unchanged coverage and checks.
+
 ## Public recorded demos (2026-09-27)
 
 `ops/render-demo-clips.mjs` accepts the user's original recording as a local

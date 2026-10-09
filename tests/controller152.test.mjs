@@ -63,7 +63,7 @@ test('explicit current settings, native peer maps and effective policy shadows a
     assert.throws(()=>renderController(fixture(),original+'\n'),/template changed/);
 });
 test('fresh pins retain both Gestik preimages and append the real native import root',()=>{
-    assert.match(rendered,/tar -czf[^\n]*home\/root\/\.config\/gestik.json[^\n]*home\/root\/\.local\/share\/gestik-beta\/gestik.json/);
+    assert.match(rendered,/tar -cf -[^\n]*home\/root\/\.config\/gestik.json[^\n]*home\/root\/\.local\/share\/gestik-beta\/gestik.json[^\n]*\| gzip -1 >"\$B\/preimages.tgz"/);
     assert.match(rendered,/QML_IMPORT_PATH=\/home\/root\/\.local\/lib\/companion-notebook\/qml:%s\/restyle-qml/);
     assert.match(rendered,/restyle-highlights.qmd restyle-qmldir librestylehighlightsplugin.so/);
     assert.match(rendered,/\[Unit\]\\nOnFailureJobMode=replace\\nStartLimitAction=none\\n\[Service\]\\nRestart=no/);
@@ -104,6 +104,29 @@ test('generated recovery: one base restart and no unnecessary stock restart',()=
 test('generated recovery: failed base gets one stock attempt, retry cannot restart again',()=>assert.equal(recovery({baseFails:true,retry:true}),'PASS:stock:2'));
 test('generated recovery: surviving owner child prevents all restarts',()=>assert.equal(recovery({childAlive:true}),'REFUSED:0'));
 test('generated recovery: foreign drop-in is preserved with no restart',()=>assert.equal(recovery({foreign:true}),'REFUSED:0'));
+
+for(const [scenario,readyAfter,status]of [['cold-start',7,0],['timeout',61,1],['pid-changed',7,1],['watchdog-lost',7,1]]){
+    test('bounded startup keeps mapping/readiness gates: '+scenario,()=>{
+        const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cn152-startup-'));
+        try{
+            fs.writeFileSync(dir+'/probe.log','Companion: host ready; ink=true; settings=true\nWebPDF: selection host ready\n');
+            const body=section(rendered,'probe_pid=$(pid xochitl.service)\n[[','mark pilot-running');
+            const r=spawnSync('/bin/bash',['-c',`set -Eeuo pipefail
+B=${JSON.stringify(dir)}; WATCH=watch; POLLS=0
+pid(){ if [ ${JSON.stringify(scenario)} = pid-changed ] && [ "$POLLS" -ge 2 ]; then printf 24; else printf 23; fi; }
+mark(){ :; }
+systemctl(){ if [ "$1" = show ]; then printf 0; elif [ "$3" = watch ] && [ ${JSON.stringify(scenario)} = watchdog-lost ] && [ "$POLLS" -ge 2 ]; then return 1; fi; }
+healthy(){ POLLS=$((POLLS+1)); [ "$POLLS" -ge ${readyAfter} ]; }
+sleep(){ :; }
+${body}
+printf 'READY:%s' "$POLLS"
+`],{encoding:'utf8'});
+            assert.equal(r.status,status,r.stderr);
+            if(status===0)assert.equal(r.stdout,'READY:7');
+            else assert.doesNotMatch(r.stdout,/READY/);
+        }finally{fs.rmSync(dir,{recursive:true,force:true});}
+    });
+}
 
 for(const phase of ['before-host-move','after-old-host-move','after-new-host-move','foreign-host']){
     test('settings untouched and old module restored: '+phase,()=>{

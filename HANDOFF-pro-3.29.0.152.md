@@ -8,6 +8,29 @@ ReManager owns all live actions. No tablet, Move or server access from this task
 
 ## Sealed combined stage
 
+**Use the cold-start retry stage, not the first stage below:**
+
+- Directory: `build/pro-3.29.0.152/handoff-48f70087f9ac/`.
+- SHA256SUMS: `75d510790197f39960bb4c4cf3ac9eae6496f51ffeacfd7466124327f096b46f`.
+- probe.sh: `86e8e3878cd8ffc60c5d8d2e10e0636eba795c7250d8b3c12ee78d85d0254a70`.
+- Coordinator SHA256: `48f70087f9ac659c7850043b14857815e7531b6278bb82faa4c4b249ab8f8137`.
+- First activation `20261009T224151Z-31578` exited at the startup gate before
+  native-host readiness; its log showed resource processing but no QML load
+  errors. ReManager confirmed completed recovery to base16337 with zero restarts
+  and every settings hash unchanged. Fresh inventory remained byte-identical.
+- Retry changes **only probe.sh**. It waits at most 60 completed one-second polls
+  for the same active PID, zero restarts, live watchdog, all expected module maps,
+  Companion ink/settings-ready and WebPDF selection-host-ready. No map gate is
+  waived. Timeout, PID change or watchdog loss still triggers existing recovery.
+- Backups use `tar -cf - | gzip -1` under pipefail, with identical explicit file
+  coverage and archive/hash/off-device verification requirements.
+- `ops/reseal-pro152.mjs` reused the pinned prior composition only after proving
+  identical target/runtime/peer/live inventories and all eleven unchanged payload
+  files. Four targeted startup cases pass (cold readiness, timeout, PID change,
+  watchdog loss), in addition to the prior twelve controller cases.
+
+First sealed stage (historical failed startup attempt; **do not replay**):
+
 - Directory: `build/pro-3.29.0.152/handoff-09731879751e/`.
 - SHA256SUMS SHA256: `a93979fe948e4e7c54a2a62ac92caff1feabf8f7e1af762da8067e3ee51e0aa0`.
 - probe.sh SHA256: `78ce40eb91492a134fa74fae582322df5fa7cdb47c41a5491eadcb3fd36bfb0d`.

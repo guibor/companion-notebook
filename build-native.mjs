@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {quickPadHost, quickPadQmd} from './ops/quick-pad-build.mjs';
-const firmware = process.env.RM_FIRMWARE || '/Users/mdf/code/remarkable-beta-os/.cache/firmware/3.29.0.148';
+import {firmwareTarget} from './ops/firmware-target.mjs';
+const target = firmwareTarget();
+const firmware = target.root;
 const tool = process.env.QMLDIFF_BIN || '/Users/mdf/code/remarkable-beta-os/.cache/tools/qmldiff-25681c3-bin';
 const renderProbe = process.env.CN_PROBE === 'render';
 const structuralProbe = process.env.CN_PROBE === 'structural';
@@ -27,17 +29,15 @@ const paneNavigation = !diagnostic || geometryProbe || inkProbe;
 assert(!process.env.CN_PROBE || diagnostic || lifecycleProbe || sleepProbe, 'Unknown probe profile');
 assert(!ordinaryProbe || !diagnostic, 'Ordinary lifecycle probe is separate from historical profiles');
 assert(!userPilot || (!process.env.CN_PROBE && !ordinaryProbe), 'User pilot never includes a diagnostic driver');
-const output = quickPad ? 'build/quick-pad-native' : userPilot ? 'build/pilot-native' : sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
+const output = target.version === '3.29.0.152' ? `build/pro-${target.version}${target.sourceOnly ? '-unbound' : ''}/${quickPad ? 'quick-pad-native' : 'pilot-native'}` : quickPad ? 'build/quick-pad-native' : userPilot ? 'build/pilot-native' : sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
-exact(path.join(firmware,'xochitl'),'4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4');
-exact(path.join(firmware,'hashtab'),'1f2a0f7177dac3cdfc030ff32b4643170dd2ef6e2f6c6369b4c4168513ce01f0');
 exact(tool,'5d48704b2b55702bf553f65e0fac46bc2eacd72d3d995ac52b379df7e0ce973d');
 const inc = p => fs.readFileSync('native/'+p+'.qml.inc','utf8');
 const affect = (file, root, body, imports='') => `AFFECT /${file}\n${imports}\n TRAVERSE ${root}\n${body}\n END TRAVERSE\nEND AFFECT\n`;
 const insert = text => ` LOCATE BEFORE ALL\n INSERT {\n${text}\n }\n`;
 const replace = (field, before, after) => ` REBUILD ${field}\n LOCATE BEFORE ALL\n REPLACE { ${before} } WITH { ${after} }\n END REBUILD\n`;
-let q = 'VERSION 3.29.0.148\n';
+let q = `VERSION ${target.version}\n`;
 q += affect('qml/common/Values.qml','Item',insert('signal cnChooseRequested()' + (userPilot ? '\nsignal cnPilotStopRequested()\nsignal cnLayoutRequested(int sizeIndex)\nproperty bool cnHasCompanion: false\nproperty real cnLayoutRatio: 0' : '') + (diagnostic || ordinaryProbe ? '\nproperty bool cnProbeStarted: false' : '')));
 let probeBridge = diagnostic || ordinaryProbe ? inc('probe-bridge') : '';
 if (noCaptureProbe || ordinaryProbe) {
@@ -837,6 +837,11 @@ if (!diagnostic) {
     const ruler=fs.readFileSync('ui/SizeRuler.qml','utf8');
     assert.equal((ruler.match(/^\s*Accessible\.[^\n]*$/gm)||[]).length,4);
     fs.writeFileSync(output+'/SizeRuler.qml',ruler.replace(/^\s*Accessible\.[^\n]*\n/gm,''));
+}
+if (target.sourceOnly) {
+    fs.writeFileSync(output+'/NOT-INSTALLABLE.json',JSON.stringify({firmware:target.version,stockSha256:target.stockSha256,status:'unbound-source-only',missing:'verified resource table and native runtime audit',installable:false},null,2)+'\n');
+    console.log('Source-only .152 QMD emitted without hash binding. NOT INSTALLABLE.');
+    process.exit(0);
 }
 execFileSync(tool,['hash-diffs',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{stdio:'inherit'});
 const result = execFileSync(tool,['check-compatibility',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{encoding:'utf8'});

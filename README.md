@@ -11,6 +11,11 @@ This is a working personal pilot, not a general-purpose or one-click installer.
 Do not run the device-specific deployment scripts blindly or change the version
 guard to force a different firmware. Back up your documents before experimenting.
 
+This `beta/pro/3.29.0.152` branch contains an **offline port in preparation**.
+It is not an installed or hardware-qualified .152 release. Maintainers: see
+[the exact-firmware handoff](HANDOFF-pro-3.29.0.152.md) for artifacts, checks,
+remaining runtime inputs and settings-preservation requirements.
+
 ## See it in use
 
 Real Paper Pro screen recordings, in portrait. Trimmed and slightly sped up;

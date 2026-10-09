@@ -4,6 +4,9 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 const id=process.argv[2];
+assert(!process.env.CN_FIRMWARE_VERSION || process.env.CN_FIRMWARE_VERSION === '3.29.0.148',
+    'Historical .148 controller only. Use the .152 handoff and fresh coordinator inventory.');
+assert(process.env.CN_SOURCE_ONLY !== '1', 'Unbound source cannot be packaged');
 assert(/^\d{8}T\d{6}Z-\d+$/.test(id||''));
 const previous=process.argv[3];
 assert(!previous || (/^\d{8}T\d{6}Z-\d+$/.test(previous) && previous !== id));

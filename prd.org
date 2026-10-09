@@ -3,6 +3,23 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Pro 3.29.0.152 port (2026-10-10)
+- Separate exact-firmware branch/worktree; preserve accepted Companion, corner,
+  Quick Pad, screen sharing and shared toolbar behavior and current settings.
+- ReManager owns all device operations. Offline preparation only here; no Move,
+  server, tablet access, test strokes or restarts.
+- Preserve combined Restyle/WebPDF integration; require actual peer artifacts,
+  exact resource table and runtime ABI evidence rather than guessed final hashes.
+** Changed requirements
+- .148-only installation scope is extended to an explicitly pinned .152 pilot.
+  Historical controllers and diagnostic clearances remain .148-only.
+** Next steps
+- Source port, four-class metadata comparison, 6 port tests, 29 logic tests,
+  26 Qt interactions and 24 C++ admission cases pass offline. Bind to the
+  coordinator's verified resource table/runtime/final peers and run the final
+  integration builder. Device activation remains solely with ReManager.
+- See HANDOFF-pro-3.29.0.152.md; unbound source is not an installable package.
+
 * Public demonstration clips (2026-09-27)
 - Edit the user-supplied screen recording into short GIFs and MP4 alternatives.
 - Put real demonstrations near the top of the GitHub README; retain truthful

@@ -1,5 +1,29 @@
 # Architecture and implementation status
 
+## Exact .152 port boundary (2026-10-10)
+
+`ops/firmware-target.mjs::firmwareTarget` selects an allowlisted stock fingerprint
+and checks the exact resource table supplied by the coordinator. Default .148
+outputs remain unchanged. `CN_FIRMWARE_VERSION=3.29.0.152` admits only the normal
+pilot, never consumed historical diagnostic drivers. Artifacts use a separate
+versioned build directory. `CN_SOURCE_ONLY=1` emits unbound QMD/host source to a
+distinct directory with NOT-INSTALLABLE.json, without a deployable manifest.
+This permits local resource-composition work while table capture is pending.
+The old pilot controller refuses .152 and unbound builds before any packaging.
+ReManager owns fresh runtime/peer/service pins and all device activation.
+
+`ops/audit-pro152.mjs` parses AArch64 ELF relative relocations to find Qt6
+metadata/string arrays for the four native pen classes, compares them with the
+accepted stock image and verifies the public Qt interposition import. This
+establishes static metadata compatibility, not implementation equivalence.
+`ops/prepare-pro152.mjs` consumes a hash-pinned coordinator JSON inventory. It
+requires the full peer set including Restyle/WebPDF and an observed .152 runtime
+manifest matching the accepted native modules' providers; then hashes, composes
+and parses the final QMD stack and emits app-only payload/controller inputs.
+It neither guesses service pins nor ships settings or a runnable old controller.
+`tests/port152-composition.mjs` is explicitly a preliminary source-only fixture
+against prior peers, not an installable peer port or a final-stack receipt.
+
 ## Public recorded demos (2026-09-27)
 
 `ops/render-demo-clips.mjs` accepts the user's original recording as a local

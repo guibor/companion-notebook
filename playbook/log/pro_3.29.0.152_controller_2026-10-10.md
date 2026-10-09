@@ -24,3 +24,12 @@ ReManager owns all tablet publication, settings inventory and activation. This
 task has made no tablet/server connection, restart or notebook-content change.
 Full inventory schema, artifact hashes and remaining sealing step are in
 HANDOFF-pro-3.29.0.152.md. All changes stay on the device-specific .152 branch.
+
+Final sealing completed after ReManager supplied the committed base inventory:
+34 immutable file pins, current settings/host, effective full-unit and vendor
+shadows and native maps. Stage `handoff-09731879751e` contains twelve manifested
+files; SHA256SUMS is `a93979fe948e4e7c54a2a62ac92caff1feabf8f7e1af762da8067e3ee51e0aa0`.
+Exact prepare/run/stop instructions were handed to ReManager. No Companion commit
+action exists: this personal pilot keeps its independent watchdog while active.
+Final focused result: 18 controller/port cases, two final-stack composition orders
+with 34 resources each. Actual device activation remains ReManager-owned.

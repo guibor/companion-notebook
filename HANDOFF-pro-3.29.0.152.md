@@ -1,16 +1,35 @@
 # Companion / Quick Pad Pro 3.29.0.152 handoff
 
-Status: final-table combined payload prepared; fresh-policy controller renderer
-implemented and locally tested. **No activation performed by this task.** Worktree:
+Status: complete combined stage sealed against the newly committed eleven-QMD
+base, with fresh policy/settings inventory. **No activation performed by this task.** Worktree:
 `/Users/mdf/code/.worktrees/companion-pro-3290152`, branch `beta/pro/3.29.0.152`.
 Starts at `40cae4a` (latest accepted Quick Pad/corner/sharing/toolbar behavior).
 ReManager owns all live actions. No tablet, Move or server access from this task.
 
+## Sealed combined stage
+
+- Directory: `build/pro-3.29.0.152/handoff-09731879751e/`.
+- SHA256SUMS SHA256: `a93979fe948e4e7c54a2a62ac92caff1feabf8f7e1af762da8067e3ee51e0aa0`.
+- probe.sh SHA256: `78ce40eb91492a134fa74fae582322df5fa7cdb47c41a5491eadcb3fd36bfb0d`.
+- Coordinator input: `build/pro-3.29.0.152/coordinator-09731879751e.json`,
+  SHA256 `09731879751e40b04220fba92e79bdae7dba5da370de954598e8f855b06a31da`.
+- Fresh inventory supplied by ReManager: SHA256
+  `4927c31142a701771d4af1b7f0e6c3b24c8463087489079086164d68cd38ccaa`.
+  Includes 34 immutable files, current host and private-settings hashes, effective
+  runtime-only failure shadows, exact base environment and native mappings.
+- ReManager reported base commit at 22:40:31 UTC, UI8060 / Dates8045, zero automatic
+  restarts, read-only root, no activation lock. Both Gestik hashes now reflect the
+  live settings after ReManager preserved the two prior preimages.
+- Twelve manifested payloads; stage these and SHA256SUMS only. The JSON receipt
+  is local documentation, not a tablet payload. Full instructions below.
+- Final composition: 34 QML resources parse in each of two orders; 18 focused
+  controller/port tests pass. No synthetic tablet input or physical-test claim.
+
 ## Inputs needed from ReManager
 
 The real table and native-provider fingerprints have now arrived and passed.
-The remaining controller input is the freshly installed, healthy combined base's
-service/file/settings inventory (schema below). Do not pass the old controller's
+The fresh base service/file/settings inventory has now arrived and is bound into
+the sealed stage above. The schema below is retained for future updates. Do not pass the old controller's
 inventory or call an app-only payload a complete activation package.
 
 - Exact .152 QML hashtab (actual capture, not the old .148 table).
@@ -25,7 +44,7 @@ inventory or call an app-only payload a complete activation package.
 - Fresh base service/drop-in, library, extension and settings inventory before
   rendering a runnable controller; old .148 service pins are not valid defaults.
 
-The source port will keep installation fail-closed when these inputs are absent.
+The source port keeps installation fail-closed when these inputs are absent.
 
 ## Prepared results
 
@@ -189,3 +208,50 @@ specific to an earlier .148 base. Use the freshly inventoried combined base.
   separately from physical writing/scrolling acceptance. No automated pen trials.
 
 This task has not accessed the tablet, Move, servers or personal documents.
+
+## Coordinator invocation (after the base commit and final seal)
+
+Choose a new transaction `ID` matching `YYYYMMDDTHHMMSSZ-N`; never reuse one.
+`MANIFEST` is the SHA256 of the final handoff's SHA256SUMS. Stage exactly its
+twelve listed files plus SHA256SUMS as root in a new mode-0700 directory:
+`S=/home/root/.codex-staging/companion-$ID`. Do not stage controller-inputs.json.
+The following are **device-side commands for ReManager**, not commands run here:
+
+```sh
+bash "$S/probe.sh" prepare "$ID" "$MANIFEST"
+```
+
+This does not restart the tablet. It verifies the committed base, pins/settings,
+no overlapping owner/lock and current host; it creates a new private backup at
+`B=/home/root/.codex-backups/companion-$ID`, prepares the isolated runtime and
+prints the archive path/hash. Copy `B/preimages.tgz` off-device, verify its hash
+and archive readability, then write the exact matching off-device verification
+marker to `B/mac-backup-verified`: `mac-backup:<archive-SHA256>` plus newline.
+Only after that verification:
+
+```sh
+systemd-run --unit="companion-pilot-$ID" \
+  --property=Type=exec --property=KillMode=control-group --property=Restart=no \
+  /bin/bash "$S/probe.sh" run "$ID" "$MANIFEST"
+```
+
+Do not use `--collect`: recovery needs the owner unit/cgroup identity after exit.
+The run action creates its own independent `companion-pilot-watch-$ID.service`
+before changing the host or policy. Do not launch a second watchdog or replay a
+base controller during this session. `B/pilot-running` contains the checked UI
+PID after writing/settings readiness; inspect both owner/watch service state,
+the startup log and settings preservation. Also require the WebPDF selection-host
+startup message and absence of relevant Restyle/Companion load errors.
+
+There is **no commit action** in the Companion pilot: unlike the bounded base
+activation, this experimental feature retains its independent runtime watchdog
+while used. Once `pilot-running` is present, hand control back without scripted
+tablet input or a manual-test pause. Runtime-only activation does not persist
+across a reboot. For an intentional rollback:
+
+```sh
+bash "$S/probe.sh" stop "$ID" "$MANIFEST"
+```
+
+Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
+kill the watchdog before it finishes. Recovery never overwrites current settings.

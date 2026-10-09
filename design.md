@@ -39,6 +39,9 @@ optional hash-pinned fresh controller inventory. `prepare-pro152.mjs --payload-o
 explicitly emits only app files; full mode emits controller/base manifest too.
 Neither mode connects to a device. Final actual-table composition has passed in
 two orders; staged activation and physical acceptance are separate evidence.
+The final sealed stage binds the observed committed base inventory (34 immutable
+file pins plus policy/host/settings), not a synthetic controller fixture. Its
+generation and activation instructions are recorded in the versioned handoff.
 
 ## Public recorded demos (2026-09-27)
 

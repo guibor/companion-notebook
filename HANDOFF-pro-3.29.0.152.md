@@ -368,7 +368,23 @@ bash "$S/probe.sh" stop "$ID" "$MANIFEST"
 
 Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
 kill the watchdog before it finishes. Recovery never overwrites current settings.
-# Direct-tap paired update prepared — HOLD (2026-10-10)
+# Reconciled direct-tap and timer stage (2026-10-10)
+
+ReManager confirmed sole device ownership and supplied base97016 with39file pins,
+13current settings and the accepted timer r1 peer. Fresh stage:
+`build/pro-3.29.0.152/handoff-9546870fd5ce`.
+
+- SHA256SUMS: `1f876f8a2ddaec75bd2f7ec1079aa4ccfb9dabcb8d75408c9709f1e845e5e3cc`
+- probe.sh: `9499410299c438ed330e80962c9e11c9de5ef136f5d9910a958eb2da711c2a1d`
+- Coordinator: `9546870fd5ce1920ca66c39f14a40a518c0a5ddff1c13a4c03c3583c1b4909d6`
+- Fresh inventory: `97abcf716a224b42594356ac561ed9f78ae3fd44be80b281a405e090efc6ca2b`
+- Peer manifest: `444e0095cf6e21864bfad985bd7bf4e142d9949ebdfc1c6c0ef6c69ac52bdf8e`
+
+Same reviewed rollback metadata and acceptance protocol as below; full composition
+and29tests pass. ReManager owns activation and must verify absent timer config
+and alarm state before/after. No seeding or Move work. Installation pending receipt.
+
+# Superseded direct-tap stage — DO NOT USE (2026-10-10)
 
 DO NOT ACTIVATE this stage until ReManager reconciles the concurrent Quick Timer
 report (base PID97016, new timer QMD097928fd). That report arrived after sealing;

@@ -4,7 +4,9 @@
 
 The overlay profile now pins the direct-tap combined QMD d38f5d58. The input
 assembler optionally accepts a separately hash-pinned rollback inventory after
-the fresh base inventory. `ops/webpdf-rollback.mjs::validateWebpdfRollback`
+the fresh base inventory, followed by an explicit hash-pinned peer manifest when
+another accepted app update has changed the base. No shared historical peer list
+is edited. `ops/webpdf-rollback.mjs::validateWebpdfRollback`
 restricts target/backup paths, relative filenames, old/new complete file hashes,
 unchanged backend and the three exact new host/helper hashes.
 `renderWebpdfRollback` generates bundle verification and recovery functions.

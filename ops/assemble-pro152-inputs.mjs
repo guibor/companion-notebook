@@ -21,6 +21,11 @@ if(process.argv[2]){
     const bytes=fs.readFileSync(process.argv[2]);assert.equal(sha(bytes),process.argv[3],'Fresh controller inventory changed');
     spec.controller=JSON.parse(bytes);
 }
+if(process.argv[4]){
+    assert(spec.controller,'Rollback requires fresh controller inventory');
+    const bytes=fs.readFileSync(process.argv[4]);assert.equal(sha(bytes),process.argv[5],'Paired rollback inventory changed');
+    spec.controller.webpdfRollback=JSON.parse(bytes);
+}
 const bytes=JSON.stringify(spec,null,2)+'\n',hash=sha(bytes);
 fs.mkdirSync('build/pro-3.29.0.152',{recursive:true});
 const out='build/pro-3.29.0.152/coordinator-'+hash.slice(0,12)+'.json';

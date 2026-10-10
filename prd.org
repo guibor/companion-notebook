@@ -3,6 +3,20 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Paired WebPDF direct-link integration (2026-10-10)
+- Preserve all Companion/Quick Pad behavior and current settings while integrating
+  the reviewed direct hyperlink-tap WebPDF UI with the corrected Restyle overlay.
+- ReManager owns tablet operations. This task prepares the matching controller.
+- Unaccepted startup failure restores both native base and the prior app bundle;
+  accepted updates survive subsequent native fallback or maintenance stops.
+** Changed requirements
+- Native runtime recovery alone is insufficient for an external-host app update.
+  Add exact whole-app rollback without restoring private config or state.
+** Next steps
+- Prepared =handoff-b6c206a481e2=; ReManager reviews and activates it, then calls
+  =accept-webpdf= after startup gates. Installation is not yet confirmed here.
+- Keep Move, Gestik payload, Companion sources and native libraries unchanged.
+
 * .152 feature-visibility follow-up (2026-10-10)
 - User reports Dates, PDF Highlight and SelectChange missing after successful
   startup. Do not treat load/health receipts as UI-feature acceptance.

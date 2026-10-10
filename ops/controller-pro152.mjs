@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {targets} from './firmware-target.mjs';
+import {validateWebpdfRollback,renderWebpdfRollback,webpdfTarget} from './webpdf-rollback.mjs';
 
 export const baselinePath='/Users/mdf/code/companion-notebook/build/pilot-20260923T234000Z-1/probe.sh';
 export const baselineSha256='69f47fdd9a1e29b89153b2bd51ff6afbe1e00952eee9398e32b61318987d4d98';
@@ -92,6 +93,7 @@ export function validateController(spec) {
         assert(byPath.has(X+'/exthome/appload/remarkable-web-pdf/integration/'+name),'Missing WebPDF selection resource');
     assert(Array.isArray(c.absentLocks)&&c.absentLocks.includes('/run/pro329-apps-activation.lock'));
     for(const lock of c.absentLocks){safePath(lock);assert(lock.startsWith('/run/'));}
+    if(c.webpdfRollback)validateWebpdfRollback(c.webpdfRollback,c.files);
     return c;
 }
 
@@ -107,7 +109,15 @@ export function renderController(spec,baseline=fs.readFileSync(baselinePath,'utf
     change('3.29.0.148','3.29.0.152');change('20260911125116',spec.build);
     change('4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4',spec.stockSha256);
     change('1f2a0f7177dac3cdfc030ff32b4643170dd2ef6e2f6c6369b4c4168513ce01f0',spec.hashtabSha256,2);
-    fn('verify_base_files',`    exact "$S/base.sha256" ${digest(baseManifest)} || return 1\n${pins(c.files)}\n${inventory}`);
+    const baseFiles=c.webpdfRollback?c.files.filter(f=>!f.path.startsWith(webpdfTarget+'/')):c.files;
+    fn('verify_base_files',`    exact "$S/base.sha256" ${digest(baseManifest)} || return 1\n${pins(baseFiles)}\n${inventory}${c.webpdfRollback?'\n    verify_webpdf_pair || return 1':''}`);
+    if(c.webpdfRollback){
+        change('prepare|run|watchdog|stop)', 'prepare|run|watchdog|stop|accept-webpdf)');
+        change('verify_device() {',renderWebpdfRollback(c.webpdfRollback)+'\nverify_device() {');
+        change('    mark recovered "$restored:$(pid xochitl.service)"','    restore_webpdf_pair || return 1\n    mark recovered "$restored:$(pid xochitl.service)"');
+        change('if [ "$ACTION" = stop ]; then mark stop-requested user; exit 0; fi',
+            'if [ "$ACTION" = accept-webpdf ]; then accept_webpdf_pair; exit 0; fi\nif [ "$ACTION" = stop ]; then mark stop-requested user; exit 0; fi');
+    }
     fn('verify_base_policy',`${pins(c.policy.files)}
     [ "$(systemctl show -p FragmentPath --value xochitl.service)" = ${quote(c.policy.fragmentPath)} ] || return 1
     [ -z "$(systemctl show -p OnFailure --value xochitl.service)" ] || return 1

@@ -368,3 +368,28 @@ bash "$S/probe.sh" stop "$ID" "$MANIFEST"
 
 Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
 kill the watchdog before it finishes. Recovery never overwrites current settings.
+# Direct-tap paired update prepared (2026-10-10)
+
+ReManager remains the sole device operator. New stage (not yet confirmed installed):
+`build/pro-3.29.0.152/handoff-b6c206a481e2`.
+
+- Coordinator: `b6c206a481e27c98ae97bc21cdf506529551d55e4bdf3ad5c0ed2fdc05f7dbbc`
+- Stage SHA256SUMS: `7391cdbf7b1bffca8bb06af52a6cf18f4333c5874b1f41d3ca165cadaee29f09`
+- probe.sh: `e001b63d893101f027a17300941127dab5a19961778fb9f4e1d9e455e119edf0`
+- Fresh base inventory: `c6f9c39f348c3536c2d57ed2406bc751ea78a2e395990c2bf81a3cf2b7c90338`
+- Paired rollback inventory: `114573a0078696c6cbbeff48e29d0bb14f83aa07bf341d209f39deebf0b8572d`
+- Combined overlay: `d38f5d589970de4539546771e261259e04bd0338ec79c5cfc4b60fbd2f95c4e4`
+
+Stage only the twelve manifested files and SHA256SUMS; follow the existing
+prepare/off-device-backup verification/systemd-owned run protocol below with a
+fresh transaction ID. Before startup acceptance, recovery also restores the old
+WebPDF bundle from its verified updater backup, after healthy native fallback.
+After successful startup, invoke `bash "$S/probe.sh" accept-webpdf "$ID" "$MANIFEST"`.
+This validates current runtime/app/readiness before retaining the new app on
+future maintenance stops. Do not manually create its acceptance marker. The
+native watchdog remains active; no settings or documents are rolled back.
+
+All seven Companion payloads are unchanged; native DSOs and Gestik are unchanged.
+Both full composition orders and29focused tests pass locally. Physical workflow
+acceptance remains separate. Do not replay this fresh inventory for a later update.
+

@@ -1,5 +1,34 @@
 # Architecture and implementation status
 
+## Paired WebPDF update recovery
+
+The overlay profile now pins the direct-tap combined QMD d38f5d58. The input
+assembler optionally accepts a separately hash-pinned rollback inventory after
+the fresh base inventory. `ops/webpdf-rollback.mjs::validateWebpdfRollback`
+restricts target/backup paths, relative filenames, old/new complete file hashes,
+unchanged backend and the three exact new host/helper hashes.
+`renderWebpdfRollback` generates bundle verification and recovery functions.
+When metadata is absent the prior controller recovery body is unchanged.
+
+Before acceptance, recovery restores the app only after native recovery reaches
+healthy base/stock, all original guards pass and no app backend/resources are
+active. A durable intent records a two-rename transaction: retain the exact new
+tree, then move the exact old tree back. Retries permit only these enumerated
+states and only during watchdog/stop recovery, with healthy base/stock required.
+Foreign files, symlinks, unknown state or an active app cause refusal. External
+credentials, destination settings and private state are never restored.
+
+The new `accept-webpdf` action requires complete new-bundle verification, healthy
+probe mappings, live watchdog, matching pilot PID and both host-ready messages.
+Its bundle-bound marker makes later maintenance stops retain the accepted app;
+the old backup remains available. This is machine-startup acceptance, not proof
+of physical link-tapping, pen behavior or import completion.
+
+The complete direct-tap stage passes composition in both supported orders. All
+seven Companion app payloads match the preceding installed stage byte-for-byte.
+Seven isolated rollback tests cover normal and interrupted renames, retries,
+accepted preservation, foreign files and active-app refusal; existing22tests pass.
+
 ## .152 feature-visibility follow-up
 
 Startup readiness does not prove that selection actions are reachable. After the

@@ -8,8 +8,10 @@ Read and write without losing context or compromising native handwriting.
 - Keep Timer r1 and accepted direct-tap WebPDF; do not re-arm old-app rollback.
 ** Next steps
 - Stage =handoff-e507e276e674= is sealed against fresh39file/13settings inventory
-  and updated peers; both full composition orders pass. Activation remains with
-  the coordinated Gestik device owner. No tablet operations from this task.
+  and updated peers; both full composition orders pass. The coordinated Gestik
+  owner installed it as =20261010T153315Z-1=: UI107401/Dates8045, zero restarts,
+  all13settings checks passed. Physical gesture testing remains unverified.
+  No tablet operations from this task.
 
 * Paired WebPDF direct-link integration (2026-10-10)
 - Preserve all Companion/Quick Pad behavior and current settings while integrating

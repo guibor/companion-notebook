@@ -384,7 +384,14 @@ Fresh base inventory contains39files/13settings/11QMDs. Both composition orders
 pass. Standard twelve-file stage, prepare/off-device-backup/run protocol applies.
 NO `accept-webpdf` action is needed or supported in this stage: WebPDF is already
 accepted and pinned in the base; there is no old-app rollback metadata or helper.
-Native fallback preserves it. Installation awaits the device owner's receipt.
+Native fallback preserves it. Installed as `20261010T153315Z-1`, per the device
+owner's receipt: UI107401/Dates8045/owner106021/watch106991, zero restarts,
+13QMDs/three native mappings, all13settings hashes and two timer-file absences
+preserved, root read-only, no QML errors/abort/recovery. WebPDF ready15:35:45.622UTC
+and Companion15:35:51.067UTC (18:35 Israel). Off-device verified backup:
+`5cb86ea7ce7ef3de07d9c6d825804587eddf97ac8fafa174dd7b929ea39f5809`.
+Maintenance receipt `ecb42d8`; Gestik receipt `8df87e7`. Physical gesture test not
+performed. Device owner released exclusive access; this task did not use it.
 
 # Reconciled direct-tap and timer stage (2026-10-10)
 

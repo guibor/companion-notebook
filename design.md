@@ -9,6 +9,12 @@ manifest changes Gestik only; all ten Companion/overlay payload files match the
 accepted timer/tap stage. Only controller and base-manifest pins differ. Full
 composition is repeated; no new runtime code or settings transformation is added.
 
+The device owner confirmed activation20261010T153315Z-1: UI107401/Dates8045,
+owner106021/watch106991, zero restarts,13QMDs and three native mappings. All13
+settings hashes and both timer-file absences were preserved; root remained
+read-only with no QML errors or recovery. Host readiness was18:35:45.622 and
+18:35:51.067 Israel time. This records startup, not physical gesture acceptance.
+
 ## Paired WebPDF update recovery
 
 The overlay profile now pins the direct-tap combined QMD d38f5d58. The input

@@ -385,6 +385,16 @@ protocol applies. TouchArea flags are budgeted48/view; two MainView boolean logs
 are not budgeted. No URLs/text/page IDs/coordinates are logged. Await receipt and
 real interaction evidence; never interpret installation as a fix.
 
+Installed by ReManager as `20261010T172330Z-1`: UI114526/Dates8045,
+owner113141/watch114116, zero restarts,13QMDs/three native maps. All13settings
+checks and two Timer-file absences passed; root read-only, no errors/abort/recovery.
+Verified Mac backup: `5cb86ea7ce7ef3de07d9c6d825804587eddf97ac8fafa174dd7b929ea39f5809`.
+Maintenance receipt `b85a531`. Logs on2026-10-10: available=true17:26:16.871UTC,
+WebPDF ready17:26:16.875UTC, Companion ready17:26:21.155UTC,
+filter enabled=false17:26:21.481UTC, helper loaded/available17:26:22.005UTC
+(20:26 Israel). No physical tap evidence yet. Preserve the current watchdog;
+do not bypass the stock filter or claim a fix from these startup flags.
+
 # Post-Gestik r1 stage prepared (2026-10-10)
 
 `build/pro-3.29.0.152/handoff-e507e276e674` is prepared for the coordinated Gestik

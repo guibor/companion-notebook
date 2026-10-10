@@ -10,6 +10,10 @@ Read and write without losing context or compromising native handwriting.
 ** Next steps
 - Stage =handoff-1bae5bb43707= is prepared for ReManager's sole-writer activation
   against freshly observed base111528. No device operations from this task.
+- ReManager installed diagnostic =20261010T172330Z-1=: UI114526/Dates8045,
+  owner113141/watch114116, zero restarts and all13settings checks passed.
+  Helper loaded/available; filter disabled at startup. Await actual tap evidence;
+  this observation is not a fix or a confirmed cause. Preserve current watchdog.
 
 * Post-Gestik r1 restoration (2026-10-10)
 - Prepare the unchanged native stack against the sole-writer's new Gestik base.

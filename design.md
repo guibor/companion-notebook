@@ -11,6 +11,14 @@ The fresh base capture was observed at111528 even though its content hash matche
 the previous immutable inventory. Full composition is rerun against current
 Gestik r1/Timer r1 peers. This is instrumentation, not a behavior correction.
 
+ReManager's diagnostic startup receipt reports UI114526/Dates8045 and independent
+owner113141/watch114116, zero restarts,13QMDs/three native maps, all13settings and
+two Timer-file absences preserved, root read-only and no errors/abort/recovery.
+At20:26 Israel time, availability became true, both hosts became ready and the
+helper loaded; the filter reported enabled=false. Its stock condition remains
+`!touchArea.gesturesBlocked && view.clickGestureEnabled`. A startup flag without
+a physical tap trace cannot establish the failing path or justify bypassing it.
+
 ## Restoring the accepted stack after Gestik r1
 
 The post-Gestik preparation uses the existing optional-rollback interface with

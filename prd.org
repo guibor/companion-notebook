@@ -13,8 +13,10 @@ Read and write without losing context or compromising native handwriting.
 - Native runtime recovery alone is insufficient for an external-host app update.
   Add exact whole-app rollback without restoring private config or state.
 ** Next steps
-- Prepared =handoff-b6c206a481e2=; ReManager reviews and activates it, then calls
-  =accept-webpdf= after startup gates. Installation is not yet confirmed here.
+- Prepared =handoff-b6c206a481e2= is ON HOLD: a concurrent Quick Timer update was
+  reported after sealing. ReManager must reconcile the actual base and peers,
+  recapture/recompose as needed, then activate and call =accept-webpdf=.
+  Installation is not yet confirmed here.
 - Keep Move, Gestik payload, Companion sources and native libraries unchanged.
 
 * .152 feature-visibility follow-up (2026-10-10)

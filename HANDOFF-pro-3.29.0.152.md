@@ -368,7 +368,13 @@ bash "$S/probe.sh" stop "$ID" "$MANIFEST"
 
 Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
 kill the watchdog before it finishes. Recovery never overwrites current settings.
-# Direct-tap paired update prepared (2026-10-10)
+# Direct-tap paired update prepared — HOLD (2026-10-10)
+
+DO NOT ACTIVATE this stage until ReManager reconciles the concurrent Quick Timer
+report (base PID97016, new timer QMD097928fd). That report arrived after sealing;
+it may invalidate the fresh95495 inventory and peer inputs. ReManager was notified
+immediately. Obtain a new actual inventory and complete peer composition if the
+base changed. No tablet operation was performed by this task.
 
 ReManager remains the sole device operator. New stage (not yet confirmed installed):
 `build/pro-3.29.0.152/handoff-b6c206a481e2`.

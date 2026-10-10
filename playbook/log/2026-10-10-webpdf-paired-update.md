@@ -16,3 +16,8 @@ Existing22focused tests and7isolated paired-rollback tests pass. Initial test
 failures were caused by macOS temporary-directory symlinks; tests now canonicalize
 their scratch root, preserving the production no-symlink guard.
 See versioned handoff for full pins. ReManager owns activation and final receipt.
+
+After sealing, a Quick Timer task reported concurrent device changes and plans to
+restore the old overlay. Immediately marked the candidate HOLD and informed
+ReManager; no device action here. Fresh base/peer reconciliation is mandatory
+before activation. Local source readiness is not live deployment readiness.

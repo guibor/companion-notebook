@@ -1,5 +1,18 @@
 # Architecture and implementation status
 
+## Single-lookup peer correction
+
+The overlay profile now pins bc703575 from WebPDF source884a9fd. Its press wrapper
+passes an already resolved native hit to stock fallback, including an invalid
+hit; unavailable-host handling goes directly to stock. The fallback distinguishes
+an omitted argument from a provided invalid hit using arguments.length. Click,
+cancel and captured-link release validation are unchanged; diagnostics remain.
+The actual composed gesture regression reproduced two lookups with0008 and passes
+with one on both new full-stack orders. Nine other app/module payloads are
+byte-identical. Fresh inventory d3bc05 preserves the user's newer pairs.ini rather
+than replaying63b68. No controller guard or native source changes are introduced.
+This verifies duplicate-work removal in mocks, not physical tapping or perceived lag.
+
 ## Temporary direct-tap diagnostic
 
 The active overlay profile pins peer-owned diagnostic0008e770 rather than

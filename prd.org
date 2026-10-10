@@ -3,6 +3,14 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Single native lookup per press (2026-10-11)
+- Integrate peer-owned duplicate-lookup correction, preserving stock fallback,
+  cancellation, diagnostics and all other apps. Do not claim PDF taps or lag fixed.
+** Next steps
+- Stage =handoff-b492e0369044= prepared against fresh base142999 and current
+  pairs.ini. Both full composition orders and their call-count regressions pass.
+  ReManager owns activation; no tablet operations from this task.
+
 * Direct-link tap diagnostic (2026-10-10)
 - User reports the installed tap flow does not work. Prepare peer-owned logging
   only, preserving app semantics, native modules, settings and current Gestik/Timer.

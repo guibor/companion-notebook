@@ -368,6 +368,23 @@ bash "$S/probe.sh" stop "$ID" "$MANIFEST"
 
 Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
 kill the watchdog before it finishes. Recovery never overwrites current settings.
+# Single-lookup correction prepared (2026-10-11)
+
+Stage `build/pro-3.29.0.152/handoff-b492e0369044` is ready for ReManager activation.
+
+- SHA256SUMS: `f340f865bd78ce18cfe2b98e463f2716702d738c4fdae80ad5b0501da33169d9`
+- probe.sh: `bf5bda2a3ac389d77f8edcf333d30772fee2e12fa5f9897875350e63a6683834`
+- Coordinator: `b492e0369044284109fffd4d533afe0870989b5e1875497f324a9228b0a79f7b`
+- Overlay: `bc7035750d98c76017aa44cdddecc16c621950a386500fedd578311241c108eb`
+- Fresh inventory: `d3bc05b3e3c32b755d8d9ecabb6ae13249ceef838bb21d071c63a2d0eb199ca3`
+
+Base142999/current pairs.ini,39files/13settings, same b4ac661b Gestik/Timer peers.
+Both full composition orders parse34QMLs and pass the actual composed gesture
+call-count regression. Previous0008 failed with2lookups on a noncapture; this
+candidate uses1. Nine other payloads are unchanged. Diagnostics retained; no app
+rollback or accept-webpdf action. Standard12files+manifest guarded protocol.
+Prepared only; not evidence that physical PDF tapping or lag is fixed.
+
 # Temporary tap diagnostic prepared (2026-10-10)
 
 Stage `build/pro-3.29.0.152/handoff-1bae5bb43707` is logging only, not a fix.

@@ -3,6 +3,14 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Post-Gestik r1 restoration (2026-10-10)
+- Prepare the unchanged native stack against the sole-writer's new Gestik base.
+- Keep Timer r1 and accepted direct-tap WebPDF; do not re-arm old-app rollback.
+** Next steps
+- Stage =handoff-e507e276e674= is sealed against fresh39file/13settings inventory
+  and updated peers; both full composition orders pass. Activation remains with
+  the coordinated Gestik device owner. No tablet operations from this task.
+
 * Paired WebPDF direct-link integration (2026-10-10)
 - Preserve all Companion/Quick Pad behavior and current settings while integrating
   the reviewed direct hyperlink-tap WebPDF UI with the corrected Restyle overlay.

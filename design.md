@@ -1,5 +1,14 @@
 # Architecture and implementation status
 
+## Restoring the accepted stack after Gestik r1
+
+The post-Gestik preparation uses the existing optional-rollback interface with
+no rollback metadata: the accepted WebPDF helper files are now ordinary fresh
+base pins. Native fallback cannot downgrade the app. The fresh explicit peer
+manifest changes Gestik only; all ten Companion/overlay payload files match the
+accepted timer/tap stage. Only controller and base-manifest pins differ. Full
+composition is repeated; no new runtime code or settings transformation is added.
+
 ## Paired WebPDF update recovery
 
 The overlay profile now pins the direct-tap combined QMD d38f5d58. The input

@@ -368,6 +368,24 @@ bash "$S/probe.sh" stop "$ID" "$MANIFEST"
 
 Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
 kill the watchdog before it finishes. Recovery never overwrites current settings.
+# Post-Gestik r1 stage prepared (2026-10-10)
+
+`build/pro-3.29.0.152/handoff-e507e276e674` is prepared for the coordinated Gestik
+sole device writer; this task performed no tablet operations.
+
+- SHA256SUMS: `7221e654cc17ff553d6d190cd8ae6b6b0a89e59f5d01f21c455703a25b837f92`
+- probe.sh: `2de57ee28afcc552fd325dc2965b0f2f19048b22158d9f12e446a321efd39edb`
+- Coordinator: `e507e276e67433ae9567b5f3b9f1934b5cda9e197eb16cf83eae12a290f9589c`
+- Fresh inventory: `63b68fec85acac1a151196c4af2607e3a1deb9647219a7bdd7f5520f7134e773`
+- Peer manifest: `b4ac661b9e3daa1a5598a102060dc31185b713103dcaa7811ef7eb2f2353b92c`
+
+All ten app/overlay payloads are identical to the accepted timer/tap stage below.
+Fresh base inventory contains39files/13settings/11QMDs. Both composition orders
+pass. Standard twelve-file stage, prepare/off-device-backup/run protocol applies.
+NO `accept-webpdf` action is needed or supported in this stage: WebPDF is already
+accepted and pinned in the base; there is no old-app rollback metadata or helper.
+Native fallback preserves it. Installation awaits the device owner's receipt.
+
 # Reconciled direct-tap and timer stage (2026-10-10)
 
 ReManager confirmed sole device ownership and supplied base97016 with39file pins,

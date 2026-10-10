@@ -11,16 +11,15 @@ Read and write without losing context or compromising native handwriting.
   offline here. ReManager alone owns recovery, fresh observation and activation.
 - Investigate Dates visibility/capacity without speculative interface changes.
 ** Next steps
-- Corrected-UI stage =handoff-f782d6508008= is sealed against fresh base57416
-  inventory and handed to ReManager. All seven Companion payloads are unchanged;
-  PDF readiness binding is corrected. ReManager owns activation. Missing lasso
-  SelectChange remains a separate observation, not assumed fixed by startup.
-- One reviewed overlay inventory now feeds all packaging stages. Await corrected
-  peer hash and fresh post-recovery inventory; do not reuse an old live receipt.
-- Dates is note-only in the composed source, with complementary sidebar/settings
-  capacity guards. Report that evidence; no Companion UI correction is justified yet.
-- ReManager confirmed the document is a PDF. No Dates edit is required. The
-  corrected combined selection QMD is pinned; wait for the fresh recovery receipt.
+- ReManager installed =handoff-f782d6508008= in transaction =20261010T091802Z-1=.
+  UI60329/Dates8045/owner58982/watch59933 active, zero restarts, root read-only.
+  PDF readiness readback is corrected; all eleven current settings passed,
+  including the newer pairs.ini. Fresh backup was verified off-device.
+- Dates remains note-only; confirmed PDF context explains that report, no edit.
+- Lasso editing was not physically exercised. Its interaction acceptance remains
+  separate; no new device action or automated input is requested by this receipt.
+- Retain the existing watchdog. Future updates require fresh live inventory,
+  never replaying the earlier pairing/settings receipt.
 
 * Pro 3.29.0.152 port (2026-10-10)
 - Separate exact-firmware branch/worktree; preserve accepted Companion, corner,

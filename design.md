@@ -28,6 +28,15 @@ PDF menu uses native textEnabled readiness. All seven Companion payloads were
 compared byte-for-byte with the prior working stage; this changes peer QMD and
 fresh controller pins only. Lasso visibility still needs its own evidence.
 
+ReManager's corrected-UI deployment `20261010T091802Z-1` is now recorded:
+UI60329/Dates8045/owner58982/watch59933 active with zero restarts, fresh backup
+verified off-device, all eleven current settings preserved (including newer
+pairs.ini), root read-only and PDF binding read back as textEnabled. WebPDF and
+Companion became ready at 12:20:31.360 and 12:20:37.636 Israel time on2026-10-10.
+This is coordinator-provided installation evidence, not a new device operation
+from this task or physical lasso-editing acceptance. Maintenance receipt6046cce
+is the source; the active independent watchdog is left untouched.
+
 ## Exact .152 port boundary (2026-10-10)
 
 `ops/firmware-target.mjs::firmwareTarget` selects an allowlisted stock fingerprint

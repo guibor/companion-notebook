@@ -1,17 +1,42 @@
 # Companion / Quick Pad Pro 3.29.0.152 handoff
 
-Status: installed startup/settings checks passed, but feature visibility has been
-reopened after user reports missing Dates, PDF Highlight and SelectChange.
+Status: corrected PDF-readiness package installed by ReManager on 2026-10-10;
+startup, readback and current-settings checks passed. Physical lasso editing
+remains untested; do not treat this as SelectChange interaction acceptance.
 Do not reuse the historical stage/inventory below as a fresh deployment receipt.
 **No device operations were performed by this task.** Worktree:
 `/Users/mdf/code/.worktrees/companion-pro-3290152`, branch `beta/pro/3.29.0.152`.
 Starts at `40cae4a` (latest accepted Quick Pad/corner/sharing/toolbar behavior).
 ReManager owns all live actions. No tablet, Move or server access from this task.
 
-## Follow-up in progress
+## Corrected-UI deployment receipt (current)
 
-Restyle's owner is correcting the PDF readiness binding and WebPDF's owner is
-rebuilding the combined artifact. Current packaging uses one reviewed inventory:
+ReManager reported transaction `20261010T091802Z-1` installed on Paper Pro .152
+from `handoff-f782d6508008`, manifest
+`a81f5b9fd47a8f79e6ce5190a7d555a464a147252c688cbd031707de298f7d45`.
+The corrected combined QMD is
+`07a8d0774c1f0b009f032c296fba8ba1b7bde3075d892086e94968ac41ca8fa5`.
+
+- Fresh recovery backup verified off-device: SHA256
+  `b08f357455cf7e0743362a0ed1a8f4193b0b786581a1203e12f4a0fc332e0b30`.
+- UI60329, Dates8045, owner58982 and watchdog59933 active, all NRestarts=0.
+- WebPDF ready at **12:20:31.360 Israel time** (09:20:31.360 UTC);
+  Companion ready at **12:20:37.636 Israel time** (09:20:37.636 UTC), 2026-10-10.
+- All eleven **current** settings hashes passed, including the newer pairs.ini;
+  do not substitute the earlier pairing-settings hash. Root remained read-only.
+- Device readback confirms PDF readiness binds to `restyleTextBridge.textEnabled`.
+- Dates absence was explained by the observed PDF context; no Dates code edits.
+- Lasso editing was not physically exercised. This receipt establishes deployment,
+  startup, corrected binding and settings preservation, not lasso UX acceptance.
+
+Source: ReManager's deployment report and maintenance receipt committed/pushed
+as `6046cce` (`playbook/log/2026-10-10-pro-3.29.0.152.md`). This task only records
+that evidence; no device, owner/watchdog, server or Move action was performed.
+
+## Follow-up preparation history
+
+Restyle's owner corrected the PDF readiness binding and WebPDF's owner verified
+the rebuilt combined artifact. Current packaging uses one reviewed inventory:
 `profiles/overlay-pro-3.29.0.152.json`. The composed QMD must match the exact one
 staged into the controller. New peer bytes require combined composition and a
 fresh ReManager inventory after controlled recovery; the old receipt is historical.
@@ -31,7 +56,7 @@ The native module and all seven Companion payloads remain byte-identical. Full
 composition completed against the coordinator's new post-recovery inventory;
 the sealed stage below was handed over for coordinator-owned installation.
 
-### Current corrected-UI stage (prepared, not yet a new device receipt)
+### Corrected-UI stage (installed; receipt above)
 
 - Path: `build/pro-3.29.0.152/handoff-f782d6508008/`.
 - SHA256SUMS: `a81f5b9fd47a8f79e6ce5190a7d555a464a147252c688cbd031707de298f7d45`.
@@ -51,7 +76,7 @@ The corrected binding addresses PDF Highlight/Remove visibility. The Restyle
 owner added lasso-refusal diagnostics; the live missing SelectChange cause is not
 proven resolved by this package. Startup and physical controls remain separate.
 
-## Coordinator-reported installation receipt
+## Earlier coordinator-reported installation receipt (superseded)
 
 Retry `20261009T224634Z-34932` reached ready state on 2026-10-09 at 22:48 UTC
 (2026-10-10 Israel time). Evidence was read from ReManager's command results:

@@ -13,6 +13,13 @@ byte-identical. Fresh inventory d3bc05 preserves the user's newer pairs.ini rath
 than replaying63b68. No controller guard or native source changes are introduced.
 This verifies duplicate-work removal in mocks, not physical tapping or perceived lag.
 
+ReManager confirmed installation20261010T225423Z-1 (October11 Israel),
+UI145992/Dates8045 and owner144609/watch145586, zero restarts,13QMDs and three
+native mappings. Active overlaybc703575 and all13freshsettings, including the
+newer pairs.ini, were verified. Both Timer-file absences persisted; root stayed
+read-only without QML errors/abort/recovery. Hosts became ready01:55:54.088 and
+01:55:55.956 Israel time. Diagnostics remain. This is startup evidence only.
+
 ## Temporary direct-tap diagnostic
 
 The active overlay profile pins peer-owned diagnostic0008e770 rather than

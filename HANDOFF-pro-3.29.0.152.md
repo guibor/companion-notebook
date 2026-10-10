@@ -383,7 +383,17 @@ Both full composition orders parse34QMLs and pass the actual composed gesture
 call-count regression. Previous0008 failed with2lookups on a noncapture; this
 candidate uses1. Nine other payloads are unchanged. Diagnostics retained; no app
 rollback or accept-webpdf action. Standard12files+manifest guarded protocol.
-Prepared only; not evidence that physical PDF tapping or lag is fixed.
+Installed by ReManager as `20261010T225423Z-1` (October11 Israel). Future
+controlled stops must use this transaction and its manifest, NOT172330.
+UI145992/Dates8045, owner144609/watch145586 active, zero restarts,13QMDs/three
+native mappings. Activebc703575 verified; all13freshsettings preserved including
+newer pairs.ini, two Timer-file absences, root read-only and no QML errors,
+abort or recovery. Off-device verified backup:
+`4325366506aa07fada0f07372e28083b0f98bde9416f28962285c5b020603dcc`.
+WebPDF ready22:55:54.088UTC, Companion22:55:55.956UTC onOctober10
+(01:55 October11 Israel). Available=true/helper loaded; diagnostics remain.
+Maintenance receipt `9c0a753`. No physical tap/input test or lag measurement;
+this is not evidence that the unexplained PDF-tap failure is fixed.
 
 # Temporary tap diagnostic prepared (2026-10-10)
 

@@ -9,7 +9,10 @@ Read and write without losing context or compromising native handwriting.
 ** Next steps
 - Stage =handoff-b492e0369044= prepared against fresh base142999 and current
   pairs.ini. Both full composition orders and their call-count regressions pass.
-  ReManager owns activation; no tablet operations from this task.
+  ReManager installed =20261010T225423Z-1= (October11 Israel): UI145992/Dates8045,
+  zero restarts; all13freshsettings preserved. Future controlled stops must use
+  this transaction, not172330. No physical tap or lag measurement was performed.
+  No tablet operations from this task.
 
 * Direct-link tap diagnostic (2026-10-10)
 - User reports the installed tap flow does not work. Prepare peer-owned logging

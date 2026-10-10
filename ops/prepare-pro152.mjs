@@ -24,6 +24,8 @@ for(const peer of spec.qmds) {
 assert.equal(new Set(spec.qmds.map(x=>path.basename(x.path))).size,spec.qmds.length,'Duplicate peer filename');
 for(const name of ['bettertoc','restyle','webpdf'])
     assert(spec.qmds.some(p=>path.basename(p.path).toLowerCase().replaceAll('-','').includes(name)),`Missing final ${name} integration`);
+assert(spec.qmds.some(p=>p.path===restylePayload['restyle-highlights.qmd'].path&&p.sha256===restylePayload['restyle-highlights.qmd'].sha256),
+    'Composed overlay must be the exact reviewed overlay being staged');
 if(!payloadOnly){
     validateController(spec);
     for(const q of spec.controller.qmds)assert(spec.qmds.some(p=>p.sha256===q.sha256),'Staged QMD not in composed peer set: '+q.name);

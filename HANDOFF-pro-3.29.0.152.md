@@ -1,10 +1,55 @@
 # Companion / Quick Pad Pro 3.29.0.152 handoff
 
-Status: combined stage installed by ReManager; startup and settings checks passed.
+Status: installed startup/settings checks passed, but feature visibility has been
+reopened after user reports missing Dates, PDF Highlight and SelectChange.
+Do not reuse the historical stage/inventory below as a fresh deployment receipt.
 **No device operations were performed by this task.** Worktree:
 `/Users/mdf/code/.worktrees/companion-pro-3290152`, branch `beta/pro/3.29.0.152`.
 Starts at `40cae4a` (latest accepted Quick Pad/corner/sharing/toolbar behavior).
 ReManager owns all live actions. No tablet, Move or server access from this task.
+
+## Follow-up in progress
+
+Restyle's owner is correcting the PDF readiness binding and WebPDF's owner is
+rebuilding the combined artifact. Current packaging uses one reviewed inventory:
+`profiles/overlay-pro-3.29.0.152.json`. The composed QMD must match the exact one
+staged into the controller. New peer bytes require combined composition and a
+fresh ReManager inventory after controlled recovery; the old receipt is historical.
+Companion host/native/settings/UI bytes are unchanged. No device operations here.
+
+Dates inspection: `ndiDatesButton` exists in the composed toolbar, but is shown
+only for `documentType === "note"`, expanded toolbar and stock capacity >7.
+SettingsMenu has the <=7 fallback; AdditionalEditingToolsMenu has another
+note-only entry. All exclude PDFs. Companion's extension-capacity subtraction
+does not change the stock-capacity guard. This is source evidence, not a claim
+that the user's current notebook layout is known. No speculative UI change made.
+ReManager subsequently confirmed the visible document is a PDF; no Dates code
+change is needed for that observation. Corrected combined overlay now pinned:
+`07a8d0774c1f0b009f032c296fba8ba1b7bde3075d892086e94968ac41ca8fa5`
+at the Restyle owner's `.cache/pro-3.29.0.152-ui-availability-fix/restyle-with-webpdf.qmd`.
+The native module and all seven Companion payloads remain byte-identical. Full
+composition completed against the coordinator's new post-recovery inventory;
+the sealed stage below was handed over for coordinator-owned installation.
+
+### Current corrected-UI stage (prepared, not yet a new device receipt)
+
+- Path: `build/pro-3.29.0.152/handoff-f782d6508008/`.
+- SHA256SUMS: `a81f5b9fd47a8f79e6ce5190a7d555a464a147252c688cbd031707de298f7d45`.
+- probe.sh: `bfa39428b60ef26ab5309c9c8e64b5eccac405bfd430ba9d3fd1a600c7870e2a`.
+- Coordinator input SHA256: `f782d65080083f33046bf78912924af74abebcf9423771cc3e612fb72eff92a3`.
+- Fresh post-recovery inventory SHA256:
+  `528f612802cd34618618d31ad6207ed06787934ff3907a85a7cb5f2e7e120823`,
+  supplied after ReManager confirmed base57416 recovery. It is not the earlier receipt.
+- Both full-stack composition orders parse34resources; generated PDF handler has
+  `restyleTextHighlightReady: restyleTextBridge.textEnabled`, not constantfalse.
+- All seven Companion payloads verified identical to the prior working stage.
+  Restyle module remainsf770c556; changed combined QMD is07a8d077.
+- Same twelve-file stage/backup/run protocol and independent recovery. No Dates
+  code change, settings migration, native-module rebuild or device operation here.
+
+The corrected binding addresses PDF Highlight/Remove visibility. The Restyle
+owner added lasso-refusal diagnostics; the live missing SelectChange cause is not
+proven resolved by this package. Startup and physical controls remain separate.
 
 ## Coordinator-reported installation receipt
 
@@ -28,7 +73,7 @@ tablet input was part of this installation.
 
 ## Sealed combined stage
 
-**Use the cold-start retry stage, not the first stage below:**
+**Historical installed cold-start stage; superseded by the corrected-UI stage above:**
 
 - Directory: `build/pro-3.29.0.152/handoff-48f70087f9ac/`.
 - SHA256SUMS: `75d510790197f39960bb4c4cf3ac9eae6496f51ffeacfd7466124327f096b46f`.

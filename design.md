@@ -1,5 +1,33 @@
 # Architecture and implementation status
 
+## .152 feature-visibility follow-up
+
+Startup readiness does not prove that selection actions are reachable. After the
+user reported missing Dates/Highlight/SelectChange, ReManager retained sole tablet
+ownership and reopened peer integration. `profiles/overlay-pro-3.29.0.152.json`
+now provides the single reviewed Restyle/WebPDF artifact inventory used by input
+assembly, composition, payload copying and controller pins. Preparation refuses
+to compose one QMD but stage another. Updating peer bytes requires full combined
+composition, not the identical-app controller-only resealer, and a newly observed
+post-recovery base/settings inventory before producing a deployment stage.
+
+Offline Dates inspection of the installed composition found note-only guards in
+all three entry points. Sidebar visibility requires expanded toolbar and stock
+capacity greater than7; SettingsMenu is complementary at capacity7 or below;
+AdditionalEditingToolsMenu retains a note-only Dates entry. Companion changes
+the stock-tool allocation count, not the stock capacity used by these guards,
+and blocks hidden-secondary publication. No speculative toolbar change is made;
+actual document type/layout remains necessary to diagnose the user's observation.
+ReManager then confirmed a PDF was open, explaining the note-only Dates guard.
+The corrected combined QMD is pinned as07a8d077; the native module is unchanged.
+Controller-only resealing additionally refuses any overlay/profile byte change;
+selection-QMD corrections must pass full combined composition.
+The corrected-UI stage is now sealed with ReManager's post-recovery base57416
+inventory. Both complete composition orders parse34resources, and the resulting
+PDF menu uses native textEnabled readiness. All seven Companion payloads were
+compared byte-for-byte with the prior working stage; this changes peer QMD and
+fresh controller pins only. Lasso visibility still needs its own evidence.
+
 ## Exact .152 port boundary (2026-10-10)
 
 `ops/firmware-target.mjs::firmwareTarget` selects an allowlisted stock fingerprint

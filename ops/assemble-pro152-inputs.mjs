@@ -2,13 +2,14 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {restylePayload} from './controller-pro152.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const runtime=JSON.parse(fs.readFileSync('profiles/runtime-pro-3.29.0.152.json'));
 const root='/Users/mdf/code/.worktrees/smart-remarkable-pro-3290152';
 const rows=fs.readFileSync(root+'/build/pro-3.29.0.152/ordered-full-stack.sha256','utf8').trim().split('\n');
 const qmds=rows.map(row=>{const m=row.match(/^([a-f0-9]{64})  (\/.*)$/);assert(m);return {path:m[2],sha256:m[1]};});
 assert.equal(qmds.length,12);
-qmds.push({path:'/Users/mdf/code/remarkable-web-pdf-pro-3.29.0.152/.cache/pro-3.29.0.152-reviewed/restyle-with-webpdf.qmd',sha256:'8da621f11a4e0c1e29e33d1c27e3bc69c2fdfed15ee8c2ac4a760e56570973ec'});
+qmds.push({...restylePayload['restyle-highlights.qmd']});
 for(const q of qmds)assert.equal(sha(fs.readFileSync(q.path)),q.sha256);
 const spec={firmware:runtime.firmware,build:runtime.build,buildId:runtime.buildId,stockSha256:runtime.stockSha256,
     controllerProfile:'pro152-combined-cold-start-v2',

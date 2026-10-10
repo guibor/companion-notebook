@@ -5,7 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {renderController} from './controller-pro152.mjs';
+import {renderController,restylePayload} from './controller-pro152.mjs';
 const [old,oldHash,file,inputHash]=process.argv.slice(2);
 const sha=b=>createHash('sha256').update(b).digest('hex');
 assert(old&&file&&/^[a-f0-9]{64}$/.test(oldHash)&&/^[a-f0-9]{64}$/.test(inputHash));
@@ -25,6 +25,8 @@ for(const row of manifest.trim().split('\n')){
     payload[m[2]]=fs.readFileSync(old+'/'+m[2]);assert.equal(sha(payload[m[2]]),m[1]);
 }
 assert.equal(Object.keys(payload).length,12);
+for(const [name,reviewed]of Object.entries(restylePayload))
+    assert.equal(sha(payload[name]),reviewed.sha256,'Overlay changed: full composition required, not controller-only reseal');
 const controller=renderController(spec);assert.equal(controller.baseManifest,payload['base.sha256'].toString());
 execFileSync('/bin/bash',['-n'],{input:controller.source});payload['probe.sh']=Buffer.from(controller.source);
 const out=path.join(path.dirname(file),'handoff-'+inputHash.slice(0,12));assert(!fs.existsSync(out));

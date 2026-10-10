@@ -6,11 +6,7 @@ import {targets} from './firmware-target.mjs';
 
 export const baselinePath='/Users/mdf/code/companion-notebook/build/pilot-20260923T234000Z-1/probe.sh';
 export const baselineSha256='69f47fdd9a1e29b89153b2bd51ff6afbe1e00952eee9398e32b61318987d4d98';
-export const restylePayload={
-    'restyle-highlights.qmd':{path:'/Users/mdf/code/remarkable-web-pdf-pro-3.29.0.152/.cache/pro-3.29.0.152-reviewed/restyle-with-webpdf.qmd',sha256:'8da621f11a4e0c1e29e33d1c27e3bc69c2fdfed15ee8c2ac4a760e56570973ec'},
-    'restyle-qmldir':{path:'/Users/mdf/code/remarkable-restyle/.cache/pro-3.29.0.152-highlights-enabled/restyle-qmldir',sha256:'1466ee581f558129f703189295216d2f1eebfffe0366afc899146207cd3d47f3'},
-    'librestylehighlightsplugin.so':{path:'/Users/mdf/code/remarkable-restyle/.cache/pro-3.29.0.152-highlights-enabled/librestylehighlightsplugin.so',sha256:'f770c556b641ddf7cdcef1964766cb473a66d1e863aab34d4c5f8f9ca3c5244c'}
-};
+export const restylePayload=JSON.parse(fs.readFileSync(new URL('../profiles/overlay-pro-3.29.0.152.json',import.meta.url)));
 const digest=b=>createHash('sha256').update(b).digest('hex');
 const X='/home/root/xovi', Q=X+'/exthome/qt-resource-rebuilder';
 const H='/home/root/.local/lib/companion-notebook', D='/home/root/.local/share/companion-notebook';

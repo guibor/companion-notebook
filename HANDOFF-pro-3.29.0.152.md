@@ -382,7 +382,14 @@ ReManager confirmed sole device ownership and supplied base97016 with39file pins
 
 Same reviewed rollback metadata and acceptance protocol as below; full composition
 and29tests pass. ReManager owns activation and must verify absent timer config
-and alarm state before/after. No seeding or Move work. Installation pending receipt.
+and alarm state before/after. No seeding or Move work.
+
+Installed by ReManager as `20261010T152355Z-1`, UI100381/Dates8045,
+owner98843/watch99892. `accept-webpdf` passed; all13settings hashes passed and
+timer config/alarm files remained absent. Verified off-device preimages digest:
+`fdcbd892cc109f8a32fb7ecf227ce2dbe77b22d947d7713ba6cf97e47b2330f4`.
+WebPDF ready15:25:33.953UTC, Companion15:25:37.091UTC (18:25 Israel).
+Keep native watchdog active. Physical link-tap/save acceptance remains separate.
 
 # Superseded direct-tap stage — DO NOT USE (2026-10-10)
 

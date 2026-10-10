@@ -31,6 +31,12 @@ seven Companion app payloads match the preceding installed stage byte-for-byte.
 Seven isolated rollback tests cover normal and interrupted renames, retries,
 accepted preservation, foreign files and active-app refusal; existing22tests pass.
 
+ReManager activated the reconciled timer/tap stage as20261010T152355Z-1 and
+reported successful `accept-webpdf`. UI100381/Dates8045 and independent
+owner98843/watch99892 were active; all13settings matched and absent timer config
+files stayed absent. Host readiness appeared at18:25:33.953 and18:25:37.091 Israel
+time. This is coordinator-observed startup, not a physical tap/save test here.
+
 ## .152 feature-visibility follow-up
 
 Startup readiness does not prove that selection actions are reachable. After the

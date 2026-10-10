@@ -15,7 +15,9 @@ Read and write without losing context or compromising native handwriting.
 ** Next steps
 - Prepared replacement =handoff-9546870fd5ce= after ReManager reconciled the timer
   update and supplied fresh39file/13settings inventory and12peer manifest.
-  ReManager activates and calls =accept-webpdf=; installation pending receipt.
+  Installed by ReManager as =20261010T152355Z-1=; =accept-webpdf= passed.
+  UI100381/Dates8045, owner98843/watch99892; all13settings checks passed.
+  Actual finger-tap/save interaction remains user feedback, not automated proof.
 - Earlier =handoff-b6c206a481e2= is superseded and must never be activated.
 - Keep Move, Gestik payload, Companion sources and native libraries unchanged.
 

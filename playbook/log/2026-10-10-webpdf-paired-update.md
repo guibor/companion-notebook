@@ -27,3 +27,9 @@ and39file pins plus peer manifest444e0095 containing timer r1. Explicit peer-fil
 input was added to the assembler. Replacement stage9546870fd5ce passes both full
 composition orders and29tests and was handed to ReManager. Earlier stage remains
 superseded. No tablet operations from this task.
+
+ReManager installed transaction20261010T152355Z-1 and reported successful
+accept-webpdf. UI100381/Dates8045/owner98843/watch99892,13QMDs,13settings checks
+passed, timer config files remain absent. WebPDF/Companion ready15:25:33.953 and
+15:25:37.091UTC. Off-device backup digestfdcbd892cc109f8a32fb7ecf227ce2dbe77b22d947d7713ba6cf97e47b2330f4.
+This receipt does not claim physical tapping/import acceptance.

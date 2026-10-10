@@ -368,6 +368,23 @@ bash "$S/probe.sh" stop "$ID" "$MANIFEST"
 
 Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
 kill the watchdog before it finishes. Recovery never overwrites current settings.
+# Temporary tap diagnostic prepared (2026-10-10)
+
+Stage `build/pro-3.29.0.152/handoff-1bae5bb43707` is logging only, not a fix.
+ReManager owns activation; no device calls from this task.
+
+- SHA256SUMS: `d4988de35ac58595e9bb7d512236278687d8bbd9172f2b6bcd5d157cd3f2349f`
+- probe.sh: `722683b870641ddefe66b36f965ad8066ae002aab2c77aed6a03cb2321df0cbb`
+- Coordinator: `1bae5bb437071d8926ec4a9ab86a5bfacdd9f35e28da55c9bb5a362601447fe6`
+- Diagnostic QMD: `0008e770a8a0e7f742b010c539e831f64aeffaa90065f45cb553e1d44e427242`
+
+Uses newly captured base111528 inventory63b68fec and current peer manifestb4ac661b.
+Both full composition orders and22focused tests pass. Nine other app/module
+files match e507; no old-WebPDF rollback. Standard twelve-file guarded activation
+protocol applies. TouchArea flags are budgeted48/view; two MainView boolean logs
+are not budgeted. No URLs/text/page IDs/coordinates are logged. Await receipt and
+real interaction evidence; never interpret installation as a fix.
+
 # Post-Gestik r1 stage prepared (2026-10-10)
 
 `build/pro-3.29.0.152/handoff-e507e276e674` is prepared for the coordinated Gestik

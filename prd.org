@@ -3,6 +3,14 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Direct-link tap diagnostic (2026-10-10)
+- User reports the installed tap flow does not work. Prepare peer-owned logging
+  only, preserving app semantics, native modules, settings and current Gestik/Timer.
+- Diagnostic is not a fix or physical interaction acceptance.
+** Next steps
+- Stage =handoff-1bae5bb43707= is prepared for ReManager's sole-writer activation
+  against freshly observed base111528. No device operations from this task.
+
 * Post-Gestik r1 restoration (2026-10-10)
 - Prepare the unchanged native stack against the sole-writer's new Gestik base.
 - Keep Timer r1 and accepted direct-tap WebPDF; do not re-arm old-app rollback.

@@ -1,5 +1,16 @@
 # Architecture and implementation status
 
+## Temporary direct-tap diagnostic
+
+The active overlay profile pins peer-owned diagnostic0008e770 rather than
+ordinary d38f5d58. Only the combined selection QMD changes; nine other app/module
+payloads match the installed post-Gestik stage. Logging records boolean routing
+flags, not URLs, document text, page IDs or coordinates. TouchArea messages have
+a48-event budget per view; MainView availability/offer booleans are not budgeted.
+The fresh base capture was observed at111528 even though its content hash matches
+the previous immutable inventory. Full composition is rerun against current
+Gestik r1/Timer r1 peers. This is instrumentation, not a behavior correction.
+
 ## Restoring the accepted stack after Gestik r1
 
 The post-Gestik preparation uses the existing optional-rollback interface with

@@ -11,3 +11,11 @@ interrupted renames, accepted preservation, foreign files and backend mappings.
 No runtime rollback lifecycle changes, no private-state writes, no tablet calls.
 Await fresh base/app metadata before composing a deployable stage. The read-only
 reader probe does not establish notebook-menu or import acceptance.
+
+Fresh post-update base249152 inventory22a6e18c and rollback00db60e8 arrived.
+Profile selects0531dd58; full paired stage720d1f794eb4 produced with current
+b4ac661b Gestik/Timer peers. Actual11old/22new bundle files match the reviewed
+transition. Both complete composition orders parse and preserve single-lookup,
+cancellation and fallback regressions. Nine other app/module payloads match
+b492. Handoff sent to ReManager with mandatory startup acceptance action.
+No device operations here; installation and physical UI/import remain unverified.

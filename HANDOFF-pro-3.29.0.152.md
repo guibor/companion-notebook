@@ -368,6 +368,27 @@ bash "$S/probe.sh" stop "$ID" "$MANIFEST"
 
 Wait for `B/recovered` and the normal base (or bounded stock fallback). Do not
 kill the watchdog before it finishes. Recovery never overwrites current settings.
+# Page-links paired protocol upgrade prepared (2026-10-11)
+
+Stage `build/pro-3.29.0.152/handoff-720d1f794eb4`, for sole-writer ReManager:
+
+- SHA256SUMS: `523db13ca1816f7282c9eb2cfed903a02e3706117484374ed72438eb27d0a0b4`
+- probe.sh: `3bc09631cc319950ce4f59724b451e5df21ab56bbe7b7dc4fcd8dedae1e5d920`
+- Coordinator: `720d1f794eb4db008a6267207b8073382f7ac3e9a97509fbd1bba510aecd2d0c`
+- Fresh base: `22a6e18cff931b601d091d2dbc14ba86b755464b08c81c8ccf9fffcea7bda985`
+- Rollback input: `00db60e82cc3a21481d00f3d588cb8a1e29b0d07bc4a9f7f0ec773bd98f3b8da`
+- Combined QMD: `0531dd583d84a989e35450082a8a968409e308c3947d96c9dbf34dcb63d7c1c6`
+
+Base249152 has39file pins/13settings/11QMDs, current b4ac661b Gestik/Timer peers.
+Actual rollback inventory contains11old/22new files and the exact reviewed
+page-links-protocol-2-to-3 transition. Both complete composition orders parse;
+single-lookup/cancel/fallback regression passes in both. Nine other app/module
+payloads match b492. Standard12files+manifest prepare/off-device-backup/run.
+Call `accept-webpdf` after startup checks. Before acceptance, recovery restores
+the full old bundle after native fallback; after acceptance it retains protocol3.
+Private config/state remains untouched. No deployment or UI/import acceptance
+claim from this offline preparation; await ReManager receipt.
+
 # Single-lookup correction prepared (2026-10-11)
 
 Stage `build/pro-3.29.0.152/handoff-b492e0369044` is ready for ReManager activation.

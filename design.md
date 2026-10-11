@@ -19,6 +19,15 @@ exercise the mapped-backend refusal using a mock proc-maps path, alongside renam
 interruption/retry and accepted preservation.31focused tests pass; no deployment
 stage exists until fresh device evidence arrives.
 
+Fresh base22a6e18c and actual rollback00db60e8 now bind stage720d1f794eb4. The
+overlay profile selects0531dd58, adding the PDF-only document-menu action. Signals
+carry the initiating toolbar to its matching visible DocumentView before opening
+the external host's page-links flow, avoiding unrelated pane selection. Both
+full composition orders and existing gesture regressions pass; nine other
+app/module payloads are unchanged. New protocol3 bundle is paired with this QMD;
+operator must call accept-webpdf after startup checks to preserve it on later
+maintenance stops. No private settings or notebook content is part of the stage.
+
 ## Single-lookup peer correction
 
 The overlay profile now pins bc703575 from WebPDF source884a9fd. Its press wrapper

@@ -13,6 +13,10 @@ Read and write without losing context or compromising native handwriting.
 ** Next steps
 - Narrow transition validation and31focused tests pass locally. Wait for fresh
   post-update base and whole-app rollback inventory before producing a stage.
+- Fresh inventories received: paired stage =handoff-720d1f794eb4= is prepared
+  against base249152, matching protocol3 app and current Gestik/Timer peers.
+  Both composition orders and existing single-lookup regressions pass. ReManager
+  owns activation and =accept-webpdf=; installation pending receipt.
 
 * Single native lookup per press (2026-10-11)
 - Integrate peer-owned duplicate-lookup correction, preserving stock fallback,

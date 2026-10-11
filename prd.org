@@ -3,6 +3,17 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Links on this page protocol upgrade (2026-10-11)
+- Support only the reviewed WebPDF0.4.2/protocol2 to0.5.0/protocol3 whole-bundle
+  transition, paired with its matching QMD. Preserve all private config/state.
+- ReManager owns read-only probe and device updates; no tablet calls here.
+** Changed requirements
+- The previous paired updater allowed UI-only changes with an identical backend.
+  Add an explicit exact-bundle exception, not generic backend replacement.
+** Next steps
+- Narrow transition validation and31focused tests pass locally. Wait for fresh
+  post-update base and whole-app rollback inventory before producing a stage.
+
 * Single native lookup per press (2026-10-11)
 - Integrate peer-owned duplicate-lookup correction, preserving stock fallback,
   cancellation, diagnostics and all other apps. Do not claim PDF taps or lag fixed.

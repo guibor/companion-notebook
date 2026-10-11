@@ -1,5 +1,24 @@
 # Architecture and implementation status
 
+## Explicit page-links protocol transition
+
+`profiles/webpdf-page-links-transition.json` records every reviewed old/new
+bundle member, including license files, for0.4.2/protocol2 to0.5.0/protocol3.
+`validateWebpdfRollback` admits changed backend bytes only when the explicit
+transition discriminator and both complete member maps match this profile.
+Version/protocol labels are bound by manifest/backend bytes, not caller claims.
+The fresh SHA256SUMS file is additionally required and hash-checked at runtime;
+its serialization is not assumed identical to the build manifest. Other paired
+updates retain the original same-backend/helper rules. Unknown files, omitted
+licenses and changed manifests/backends fail validation.
+
+Whole-tree rollback/acceptance behavior is unchanged: restore the old complete
+bundle only before acceptance and after native recovery/app quiescence. Settings
+remain outside the swapped directory. Tests now use distinct backend bytes and
+exercise the mapped-backend refusal using a mock proc-maps path, alongside rename
+interruption/retry and accepted preservation.31focused tests pass; no deployment
+stage exists until fresh device evidence arrives.
+
 ## Single-lookup peer correction
 
 The overlay profile now pins bc703575 from WebPDF source884a9fd. Its press wrapper

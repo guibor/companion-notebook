@@ -1,0 +1,42 @@
+{
+  "transition": "page-links-protocol-2-to-3",
+  "oldVersion": "0.4.2",
+  "oldProtocol": 2,
+  "newVersion": "0.5.0",
+  "newProtocol": 3,
+  "oldFiles": {
+    "resources.rcc": "0f265b4f54613acab37c918246d2a739150099f6b6d8dccf5ad661d27dad4c9f",
+    "backend/entry": "33e2018fdc53bfa67830702f397c23e3333f8124ae05630c4b11c11ddc0c2320",
+    "integration/SelectionHost.qml": "bd0222dc8b275a16bd22c4b7a60ac38eedec75c65e472b08aa65b646515b07a3",
+    "integration/TapLink.qml": "79a4a48f2070305f7e65cca6c40bb359b73b5f76c1fe247b45b0402f65bc2036",
+    "integration/ReaderButton.qml": "932d893d0aff5221d47565211931ddb20dfb205f5ef7836db7bf129835a57ee4",
+    "integration/SelectionLinks.qml": "059d8ccda804c2d28622a27d2389cba86df0638b92343701f23502611ebbb266",
+    "integration/Links.js": "e79abae9583ec1cc180cb38d2c2729e09fef1f236d373f32c30e338cc5e51a89",
+    "icon.png": "30fa33e29beff0aa0bdc9c8f4f9218bdf0de4148192d3ed6b239112fcc75609c",
+    "THIRD_PARTY_NOTICES.md": "88e2713a61123c1a29a1f4e912299f5682e6f86cf90b570f514eed6528650cf8",
+    "manifest.json": "c1dd78dae1e452bd65195ae6ae6aa63a634279684141e40dda9bbead588fb19e"
+  },
+  "newFiles": {
+    "manifest.json": "d85e12ce2e9ffa2f4460cac8189a7ee841747eb79fdcfbb2e6dfeb598ee49740",
+    "resources.rcc": "7278356c7d3c0faf7bb09ab9d000e6117ab05fb64c7cad71b33cdb84b970fd30",
+    "backend/entry": "b1934f956968c88de76d6f65adf61e93688a6709edd28847fd7d53444115b081",
+    "icon.png": "30fa33e29beff0aa0bdc9c8f4f9218bdf0de4148192d3ed6b239112fcc75609c",
+    "THIRD_PARTY_NOTICES.md": "f47a545a085bcff0b9c999dd314e8f7c2b38c4389d5fb9d27cb85a50b044bd3a",
+    "integration/Links.js": "e79abae9583ec1cc180cb38d2c2729e09fef1f236d373f32c30e338cc5e51a89",
+    "integration/ReaderButton.qml": "932d893d0aff5221d47565211931ddb20dfb205f5ef7836db7bf129835a57ee4",
+    "integration/SelectionHost.qml": "bbb7a44cd5306379da19421ff4db380dd60c3cff1e8255903cfa95a6c604a225",
+    "integration/SelectionLinks.qml": "059d8ccda804c2d28622a27d2389cba86df0638b92343701f23502611ebbb266",
+    "integration/TapLink.qml": "79a4a48f2070305f7e65cca6c40bb359b73b5f76c1fe247b45b0402f65bc2036",
+    "licenses/github.com-hhrutter-tiff-LICENSE": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067",
+    "licenses/github.com-hhrutter-tiff-internal-lzw-LICENSE": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "licenses/github.com-pdfcpu-pdfcpu-LICENSE.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "licenses/github.com-pdfcpu-pdfcpu-internal-filter-lzw-LICENSE": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "licenses/github.com-pdfcpu-pdfcpu-pkg-pdfcpu-pkcs7-LICENSE": "0e8bec4750de7c8b2fdef97083c4fe1f9f5b7a0a71ca1ccf781fc2b135284ce0",
+    "licenses/go.yaml.in-yaml-v3-LICENSE": "d18f6323b71b0b768bb5e9616e36da390fbd39369a81807cca352de4e4e6aa0b",
+    "licenses/go.yaml.in-yaml-v3-NOTICE": "f6c2dd3a67b576eafb89b80200b8b1627230bf3821a0c14cb99a22ac19107d00",
+    "licenses/golang.org-x-crypto-LICENSE": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "licenses/golang.org-x-image-LICENSE": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "licenses/golang.org-x-sys-LICENSE": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+    "licenses/golang.org-x-text-LICENSE": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+  }
+}

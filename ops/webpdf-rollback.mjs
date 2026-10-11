@@ -1,6 +1,8 @@
 // Optional exact-bundle rollback. No device access or private state restoration.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import fs from 'node:fs';
+const pageLinksTransition=JSON.parse(fs.readFileSync(new URL('../profiles/webpdf-page-links-transition.json',import.meta.url)));
 export const webpdfTarget='/home/root/xovi/exthome/appload/remarkable-web-pdf';
 export function validateWebpdfRollback(r,files){
     assert.equal(r.target,webpdfTarget);
@@ -15,12 +17,23 @@ export function validateWebpdfRollback(r,files){
         }
         for(const p of ['manifest.json','resources.rcc','backend/entry','integration/SelectionHost.qml'])assert(tree[p]);
     }
+    if(r.transition!==undefined){
+        assert.equal(r.transition,'page-links-protocol-2-to-3','Unreviewed app transition');
+        // Manifest contents and backend protocol are bound by the reviewed bytes,
+        // not by trusting a caller-supplied version label. Include every license.
+        for(const side of ['oldFiles','newFiles']){
+            assert(r[side].SHA256SUMS,'Complete installed manifest required');
+            const {SHA256SUMS,...members}=r[side];
+            assert.deepEqual(members,pageLinksTransition[side],'Unreviewed '+side+' bundle');
+        }
+    }else{
     assert.equal(r.oldFiles['backend/entry'],r.newFiles['backend/entry'],'UI update must preserve backend');
     const required={
         'SelectionHost.qml':'bd0222dc8b275a16bd22c4b7a60ac38eedec75c65e472b08aa65b646515b07a3',
         'TapLink.qml':'79a4a48f2070305f7e65cca6c40bb359b73b5f76c1fe247b45b0402f65bc2036',
         'ReaderButton.qml':'932d893d0aff5221d47565211931ddb20dfb205f5ef7836db7bf129835a57ee4'};
     for(const [p,h]of Object.entries(required))assert.equal(r.newFiles['integration/'+p],h);
+    }
     for(const f of files.filter(f=>f.path.startsWith(r.target+'/')))assert.equal(r.newFiles[f.path.slice(r.target.length+1)],f.sha256);
 }
 export function renderWebpdfRollback(r){

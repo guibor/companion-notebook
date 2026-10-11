@@ -28,6 +28,13 @@ app/module payloads are unchanged. New protocol3 bundle is paired with this QMD;
 operator must call accept-webpdf after startup checks to preserve it on later
 maintenance stops. No private settings or notebook content is part of the stage.
 
+ReManager confirmed deployment and startup acceptance20261011T045454Z-1 over
+Wi-Fi: UI252740/Dates8045, owner251140/watch252208 active with zero restarts,
+13QMDs/three native mappings and both hosts ready. All13settings were preserved,
+root stayed read-only and no startup error matches were found. The bundle-bound
+acceptance marker retains protocol3 during later maintenance stops; supervision
+remains active. Physical menu/download and external-tap behavior remain unverified.
+
 ## Single-lookup peer correction
 
 The overlay profile now pins bc703575 from WebPDF source884a9fd. Its press wrapper

@@ -16,7 +16,9 @@ Read and write without losing context or compromising native handwriting.
 - Fresh inventories received: paired stage =handoff-720d1f794eb4= is prepared
   against base249152, matching protocol3 app and current Gestik/Timer peers.
   Both composition orders and existing single-lookup regressions pass. ReManager
-  owns activation and =accept-webpdf=; installation pending receipt.
+  installed and accepted =20261011T045454Z-1=: UI252740/Dates8045,
+  owner251140/watch252208 active, zero restarts and all13settings preserved.
+  Protocol3 is retained; physical menu/download and external taps are unverified.
 
 * Single native lookup per press (2026-10-11)
 - Integrate peer-owned duplicate-lookup correction, preserving stock fallback,

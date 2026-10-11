@@ -387,7 +387,18 @@ payloads match b492. Standard12files+manifest prepare/off-device-backup/run.
 Call `accept-webpdf` after startup checks. Before acceptance, recovery restores
 the full old bundle after native fallback; after acceptance it retains protocol3.
 Private config/state remains untouched. No deployment or UI/import acceptance
-claim from this offline preparation; await ReManager receipt.
+claim from this offline preparation.
+
+ReManager subsequently DEPLOYED AND ACCEPTED `20261011T045454Z-1` over Wi-Fi.
+Use this transaction for future controlled stops, not225423 or older IDs.
+UI252740/Dates8045, owner251140/watch252208 active with zero restarts;
+13QMDs/three native maps, both hosts ready, all13settings preserved, root read-only
+and no startup error matches. Verified off-device native preimages:
+`7930271527e12045f8305c1abee06f7cdf4619c19558e3e3bc612d699d64728a`.
+`accept-webpdf` succeeded with marker:
+`84ad754b3c861226b1f79fa286fdd0516aa0a8e2a1784f78cd14586a60ba7e6e`.
+Protocol3 is retained and watchdog supervision remains active. No physical
+menu/download or external-tap acceptance claim. This task recorded receipt only.
 
 # Single-lookup correction prepared (2026-10-11)
 

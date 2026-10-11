@@ -19,3 +19,12 @@ transition. Both complete composition orders parse and preserve single-lookup,
 cancellation and fallback regressions. Nine other app/module payloads match
 b492. Handoff sent to ReManager with mandatory startup acceptance action.
 No device operations here; installation and physical UI/import remain unverified.
+
+Subsequent coordinator receipt confirms deployed/accepted20261011T045454Z-1:
+UI252740/Dates8045/owner251140/watch252208 active, zero restarts,13QMDs/three
+native mappings and both hosts ready. All13settings preserved, root read-only,
+no startup error matches. Native backup7930271527e12045f8305c1abee06f7cdf4619c19558e3e3bc612d699d64728a
+copied/hash/gzip verified on Mac before activation. Acceptance marker
+84ad754b3c861226b1f79fa286fdd0516aa0a8e2a1784f78cd14586a60ba7e6e
+retains protocol3; watchdog remains active. Future stops use045454, not225423.
+No physical menu/download/external-tap acceptance; this task made no device calls.

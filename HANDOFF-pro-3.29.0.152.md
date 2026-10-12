@@ -1,5 +1,30 @@
 # Companion / Quick Pad Pro 3.29.0.152 handoff
 
+## Current installation: standard notebook scrolling (2026-10-13 Israel)
+
+ReManager handed sole device-write ownership to this chat for the user's explicit
+installation request. Installed source8268ba2 in transaction20261012T220934Z-1,
+using fresh stage =handoff-477c39edfe89= after controlled prior-runtime recovery.
+
+- Manifest:1fea36f65505d30f866b2c0a19893635382edf41d6fb10b1a16f9e57f2025493.
+- probe.sh:3f22723165b0f8e2ccd07c2d7eacc78aff5b4f603c91f4ee212491cd15c8f8ce.
+- Backup:7d57e6f5b4832079417d5b156a702ba272d714fd8a11207bf3c7fe79bdcd4f5a,
+  verified on Mac under build/pro-3.29.0.152/device-backups/companion-20261012T220934Z-1.
+- UI415570/Dates8045, owner414197/watch415167 active, zero restarts,
+  both hosts ready,13QMDloads/three native maps and all13freshsettings preserved.
+- Root read-only, no startup QML errors; accepted WebPDFprotocol3 retained.
+
+Only Companion's QMD and the newly bound controller changed. Standard notebooks
+no longer have a finite lower clamp; PDF and corner-pad bounds are unchanged.
+No old-WebPDF rollback metadata, no app or native module replacement beyond the
+identical preserved payloads, no Move/server change or automated notebook input.
+Use this transaction's own stop action and manifest for subsequent recovery;
+retain its backup/runtime directory. Physical scroll feedback remains unobserved.
+Full receipt: playbook/log/2026-10-12-standard-scroll.md.
+
+The sections below are historical installation receipts and ownership boundaries;
+they do not override the current handover or transaction above.
+
 Status: corrected PDF-readiness package installed by ReManager on 2026-10-10;
 startup, readback and current-settings checks passed. Physical lasso editing
 remains untested; do not treat this as SelectChange interaction acceptance.

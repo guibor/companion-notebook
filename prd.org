@@ -12,10 +12,13 @@ Read and write without losing context or compromising native handwriting.
 - The original pane clamp bounded every document to its scene exterior. Standard
   notebooks now follow stock navigation's open bottom edge rather than PDF bounds.
 ** Next steps
+- Installed October13 Israel as =20261012T220934Z-1= after ReManager handed
+  sole device ownership to this chat. Fresh base/settings and verified recovery
+  archive bind the guarded runtime. UI415570/Dates8045, zero restarts,
+  both hosts ready,13QMDs/three native maps and all13settings checks passed.
 - Local correction passes47focused checks and both complete composition orders;
-  generated behavior checked in both orders. Not installed. Before deployment,
-  coordinate current device ownership and obtain fresh firmware/base/settings
-  inventory; do not reuse historical controller inputs for activation.
+  generated behavior checked in both orders. Await normal-use scroll feedback;
+  no automated notebook edits or pen tests. Future installs need fresh inventory.
 
 * Links on this page protocol upgrade (2026-10-11)
 - Support only the reviewed WebPDF0.4.2/protocol2 to0.5.0/protocol3 whole-bundle

@@ -20,6 +20,21 @@ with CN_COMPOSED_ROOT) rather than an old .148 build; both full orders pass.
 Only a local payload was built, using cached peer evidence for offline composition.
 It is not an installation controller or evidence of physical scroll acceptance.
 
+The subsequent October13 installation uses fresh coordinator477c39edfe89 and
+transaction20261012T220934Z-1. ReManager handed sole device ownership to this
+chat; its accepted prior controller performed controlled recovery before a new
+stable-base inventory was taken. All nine native providers match. The refreshed
+controller pins current settings and contains no old WebPDF rollback, preserving
+accepted protocol3. Only Companion's QMD and the fresh controller differ from the
+previous twelve-member stage. A new61-member recovery archive was verified on
+the computer before activation; native supervision remains independent.
+
+Startup completed at01:12:50 Israel: UI415570, unchanged Dates8045,
+owner414197/watch415167 active with zero automatic restarts. Both host readiness
+signals,13externalQMDloads,three native mappings and all13freshsettings checks
+passed; root remained read-only and no relevant startup errors matched.
+This confirms installed code/startup, not physical infinite-scroll acceptance.
+
 ## Explicit page-links protocol transition
 
 `profiles/webpdf-page-links-transition.json` records every reviewed old/new

@@ -17,7 +17,9 @@ function cnConstrainToPane() {
     var minY = bounds.y
     var maxY = Math.max(minY, bounds.y + bounds.height - visibleHeight)
     var x = Math.max(minX, Math.min(maxX, topLeft.x))
-    var y = Math.max(minY, Math.min(maxY, topLeft.y))
+    // Notebook paper can grow below its current content. Match stock navigation's
+    // open bottom edge; keep finite PDF bounds and the notebook's top/side limits.
+    var y = notePage ? Math.max(minY, topLeft.y) : Math.max(minY, Math.min(maxY, topLeft.y))
     if (!isFinite(x) || !isFinite(y) || !isFinite(topLeft.x) || !isFinite(topLeft.y)) return
     var dx = (topLeft.x - x) * scale, dy = (topLeft.y - y) * scale
     if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) return

@@ -208,6 +208,9 @@ Connections {
     q = once(q, 'value: root.cnPaired ? null : EPFramebuffer', 'value: (root.cnPaired || root.cnQuickPadCompositing) ? null : EPFramebuffer');
     q = once(q, 'INSERT { !root.cnPaired && }', 'INSERT { !(root.cnPaired || root.cnQuickPadCompositing) && }');
     q = once(q, 'bounds.y + bounds.height - visibleHeight)', 'bounds.y + bounds.height - visibleHeight * (cnQuickPad && notePage ? 0.2 : 1))');
+    // Keep the corner pad's existing blank-tail behavior; standard split notes
+    // have no bottom clamp, matching native infinite notebook navigation.
+    q = once(q, 'var y = notePage ?', 'var y = (notePage && !cnQuickPad) ?');
     q = once(q, 'if (cnHost?.secondary) cnHost.secondary.cnRefresh()', 'if (cnHost?.secondary && !cnHost.quickPadActive) cnHost.secondary.cnRefresh()');
     // Reuse Companion's native surfaces and manager occlusion. The actual
     // viewport is corner-sized; no QML scale sits above the pen transform.

@@ -3,6 +3,20 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Standard split notebook infinite scrolling (2026-10-12)
+- User confirms the split-screen experience works well but the lower notebook
+  stops scrolling at a finite bottom despite its infinite page.
+- Standard paired notebooks must permit scrolling below current content while
+  retaining top/side limits, PDF bounds and existing corner-pad behavior.
+** Changed requirements
+- The original pane clamp bounded every document to its scene exterior. Standard
+  notebooks now follow stock navigation's open bottom edge rather than PDF bounds.
+** Next steps
+- Local correction passes47focused checks and both complete composition orders;
+  generated behavior checked in both orders. Not installed. Before deployment,
+  coordinate current device ownership and obtain fresh firmware/base/settings
+  inventory; do not reuse historical controller inputs for activation.
+
 * Links on this page protocol upgrade (2026-10-11)
 - Support only the reviewed WebPDF0.4.2/protocol2 to0.5.0/protocol3 whole-bundle
   transition, paired with its matching QMD. Preserve all private config/state.

@@ -4,10 +4,10 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('native/navigation.qml.inc','utf8');
 const functions=source.slice(source.indexOf('function cnConstrainToPane'),source.indexOf('// Scrollbar'));
-function fixture({width=1620,height=700,scale=1,bounds={x:-810,y:0,width:1620,height:2160},top={x:-810,y:0}}={}) {
+function fixture({width=1620,height=700,scale=1,notePage=false,bounds={x:-810,y:0,width:1620,height:2160},top={x:-810,y:0}}={}) {
     const calls=[];
     const c={cnPaired:true,cnLayoutBusy:false,cnConstraining:false,sceneView:{},
-        width,height,exteriorBoundary:bounds,Qt:{point:(x,y)=>({x,y})},
+        width,height,notePage,exteriorBoundary:bounds,Qt:{point:(x,y)=>({x,y})},
         updateScrollbars(){calls.push('scrollbars');},
         tileManager:{scale,viewToScene(){return {...top};},moveViewBy(d){calls.push(d);top.x-=d.x/scale;top.y-=d.y/scale;}}};
     vm.createContext(c);vm.runInContext(functions,c);
@@ -33,6 +33,23 @@ test('both independent panes, all allowed reveals and zooms reach the page botto
 test('native content beyond original paper is included in navigation',()=>{
     const f=fixture({bounds:{x:-810,y:-100,width:1620,height:12000},top:{x:-810,y:99999}});
     f.c.cnConstrainToPane();assert.equal(f.top.y,11200);
+});
+test('notebook panes can scroll below existing content without growing its boundary first',()=>{
+    for(const height of [360,700,1080])for(const scale of [.5,1,1.7,5]){
+        const f=fixture({height,scale,notePage:true});
+        for(let i=0;i<150;i++)f.c.cnJump(-1);
+        assert(Math.abs(f.top.y-150*height*.8/scale)<1e-6);
+        assert.equal(f.c.exteriorBoundary.height,2160);
+        assert.equal(f.c.tileManager.scale,scale);
+        for(let i=0;i<151;i++)f.c.cnJump(1);
+        assert.equal(f.top.y,0);
+    }
+});
+test('notebook drag/transform clamp leaves lower space open but retains top and side limits',()=>{
+    const f=fixture({notePage:true,top:{x:9999,y:12000}});
+    f.c.cnConstrainToPane();assert.equal(f.top.y,12000);assert.equal(f.top.x,-810);
+    f.top.y=-500;f.c.cnConstrainToPane();assert.equal(f.top.y,0);
+    f.top.y=12000;f.c.notePage=false;f.c.cnConstrainToPane();assert.equal(f.top.y,1460);
 });
 test('narrow pages are centered and wide pages are horizontally bounded',()=>{
     const narrow=fixture({scale:.5});narrow.c.cnConstrainToPane();assert.equal(narrow.top.x,-1620);

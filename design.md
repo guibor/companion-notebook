@@ -1,5 +1,25 @@
 # Architecture and implementation status
 
+## Standard notebook open-ended scrolling (2026-10-12)
+
+`native/navigation.qml.inc::cnConstrainToPane` previously clamped every pane's
+top-left to scene exterior minus visible height. For an unwritten notebook tail,
+that exterior is not the maximum scrollable extent. Stock Navigation treats a
+note's bottom viewport edge as zero (open) but a PDF's as finite. The pane clamp
+now uses `notePage` to retain the top bound without imposing a bottom on standard
+notebooks; finite PDF and horizontal bounds remain unchanged. This also covers
+scroll jumps and queued native-transform clamping, not just touch drags.
+
+`ops/quick-pad-build.mjs::quickPadQmd` explicitly excludes `cnQuickPad` from the
+new open-bottom condition, retaining the corner pad's existing80percent blank
+tail. Input admission, layout locks, reentrancy and native modules are untouched.
+Source regressions failed before the fix; corrected tests cover repeated scroll
+at multiple pane sizes/zooms, top/side limits and note-to-PDF transitions.
+`tests/quick-pad-logic.test.cjs` now reads current .152 composition (overridable
+with CN_COMPOSED_ROOT) rather than an old .148 build; both full orders pass.
+Only a local payload was built, using cached peer evidence for offline composition.
+It is not an installation controller or evidence of physical scroll acceptance.
+
 ## Explicit page-links protocol transition
 
 `profiles/webpdf-page-links-transition.json` records every reviewed old/new

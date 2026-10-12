@@ -3,8 +3,9 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const Store=require('../src/PairStore.js');
+const composed=process.env.CN_COMPOSED_ROOT || 'build/pro-3.29.0.152/composed-last';
 test('actual document fit bridge accepts both corner modes, never bypassing the parked input gate',()=>{
-    const source=fs.readFileSync('build/quick-pad-composed-last/qml/device/view/documentview/DocumentView.qml','utf8');
+    const source=fs.readFileSync(composed+'/qml/device/view/documentview/DocumentView.qml','utf8');
     const start=source.indexOf('function cnFitQuickPad(');
     let end=source.indexOf('{',start)+1,depth=1;
     while(depth){if(source[end]==='{')depth++;if(source[end]==='}')depth--;end++;}
@@ -26,7 +27,7 @@ test('pair metadata preserves optional corner layout without changing legacy rec
     corner.pairs[a].layout='invalid';assert.throws(()=>Store.parse(JSON.stringify(corner)),/Invalid/);
 });
 test('native zoom badge is suppressed only on a corner secondary, preserving stock conditions elsewhere',()=>{
-    const q=fs.readFileSync('build/quick-pad-composed-last/qml/device/view/documentview/DocumentView.qml','utf8');
+    const q=fs.readFileSync(composed+'/qml/device/view/documentview/DocumentView.qml','utf8');
     const zoom=q.slice(q.indexOf('ZoomButton {'));
     const expression=zoom.match(/visible:\s*([^\n]+)/)[1];
     for(const secondary of [false,true])for(const corner of [false,true])for(const zoomed of [false,true])for(const cue of [false,true]) {
@@ -93,8 +94,8 @@ test('warm width fit is a no-op but real zoom and center changes still refit',()
     s.tileManager.scale=first.scale;s.tileManager.center={x:20,y:first.p.y};
     assert(s.cnFitQuickPad());assert.equal(s.calls.length,3);
 });
-test('generated pad clamp exposes blank tail only in the pad notebook',()=>{
-    const q=fs.readFileSync('build/quick-pad-composed-last/qml/device/view/documentview/Navigation.qml','utf8');
+test('generated standard notebook scroll is open-ended while corner pad keeps its blank tail',()=>{
+    const q=fs.readFileSync(composed+'/qml/device/view/documentview/Navigation.qml','utf8');
     const from=q.indexOf('function cnConstrainToPane('),to=q.indexOf('function cnJump(',from);
     const code=q.slice(from,to);
     for(const pad of [false,true])for(const note of [false,true]) {
@@ -102,7 +103,8 @@ test('generated pad clamp exposes blank tail only in the pad notebook',()=>{
         const s={cnAdmissionLocked:false,cnPaired:true,cnLayoutBusy:false,cnConstraining:false,cnQuickPad:pad,notePage:note,sceneView:{},width:1080,height:720,exteriorBoundary:{x:-810,y:0,width:1620,height:2160},Qt:{point:(x,y)=>({x,y})}};
         s.tileManager={scale:2/3,viewToScene:()=>top,moveViewBy:d=>{top={x:top.x-d.x/(2/3),y:top.y-d.y/(2/3)}}};
         vm.createContext(s);vm.runInContext(code,s);s.cnConstrainToPane();
-        assert(Math.abs(top.y-(2160-1080*(pad&&note?.2:1)))<1e-6);
+        const expected=note&&!pad?1e6:2160-1080*(pad&&note?.2:1);
+        assert(Math.abs(top.y-expected)<1e-6);
         if(pad&&note) { s.exteriorBoundary.height=3000;top.y=1e6;s.cnConstrainToPane();assert(Math.abs(top.y-2784)<1e-6); }
     }
 });
@@ -124,7 +126,7 @@ test('native bridge always opens the current last page and rejects an ineligible
     }
 });
 test('actual generated ink gate excludes a tucked secondary but enables the source',()=>{
-    const source=fs.readFileSync('build/quick-pad-composed-last/qml/device/view/documentview/DocumentView.qml','utf8');
+    const source=fs.readFileSync(composed+'/qml/device/view/documentview/DocumentView.qml','utf8');
     const expr=source.match(/readonly\s+property\s+bool\s+cnInkAllowed:\s*([^\n]+)/)[1];
     for(const secondary of [false,true])for(const paired of [false,true])for(const pending of [false,true]) {
         const c={cnHost:{inputGeometryPending:pending,inkQualified:true},cnSecondary:secondary,cnPaired:paired};
@@ -132,7 +134,7 @@ test('actual generated ink gate excludes a tucked secondary but enables the sour
     }
 });
 test('only settled visible primary toolbar publishes changed capacity',()=>{
-    const source=fs.readFileSync('build/quick-pad-composed-last/qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','utf8');
+    const source=fs.readFileSync(composed+'/qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','utf8');
     const start=source.indexOf('function cnPublishToolbarCapacity(');
     let end=source.indexOf('{',start)+1,depth=1;
     while(depth) { if(source[end]==='{')depth++; if(source[end]==='}')depth--; end++; }
@@ -165,7 +167,7 @@ test('only settled visible primary toolbar publishes changed capacity',()=>{
 });
 test('hidden companion button loaders cannot resize or hide shared native toolbar tools',()=>{
     const relative='/qt/qml/xofm/libs/toolbar/qml/ToolLoader.qml';
-    const file='build/quick-pad-composed-last'+relative;
+    const file=composed+relative;
     const source=fs.readFileSync(fs.existsSync(file)?file:'build/quick-pad-composition-input'+relative,'utf8');
     assert.doesNotMatch(source,/toolbarProvider\.updateToolbarTools/,'Every delegate update must use the owner-scoped publisher');
     const start=source.indexOf('function cnSyncToolVisibility(');
@@ -188,14 +190,14 @@ test('hidden companion button loaders cannot resize or hide shared native toolba
     assert.match(source,/onUpdateShown\(shown\)[\s\S]*?root.cnSyncToolVisibility\(\)/);
 });
 test('toolbar toggles Companion while overflow retains its chooser',()=>{
-    const toolbar=fs.readFileSync('build/quick-pad-composed-last/qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','utf8');
+    const toolbar=fs.readFileSync(composed+'/qt/qml/xofm/libs/toolbar/qml/Toolbar.qml','utf8');
     assert.match(toolbar,/implicitlySelected:\s*Values.cnCompanionVisible/);
     assert.match(toolbar,/onPressed:\s*\{\s*Values.cnCompanionToggleRequested\(\)/);
     const qmd=fs.readFileSync('ops/quick-pad-build.mjs','utf8');
     assert.match(qmd,/label: "Companion settings"/);
 });
 test('overflow settings distinguish Companion and Quick Pad with their native glyphs',()=>{
-    const menu=fs.readFileSync('build/quick-pad-composed-last/qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','utf8');
+    const menu=fs.readFileSync(composed+'/qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml','utf8');
     function tool(id) {
         const start=menu.lastIndexOf('ToolbarTool {',menu.indexOf('id: '+id));
         let end=menu.indexOf('{',start)+1,depth=1;

@@ -23,8 +23,9 @@ sole tablet writer. SelectChange owns the combined Restyle/WebPDF overlay.
 2. Actual captured table receipt in profiles/table-pro-3.29.0.153.json, containing
    firmware, stockSha256, hashtabSha256, canonicalTableSha256 and
    hashtabCaptureStatus=two-canonical-captures-equal.
-3. SelectChange's qualified combined QMD/native module/qmldir, each path/hash
-   pinned in profiles/overlay-pro-3.29.0.153.json.
+3. SelectChange's combined QMD/native module/qmldir are now hash-pinned in
+   profiles/overlay-pro-3.29.0.153.json; peer static audit received, runtime
+   qualification remains with ReManager. Twenty-nine source/recovery tests pass.
 4. Current twelve-peer composition manifest (eleven external plus AppLoad),
    additional resource tree, and fresh post-base controller/settings inventory.
 

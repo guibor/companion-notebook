@@ -1,0 +1,14 @@
+{
+  "restyle-highlights.qmd": {
+    "path": "/Users/mdf/code/.worktrees/remarkable-web-pdf-pro-3290153/.cache/pro-3.29.0.153-page-links/restyle-with-webpdf.qmd",
+    "sha256": "2cabcb3e3866e2fd738b59abb76ced1fd971a14ee8f7ba11153e7f8cdcb0aaf8"
+  },
+  "restyle-qmldir": {
+    "path": "/Users/mdf/code/.worktrees/remarkable-restyle-pro-3290153/.cache/pro-3.29.0.153-highlights-enabled/restyle-qmldir",
+    "sha256": "1466ee581f558129f703189295216d2f1eebfffe0366afc899146207cd3d47f3"
+  },
+  "librestylehighlightsplugin.so": {
+    "path": "/Users/mdf/code/.worktrees/remarkable-restyle-pro-3290153/.cache/pro-3.29.0.153-highlights-enabled/librestylehighlightsplugin.so",
+    "sha256": "901b588576a2c4190f88938379d551bd5704cbb7587c23d425ffd9895c51bdef"
+  }
+}

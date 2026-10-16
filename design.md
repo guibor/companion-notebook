@@ -23,6 +23,11 @@ profiles fail closed until supplied; no .152 defaults stand in for fresh evidenc
 ReManager owns live capture/activation and SelectChange owns the combined overlay.
 The fresh runtime profile now passes the reuse audit for all eight direct providers;
 available QtCore/QtQml copies are also hash-checked rather than trusting labels.
+The overlay profile now binds SelectChange's .153 combined QMD and rebuilt
+Restyle module, preserving the page-links menu and capability-readiness fix.
+Twenty-nine source/guard/recovery tests pass, including rejection of old-app
+rollback and preservation of current settings through mocked recovery. Final
+full-stack table-bound composition still requires the coordinator's inputs.
 
 ## Standard notebook open-ended scrolling (2026-10-12)
 

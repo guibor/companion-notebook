@@ -52,6 +52,14 @@ The independent watchdog, bounded cold-readiness checks and recovery behavior
 remain unchanged. ReManager is sole activator; this task records local sealing,
 not native startup or physical acceptance.
 
+The first live prepare refused an inventory-model mismatch before mutation:
+sha256sum in capture followed Dispatch's icon symlink, while exact() deliberately
+requires a canonical regular file. Capture now records the bounded approved icon
+target; the operator checks the existing link separately. Replacement stage
+b6dd01c18a0e changes only controller setting-path/order pins. All eleven other
+stage members and all renderer/recovery logic are unchanged. This is corrected
+evidence, not an exception to the regular-file guard or a device icon change.
+
 ## Standard notebook open-ended scrolling (2026-10-12)
 
 `native/navigation.qml.inc::cnConstrainToPane` previously clamped every pane's

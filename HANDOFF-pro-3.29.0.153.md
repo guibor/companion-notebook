@@ -1,5 +1,28 @@
 # Pro .153 offline preparation
 
+## Corrected inventory stage (supersedes090c82f09ecc)
+
+Initial preparation refused BEFORE backup-directory creation or native mutation:
+Dispatch's existing icon.png is a symlink, but optional inventory capture had
+treated it as a regular file. The strict exact() guard correctly refused it.
+ReManager corrected capture to pin the approved canonical target inside Dispatch;
+the existing symlink and all content/settings bytes remain unchanged. ReManager
+separately verifies the symlink text/resolved target before and after activation.
+
+- Frozen stage: build/pro-3.29.0.153/handoff-b6dd01c18a0e.
+- Manifest:45c3d2e3a974585030a10f69e9b114138b2ed845c549ef8987d6c11012f53125.
+- Controller:2b647c8cfea0d8a3e5696b4e226235d1f4de646d881bc7f728b8755928505260.
+- Fresh inventory:bdfff274f3277ff4d247d898459c9c4840ee60b200ac8d180d4331dc52348063.
+- Coordinator:b6dd01c18a0e4099ab09ad5776dbadd328835b4a439f7c0b94266629eedc7640.
+- Coordinator's selected new transaction:20261016T094539Z-2.
+
+Input comparison proves only canonical icon path and settings ordering changed.
+All eleven noncontroller stage files are byte-identical to090c; both34QMLorders
+were rerun, all12member hashes and Bash syntax passed. No code/safety guard was
+relaxed, no icon was converted, and the old frozen stage remains untouched.
+The new stage is ready for coordinator-owned guarded preparation/activation;
+no installation/startup claim yet. No tablet operations occurred in this chat.
+
 ## Final stage sealed (2026-10-16, local/private receipt)
 
 ReManager supplied the committed active-base capture; final stage is frozen:

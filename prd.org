@@ -30,6 +30,10 @@ Read and write without losing context or compromising native handwriting.
   frozen and handed to ReManager, with39basefile/16settings/11QMDpins. Both full
   composition orders and focused checks rerun successfully. Await coordinator
   activation/startup receipt; no tablet or server operations from this task.
+- Initial prepare safely refused a newly inventoried Dispatch icon symlink.
+  Corrected canonical-target inventory seals replacement =handoff-b6dd01c18a0e=;
+  every app/base payload and strict guard stays unchanged. Await ReManager's
+  activation receipt; preserve the actual icon symlink and all current settings.
 
 * Standard split notebook infinite scrolling (2026-10-12)
 - User confirms the split-screen experience works well but the lower notebook

@@ -29,7 +29,7 @@ const paneNavigation = !diagnostic || geometryProbe || inkProbe;
 assert(!process.env.CN_PROBE || diagnostic || lifecycleProbe || sleepProbe, 'Unknown probe profile');
 assert(!ordinaryProbe || !diagnostic, 'Ordinary lifecycle probe is separate from historical profiles');
 assert(!userPilot || (!process.env.CN_PROBE && !ordinaryProbe), 'User pilot never includes a diagnostic driver');
-const output = target.version === '3.29.0.152' ? `build/pro-${target.version}${target.sourceOnly ? '-unbound' : ''}/${quickPad ? 'quick-pad-native' : 'pilot-native'}` : quickPad ? 'build/quick-pad-native' : userPilot ? 'build/pilot-native' : sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
+const output = target.version !== '3.29.0.148' ? `build/pro-${target.version}${target.sourceOnly ? '-unbound' : ''}/${quickPad ? 'quick-pad-native' : 'pilot-native'}` : quickPad ? 'build/quick-pad-native' : userPilot ? 'build/pilot-native' : sleepProbe ? 'build/sleep-native' : lifecycleProbe ? 'build/lifecycle-native' : ordinaryProbe ? 'build/ordinary-native' : diagnostic ? `build/${process.env.CN_PROBE}-native` : 'build/native';
 const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const exact = (p, h) => assert.equal(hash(p),h,p);
 exact(tool,'5d48704b2b55702bf553f65e0fac46bc2eacd72d3d995ac52b379df7e0ce973d');
@@ -840,7 +840,7 @@ if (!diagnostic) {
 }
 if (target.sourceOnly) {
     fs.writeFileSync(output+'/NOT-INSTALLABLE.json',JSON.stringify({firmware:target.version,stockSha256:target.stockSha256,status:'unbound-source-only',missing:'verified resource table and native runtime audit',installable:false},null,2)+'\n');
-    console.log('Source-only .152 QMD emitted without hash binding. NOT INSTALLABLE.');
+    console.log(`Source-only ${target.version} QMD emitted without hash binding. NOT INSTALLABLE.`);
     process.exit(0);
 }
 execFileSync(tool,['hash-diffs',path.join(firmware,'hashtab'),output+'/companion-notebook.qmd'],{stdio:'inherit'});

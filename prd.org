@@ -3,6 +3,24 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Pro 3.29.0.153 restoration (2026-10-16)
+- Preserve the standard-notebook lower-scroll correction, Companion/Quick Pad
+  behavior, native input protections and current device-local settings.
+- Use an isolated exact-firmware branch; ReManager owns all tablet operations.
+  This task prepares source, audits and composition locally only.
+- Retain accepted WebPDF protocol3 and the current combined Restyle integration;
+  reject old-app rollback metadata. No Move or shared-server changes.
+** Changed requirements
+- Extend the exact .152 pilot to a separately pinned .153 target. Same build
+  label does not imply identical stock binary or authorize replaying controllers.
+** Next steps
+- Exact stock binary, four pen-class metadata tables, eight freshly observed
+  native providers and vendor-policy pins audited; source-only build succeeds.
+  Await captured resource table, final peer overlays and current base/settings
+  inventory. Thirteen .153 guard/navigation tests and prior .152 guards pass.
+- Compose both full-stack orders and retain the supervised recovery guards
+  before handing a sealed stage to ReManager. No deployment claim yet.
+
 * Standard split notebook infinite scrolling (2026-10-12)
 - User confirms the split-screen experience works well but the lower notebook
   stops scrolling at a finite bottom despite its infinite page.

@@ -1,5 +1,29 @@
 # Architecture and implementation status
 
+## Exact Pro .153 port
+
+`ops/firmware-target.mjs::firmwareTarget` pins the new stock binary and gives
+the .153 port its own resource/output root. Source-only output cannot be installed;
+bound output requires the coordinator's actual table. Historical diagnostic modes
+remain refused for both modern targets. Native admission and app UI are unchanged,
+including the standard-notebook lower-scroll correction.
+
+`ops/audit-pro153.mjs` independently reads the new AArch64 ELF and compares four
+pen-related Qt metadata records with the previously audited baseline. It checks
+the imported public Qt interposition point, then optionally requires device-observed
+provider hashes and unchanged native sources/binaries. Metadata matches alone do
+not prove runtime semantics. No ARM binary is executed locally.
+
+The separate .153 assembler, controller renderer and preparation entrypoints
+retain the existing snapshot, host handoff, settings, cold-readiness and independent
+watchdog/recovery logic. The assembler requires a new table receipt instead of
+embedding old table hashes. The controller explicitly refuses WebPDF rollback
+metadata because protocol3 is already accepted. Missing runtime/overlay/table
+profiles fail closed until supplied; no .152 defaults stand in for fresh evidence.
+ReManager owns live capture/activation and SelectChange owns the combined overlay.
+The fresh runtime profile now passes the reuse audit for all eight direct providers;
+available QtCore/QtQml copies are also hash-checked rather than trusting labels.
+
 ## Standard notebook open-ended scrolling (2026-10-12)
 
 `native/navigation.qml.inc::cnConstrainToPane` previously clamped every pane's

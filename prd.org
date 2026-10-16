@@ -14,6 +14,13 @@ Read and write without losing context or compromising native handwriting.
 - Extend the exact .152 pilot to a separately pinned .153 target. Same build
   label does not imply identical stock binary or authorize replaying controllers.
 ** Next steps
+- ReManager confirms guarded .153 activation completed: both hosts ready,
+  thirteen external QMDs loaded, three native modules mapped, zero automatic
+  restarts and all sixteen settings checks passed. Dates and the Dispatch icon
+  link are unchanged; root remains read-only and recovery supervision is active.
+  Await normal-use scrolling feedback; do not restart just for extra validation.
+  Earlier pending preparation steps below are historical and now superseded.
+  Keep private receipt history local until a sanitized publication is prepared.
 - Exact stock binary, four pen-class metadata tables, eight freshly observed
   native providers and vendor-policy pins audited; source-only build succeeds.
   Combined overlay and two-capture resource table are now pinned and verified;

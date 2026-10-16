@@ -1,4 +1,23 @@
-# Pro .153 offline preparation
+# Pro .153 installation handoff
+
+## Installed status (2026-10-16)
+
+ReManager, the sole tablet writer, confirms successful guarded activation on
+Paper Pro firmware 3.29.0.153. Both Companion and WebPDF hosts are ready; all
+thirteen external QMDs loaded and all three expected native modules are mapped.
+The interface reports zero automatic restarts. All sixteen settings checks
+passed, the existing Dispatch icon link is unchanged, and Dates stayed running.
+The root filesystem remains read-only and independent recovery supervision is
+active. The recovery archive was verified off-device before activation.
+
+The installed payload includes the standard-notebook open-bottom scrolling fix.
+This is startup/settings evidence reported by the coordinator, not physical
+scrolling acceptance. No synthetic input or notebook edits were performed.
+No further restart is needed for this handoff; await normal-use feedback.
+
+The historical private operational receipts below are retained locally. This
+branch also inherits private receipts; do not push its history to the public
+repository without preparing a separately reviewed sanitized source history.
 
 ## Corrected inventory stage (supersedes090c82f09ecc)
 
@@ -20,8 +39,8 @@ Input comparison proves only canonical icon path and settings ordering changed.
 All eleven noncontroller stage files are byte-identical to090c; both34QMLorders
 were rerun, all12member hashes and Bash syntax passed. No code/safety guard was
 relaxed, no icon was converted, and the old frozen stage remains untouched.
-The new stage is ready for coordinator-owned guarded preparation/activation;
-no installation/startup claim yet. No tablet operations occurred in this chat.
+The new stage was subsequently activated by ReManager as recorded above.
+No tablet operations occurred in this chat.
 
 ## Final stage sealed (2026-10-16, local/private receipt)
 

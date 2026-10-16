@@ -2,6 +2,15 @@
 
 ## Exact Pro .153 port
 
+Installation status, 2026-10-16: ReManager confirms guarded activation with both
+hosts ready, thirteen external QMD loads, three native module mappings, zero
+automatic restarts and sixteen unchanged settings checks. Dates stayed running,
+the Dispatch icon link is unchanged, root remains read-only and independent
+recovery supervision remains active. This confirms startup, not hands-on scroll
+acceptance. The historical preparation milestones below are superseded by this
+receipt; no additional tablet action was performed by this task. Private receipt
+history must not accompany a public source push.
+
 `ops/firmware-target.mjs::firmwareTarget` pins the new stock binary and gives
 the .153 port its own resource/output root. Source-only output cannot be installed;
 bound output requires the coordinator's actual table. Historical diagnostic modes

@@ -36,6 +36,14 @@ installer without final peer composition and a fresh live-base controller.
 An additional packaging regression rejects substituted raw/canonical/capture
 receipt values in both full and payload-only modes; thirty local tests now pass.
 
+Full .153 composition now uses the coordinator's checksum-pinned twelve-peer
+manifest and additional resources, plus the reviewed combined overlay. Both
+Companion-last and Companion-after-BetterTOC orders parse34QMLresources. Actual
+generated Quick Pad/toolbar logic and scroll tests pass, as do the generated
+WebPDF single-lookup/cancel/fallback tests and Restyle capability-control tests
+in both orders. The seven-member app payload6023c58fb9e4 contains no controller;
+it cannot activate until sealed against the coordinator's fresh restored base.
+
 ## Standard notebook open-ended scrolling (2026-10-12)
 
 `native/navigation.qml.inc::cnConstrainToPane` previously clamped every pane's

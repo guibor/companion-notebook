@@ -22,6 +22,10 @@ Read and write without losing context or compromising native handwriting.
   prior .152 guards pass.
 - Compose both full-stack orders and retain the supervised recovery guards
   before handing a sealed stage to ReManager. No deployment claim yet.
+- Both full-stack orders now pass34QMLparses,46focused/generated checks,
+ 16alternate-order checks and both generated WebPDF/Restyle UI regressions.
+  App-only payload is ready; await fresh active-base/settings inventory to seal
+  the guarded controller. Native runtime smoke/activation stays with ReManager.
 
 * Standard split notebook infinite scrolling (2026-10-12)
 - User confirms the split-screen experience works well but the lower notebook

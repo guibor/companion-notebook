@@ -35,6 +35,15 @@ sole tablet writer. SelectChange owns the combined Restyle/WebPDF overlay.
 4. Current twelve-peer composition manifest (eleven external plus AppLoad),
    additional resource tree, and fresh post-base controller/settings inventory.
 
+The twelve-peer manifest is now supplied and independently verified:
+feaa3e971c9a9dd4152f7f9ff35fdd2f037cb04d4f014d529a301134e49a1b79.
+Both complete load orders parse34QMLresources.46focused/generated checks and
+16alternate-order generated checks pass. Actual composed WebPDF single-lookup
+gesture checks and four Restyle Qt capability checks pass in each order.
+App-only output: build/pro-3.29.0.153/payload-6023c58fb9e4, seven payload files
+and manifest, NO controller. Only the fresh restored-base inventory remains
+before final controller sealing; do not activate the app-only output alone.
+
 The assembler accepts the same argument positions as .152, but rollback arguments
 4/5 must be empty: WebPDFprotocol3 is already accepted, not a pending app upgrade.
 The .153 renderer additionally refuses any webpdfRollback field. Render and test

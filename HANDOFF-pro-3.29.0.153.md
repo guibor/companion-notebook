@@ -1,5 +1,33 @@
 # Pro .153 offline preparation
 
+## Final stage sealed (2026-10-16, local/private receipt)
+
+ReManager supplied the committed active-base capture; final stage is frozen:
+
+- Path: build/pro-3.29.0.153/handoff-090c82f09ecc.
+- Manifest:93c55d5afb7cbae48ce00342d9a4a9ad1c53b58a36e7a88844eb86f200a61cd1.
+- Controller:b9e219f897e82d87a5ad6855281b1323b4007493287bafb4036ef6baccab0c3c.
+- Fresh base inventory:831cfd5053cd6c2e42fc40d7ceb11888ce7a25d136f4143e9b4b2f93c33fec02.
+- Coordinator:090c82f09ecccf3990574f30bc0e8f398a44fe641a6c6d9646a3dfa3f573fdde.
+
+The fresh capture has39basefiles/16settings/11externalQMDs. Both34QML full-stack
+orders were rerun;46focused/generated checks and16alternate-order checks pass.
+All twelve stage member hashes and Bash syntax pass. All seven Companion payloads
+match the previously qualified app-only payload byte-for-byte. The profile retains
+the accepted WebPDF app with no rollback metadata or accept action. ReManager
+separately reported the isolated Restyle native smoke passed on the device.
+
+Copy only the12manifested files plus SHA256SUMS, not controller-inputs.json.
+Use a fresh transaction and the established prepare/off-device-backup verification/
+independent supervised run procedure. Preserve current settings and the watchdog;
+require both hosts ready,13QMDs,three native maps and16settings checks. No tablet
+or server action occurred from this chat. Await coordinator startup receipt;
+offline sealing is not deployment or physical acceptance. Keep operational
+receipts local/private, not in a public push.
+
+Earlier preparation history follows; its pending-input statements are superseded
+by the sealed-stage receipt above.
+
 Branch beta/pro/3.29.0.153 is isolated from the working .152 checkout and includes
 the standard-notebook open-bottom scrolling correction8268ba2. ReManager remains
 sole tablet writer. SelectChange owns the combined Restyle/WebPDF overlay.

@@ -44,6 +44,14 @@ WebPDF single-lookup/cancel/fallback tests and Restyle capability-control tests
 in both orders. The seven-member app payload6023c58fb9e4 contains no controller;
 it cannot activate until sealed against the coordinator's fresh restored base.
 
+Fresh restored-base capture now seals the12-member stage090c82f09ecc. The renderer
+uses39file pins and16current settings, including additional Dispatch-owned state,
+without seeding historical preferences. All seven app payloads match the earlier
+composed output; only controller/base guards bind the current installation.
+The independent watchdog, bounded cold-readiness checks and recovery behavior
+remain unchanged. ReManager is sole activator; this task records local sealing,
+not native startup or physical acceptance.
+
 ## Standard notebook open-ended scrolling (2026-10-12)
 
 `native/navigation.qml.inc::cnConstrainToPane` previously clamped every pane's

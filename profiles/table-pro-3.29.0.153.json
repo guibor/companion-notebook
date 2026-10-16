@@ -1,0 +1,11 @@
+{
+  "firmware": "3.29.0.153",
+  "stockSha256": "9d6d844d793b6242345c7c25667451620c48b2cc28986a21049fa8d534042dd4",
+  "hashtabSha256": "927a5cac7fbb4031a0f78c2ec59bc795c499e330d5029aaa993e99e7dd917417",
+  "secondHashtabSha256": "7ef004c3aca342b72e5ec457ffc24d0b80a43843c68a22908626f0f898e37a6c",
+  "canonicalTableSha256": "deb95682d991670d7dc006ddbb8e102ed9423f2f76ae1c878ad736f2885d8879",
+  "hashtabCaptureStatus": "two-canonical-captures-equal",
+  "canonicalization": "LC_ALL=C sorted qmldiff dump-hashtab output",
+  "dumpLines": 20243,
+  "evidence": "ReManager supplied two independent guarded .153 runtime captures on 2026-10-16 and reported stock recovery after both. Selected raw and canonical hashes independently checked locally by Companion."
+}

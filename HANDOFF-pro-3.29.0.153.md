@@ -15,14 +15,18 @@ sole tablet writer. SelectChange owns the combined Restyle/WebPDF overlay.
 - Source-only Quick Pad build succeeds and retains the scrolling fix.
 - .153 guards/scroll regression tests pass; .152 guard regressions also pass.
 - Source-only output is deliberately unbound and NOT installable.
+- The real .153 table is now pinned; both raw captures and their identical
+  canonical dumps were verified locally. The table-bound Companion QMD builds
+  with no compatibility errors. This is not yet a full-stack installation stage.
 
 ## Inputs still required before sealing
 
 1. Provider/vendor-policy observation is now recorded in
    profiles/runtime-pro-3.29.0.153.json and audited; retain these exact pins.
-2. Actual captured table receipt in profiles/table-pro-3.29.0.153.json, containing
+2. Captured table receipt is now in profiles/table-pro-3.29.0.153.json, containing
    firmware, stockSha256, hashtabSha256, canonicalTableSha256 and
-   hashtabCaptureStatus=two-canonical-captures-equal.
+   hashtabCaptureStatus=two-canonical-captures-equal; all preparation modes
+   require these exact receipt values, not an arbitrary caller-supplied table.
 3. SelectChange's combined QMD/native module/qmldir are now hash-pinned in
    profiles/overlay-pro-3.29.0.153.json; peer static audit received, runtime
    qualification remains with ReManager. Twenty-nine source/recovery tests pass.

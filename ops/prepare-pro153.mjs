@@ -16,6 +16,11 @@ const spec=JSON.parse(specBytes),target=targets['3.29.0.153'];
 assert.equal(spec.firmware,'3.29.0.153');assert.equal(spec.stockSha256,target.stockSha256);
 assert.equal(spec.build,target.build);assert.equal(spec.buildId,target.buildId);
 assert(/^[a-f0-9]{64}$/.test(spec.hashtabSha256||''));
+const capturedTable=JSON.parse(fs.readFileSync('profiles/table-pro-3.29.0.153.json'));
+assert.equal(capturedTable.firmware,spec.firmware);
+assert.equal(capturedTable.stockSha256,spec.stockSha256);
+for(const key of ['hashtabSha256','canonicalTableSha256','hashtabCaptureStatus'])
+    assert.equal(spec[key],capturedTable[key],'Captured table receipt mismatch: '+key);
 assert(Array.isArray(spec.qmds)&&spec.qmds.length>0);
 for(const peer of spec.qmds) {
     assert(/^[a-f0-9]{64}$/.test(peer.sha256));

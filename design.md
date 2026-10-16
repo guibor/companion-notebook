@@ -28,6 +28,11 @@ Restyle module, preserving the page-links menu and capability-readiness fix.
 Twenty-nine source/guard/recovery tests pass, including rejection of old-app
 rollback and preservation of current settings through mocked recovery. Final
 full-stack table-bound composition still requires the coordinator's inputs.
+The table profile now records two independently captured tables with matching
+canonical dumps. Preparation binds the selected raw hash, canonical hash and
+capture status to that receipt, including payload-only mode. The bound Companion
+build reports no compatibility errors; its generated QMD is not a standalone
+installer without final peer composition and a fresh live-base controller.
 
 ## Standard notebook open-ended scrolling (2026-10-12)
 

@@ -18,6 +18,8 @@ sole tablet writer. SelectChange owns the combined Restyle/WebPDF overlay.
 - The real .153 table is now pinned; both raw captures and their identical
   canonical dumps were verified locally. The table-bound Companion QMD builds
   with no compatibility errors. This is not yet a full-stack installation stage.
+- Thirty local tests pass, including substituted-table rejection in both
+  full-controller and payload-only preparation modes.
 
 ## Inputs still required before sealing
 

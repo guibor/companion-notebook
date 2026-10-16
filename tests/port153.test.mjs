@@ -1,6 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {firmwareTarget,targets} from '../ops/firmware-target.mjs';
 
@@ -30,4 +33,20 @@ test('.153 unbound build is isolated and contains the standard notebook scroll f
     const q=fs.readFileSync('build/pro-3.29.0.153-unbound/quick-pad-native/companion-notebook.qmd','utf8');
     assert.match(q,/VERSION 3\.29\.0\.153/);
     assert.match(q,/\(notePage && !cnQuickPad\) \? Math.max\(minY, topLeft.y\)/);
+});
+test('.153 packaging refuses a substituted table receipt even in payload-only mode',()=>{
+    const dir=fs.mkdtempSync(path.join(os.tmpdir(),'companion-port153-'));
+    try {
+        const runtime=JSON.parse(fs.readFileSync('profiles/runtime-pro-3.29.0.153.json'));
+        const table=JSON.parse(fs.readFileSync('profiles/table-pro-3.29.0.153.json'));
+        for(const key of ['hashtabSha256','canonicalTableSha256','hashtabCaptureStatus']) {
+            const spec={...runtime,...table,qmds:[],[key]:'a'.repeat(64)};
+            const bytes=JSON.stringify(spec),file=dir+'/input.json';
+            fs.writeFileSync(file,bytes);
+            const hash=createHash('sha256').update(bytes).digest('hex');
+            for(const mode of [[],['--payload-only']])
+                assert.throws(()=>execFileSync(process.execPath,['ops/prepare-pro153.mjs',file,hash,...mode],{stdio:'pipe'}),
+                    e=>e.stderr.toString().includes('Captured table receipt mismatch: '+key));
+        }
+    }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });

@@ -18,7 +18,7 @@ Read and write without losing context or compromising native handwriting.
   native providers and vendor-policy pins audited; source-only build succeeds.
   Combined overlay and two-capture resource table are now pinned and verified;
   bound build reports no compatibility errors. Await final peer stack and
-  current base/settings inventory. Twenty-nine .153 source/recovery tests and
+  current base/settings inventory. Thirty .153 source/recovery tests and
   prior .152 guards pass.
 - Compose both full-stack orders and retain the supervised recovery guards
   before handing a sealed stage to ReManager. No deployment claim yet.

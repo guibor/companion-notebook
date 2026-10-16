@@ -33,6 +33,8 @@ canonical dumps. Preparation binds the selected raw hash, canonical hash and
 capture status to that receipt, including payload-only mode. The bound Companion
 build reports no compatibility errors; its generated QMD is not a standalone
 installer without final peer composition and a fresh live-base controller.
+An additional packaging regression rejects substituted raw/canonical/capture
+receipt values in both full and payload-only modes; thirty local tests now pass.
 
 ## Standard notebook open-ended scrolling (2026-10-12)
 

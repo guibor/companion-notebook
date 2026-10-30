@@ -3,6 +3,14 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Current Pro 3.29.1.0 restoration
+- [X] Complete guarded Companion/Quick Pad activation after encrypted rollback
+  verification and fresh exact base/settings checks. All four feature hosts
+  ready,13QMDs loaded, zero automatic UI restarts and17settings preserved.
+- Keep Move excluded. The prior base-only Pro session was not complete.
+- Next: preserve this full native layer in future restores; distinguish physical
+  interactions from the verified startup, and retain answer-writing disabled.
+
 * Pro 3.29.0.153 restoration (2026-10-16)
 - Preserve the standard-notebook lower-scroll correction, Companion/Quick Pad
   behavior, native input protections and current device-local settings.

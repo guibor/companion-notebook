@@ -1,5 +1,14 @@
 # Architecture and implementation status
 
+## Pro 3.29.1.0 completed activation
+
+The prepared native stage7a9b60ec3894 is now active under owner
+20261030T121000Z-1 after fresh71-file/17-setting base equality and an approved
+encrypted off-device rollback copy. Companion/Quick Pad ink/settings readiness,
+WebPDF and both Dot host readiness passed with13QMDs, UI26216/NRestarts0 and
+rootRO. No native source change or settings seed was required. Maintenance owns
+the exact receipt and full-feature post-install gate; physical use is separate.
+
 ## Exact Pro .153 port
 
 Installation status, 2026-10-16: ReManager confirms guarded activation with both

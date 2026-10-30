@@ -806,3 +806,9 @@ Read and write without losing context or compromising native handwriting.
 ** Immediate next steps
 - Install the guarded corner-viewport revision and collect handwriting/refresh
   feedback. Do not describe desktop tests as physical pen qualification.
+* Pro 3.29.1.0 restoration (2026-10-30)
+- Preserve accepted features and this device's settings; Move remains independent.
+- [ ] Complete exact-firmware composition and guarded installation.
+- [ ] Record installed hashes and recovery receipt separately from physical use.
+** Changed requirements
+- This branch targets 3.29.1.0; older firmware receipts do not qualify it.

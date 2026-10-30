@@ -1,0 +1,11 @@
+{
+  "firmware": "3.29.1.0",
+  "stockSha256": "35e940d8acb3de0dfaf61f1a421d450e61dbaa915f885c818a2a3cc5c94c8ecd",
+  "hashtabSha256": "2d83991be3a49c56b2871c334b0b18902791d84406e6a688099a08df5ed8de20",
+  "secondHashtabSha256": "be81597bb78559106cef6194b4204149f5d31da97be0284a72b981b5458f9175",
+  "canonicalTableSha256": "f96a05d0a4b0532ffa862e688b2d7e9bc86fb871a6efe26743243ff2e310174f",
+  "hashtabCaptureStatus": "two-canonical-captures-equal",
+  "canonicalization": "LC_ALL=C sorted qmldiff dump-hashtab output",
+  "dumpLines": 20243,
+  "evidence": "Two independent guarded Ferrari captures on 2026-10-30, canonically compared locally; both recovered stock."
+}

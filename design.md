@@ -1887,3 +1887,11 @@ the inner top/side hairlines remain. Completion skips the redundant explicit
 secondary full-viewport refresh for Quick Pad; the source refresh remains to
 clear the newly covered/uncovered area. This reduces redraw requests, not a
 promise of zero e-ink flashes. Ordinary Companion behavior is unchanged.
+## Pro 3.29.1.0 qualification
+
+This branch retains the accepted application behavior and device-local state.
+Firmware-specific generators, guards and qualification entrypoints use the
+fresh Ferrari stock binary and independently captured resource table. Historical
+controllers remain historical; maintenance seals a new combined controller from
+current files and settings before activation. Move and shared servers are unchanged.
+Static/build results are not installation or physical interaction acceptance.

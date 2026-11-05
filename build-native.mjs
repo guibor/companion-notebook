@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {quickPadHost, quickPadQmd} from './ops/quick-pad-build.mjs';
+import {portPro330Toolbar} from './ops/port-pro330-toolbar.mjs';
 import {firmwareTarget} from './ops/firmware-target.mjs';
 const target = firmwareTarget();
 const firmware = target.root;
@@ -717,6 +718,7 @@ END AFFECT
 fs.mkdirSync(output,{recursive:true});
 fs.mkdirSync('build/test-settings',{recursive:true});
 if (quickPad) q = quickPadQmd(q, {affect, insert});
+if (target.version === '3.30.0.108') q = portPro330Toolbar(q);
 fs.writeFileSync(output+'/companion-notebook.qmd',q);
 // Keep consumed diagnostic receipts reproducible while the product UI evolves.
 if (diagnostic) exact('native/DiagnosticHost.qml','7b76db63188dfc4065cf88301fb0591e0b2213e4483285061c9b08e9f10621e7');

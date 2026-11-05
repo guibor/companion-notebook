@@ -1,0 +1,11 @@
+{
+  "firmware": "3.30.0.108",
+  "stockSha256": "31d33b05e85af85b06a5a92edf710532a0a122ed4cf51e702c19eed0feb6753b",
+  "hashtabSha256": "d13c4ce53669d4b72fb26fdc94678d400fd395224476e7f6a69b805fce3d0c25",
+  "secondHashtabSha256": "d53cd8cb9ca01ac86ecbd4ea67c237b160a8dbe19bf1e8cd5158fb4da7e00d21",
+  "canonicalTableSha256": "abac32138c9d8b8ad122149b895f95a8f865e3d4df5bc8e9ac7f45cbd1dc6015",
+  "hashtabCaptureStatus": "two-canonical-captures-equal",
+  "canonicalization": "dump-hashtab lines trimmed, sorted, joined by LF without final LF",
+  "dumpLines": 21157,
+  "evidence": "Two guarded captures 20261105T165322Z-1398 and 20261105T165454Z-2280; maintenance promoted exact raw table."
+}

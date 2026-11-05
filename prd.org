@@ -3,6 +3,16 @@
 * Objective
 Read and write without losing context or compromising native handwriting.
 
+* Pro 3.30 immediate restoration steps
+- [X] Rebuild admission module, verify metadata/providers and isolated fake-object smoke.
+- [ ] Compose the final Restyle/WebPDF/Dot overlay with Companion and all base tools.
+- [ ] Seal a fresh settings-preserving controller, encrypt rollback, activate.
+- [X] Correct duplicated stock capacity handler after guarded fallback.
+- Keep the accepted user pilot protections and independent Move boundaries.
+** Changed requirement
+- 3.30 moves toolbar/selection/viewport components and changes provider libraries;
+  previous firmware manifests are historical, not reuse authority.
+
 * Current Pro 3.29.1.0 restoration
 - [X] Complete guarded Companion/Quick Pad activation after encrypted rollback
   verification and fresh exact base/settings checks. All four feature hosts
@@ -820,3 +830,22 @@ Read and write without losing context or compromising native handwriting.
 - [ ] Record installed hashes and recovery receipt separately from physical use.
 ** Changed requirements
 - This branch targets 3.29.1.0; older firmware receipts do not qualify it.
+* Pro 3.30.0.108 port
+- [X] Verify native pen metadata and rebuild against exact provider libraries.
+- [X] Qualify ToolbarItem attached-group migration without weakening native park.
+- [X] Whole-stack composition, isolated smoke, guarded activation and receipt.
+- [X] Compose the port against all eleven corrected base QMDs plus AppLoad.
+- Move remains independent and receives no Companion/split-screen installation.
+- [X] Supply the new 3.30 NavigationManager to dynamic secondary views and
+  reject composition if any stock required property is absent.
+- [X] Restore from a fresh third-stage inventory after the guarded Quick Pad
+  creation failure; startup readiness alone does not prove opening a second view.
+- [X] Owner confirmed Companion and Quick Pad/To-do work on the third activation.
+- [X] Install the rendering-only 3.30 open/close refresh mitigation, preserving
+  cached views and all native pen/save gates; physical refresh quality remains open.
+** Changed requirements
+- Successful open/close is not sufficient: preserve the reduced-flash behavior
+  of the previous firmware. The reported regression is in opening/closing, not ink.
+- [ ] Resolve the two horizontal lines at a split-view join seen in the owner's
+  photo. Only one divider is generated; distinguish a content edge from a
+  compositor remnant before changing page geometry. Quick Pad is unaffected.

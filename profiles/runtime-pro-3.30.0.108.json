@@ -1,0 +1,51 @@
+{
+  "firmware": "3.30.0.108",
+  "build": "20261028121323",
+  "stockSha256": "31d33b05e85af85b06a5a92edf710532a0a122ed4cf51e702c19eed0feb6753b",
+  "buildId": "7fc00ccbc5e170bb5e133a40298396e1af5728b4",
+  "evidence": "All nine providers and both vendor policies read back from matched Ferrari on 2026-11-05. Companion rebuilt and isolated smoke passed; full native activation remains separate.",
+  "libraries": {
+    "libQt6Core.so.6": {
+      "devicePath": "/usr/lib/libQt6Core.so.6.10.3",
+      "sha256": "f0af94da48830e41126bcd54133482e3d7fe99dc0c1447a9ccc5369f26b4ca80",
+      "localPath": "/Users/mdf/code/.worktrees/remarkable-beta-os-pro-3300108/.cache/firmware/3.30.0.108/libQt6Core.so.6.10.3"
+    },
+    "libQt6Gui.so.6": {
+      "devicePath": "/usr/lib/libQt6Gui.so.6.10.3",
+      "sha256": "1c87c2baf9e486623aeb28ea0ad6696d499ee044a26994c5a8652fe0fc9b6014"
+    },
+    "libQt6Qml.so.6": {
+      "devicePath": "/usr/lib/libQt6Qml.so.6.10.3",
+      "sha256": "c0f3b1dfdafae658de9986aabe381f956e2ec1b61bf45c3b5483222499985826",
+      "localPath": "/Users/mdf/code/.worktrees/remarkable-beta-os-pro-3300108/.cache/firmware/3.30.0.108/libQt6Qml.so.6.10.3"
+    },
+    "libstdc++.so.6": {
+      "devicePath": "/usr/lib/libstdc++.so.6.0.36",
+      "sha256": "20837030fc7050dc467032f1647303182177cbb754408c982d4f302b68d5d15c"
+    },
+    "libgcc_s.so.1": {
+      "devicePath": "/usr/lib/libgcc_s.so.1",
+      "sha256": "97ef91da5ffeb3acd83e9d68cb4eeb3f8ab7bdf565f8702e46e5dc912806f07a"
+    },
+    "libc.so.6": {
+      "devicePath": "/usr/lib/libc.so.6",
+      "sha256": "128aa29bfe24f71063460b797b4339a97c8dd0f08a3de27c36f8cbfde023e130"
+    },
+    "libm.so.6": {
+      "devicePath": "/usr/lib/libm.so.6",
+      "sha256": "3e44d72752e06b53cf74945d4aa1033f7ddef0e3e39af411efda7bc3b18741d9"
+    },
+    "libdl.so.2": {
+      "devicePath": "/usr/lib/libdl.so.2",
+      "sha256": "ac667407c68a05999e125d1d1532d6988846a7faefaed4556d887e37ce575366"
+    },
+    "libpthread.so.0": {
+      "devicePath": "/usr/lib/libpthread.so.0",
+      "sha256": "9463508bff81a9f395991312d9d630759109d6e13f8fe6c3ff34b21e136e0671"
+    }
+  },
+  "vendorPolicyHashes": {
+    "unit": "23f537cf59d527bfbf4823f372385d613e1ade0961c98831c935a372018f9566",
+    "sameBasenameOverride": "33678ec27beba2d62c03bcbec8b3a4521b8e537ade1ea29e0ea3c8850ffe851a"
+  }
+}

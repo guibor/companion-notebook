@@ -1,5 +1,20 @@
 # Architecture and implementation status
 
+## Pro 3.30 combined restoration
+
+The new assembler, controller renderer and preparer bind the freshly observed
+eleven-QMD base (including bottom-position Timer r2), device-private settings,
+new provider libraries and rebuilt admission module. They retain the separate
+owner/watchdog, bounded recovery and current pairing data in place. Restyle,
+WebPDF and PDF-to-Dot share one reviewed additive overlay. No Move state is used.
+`audit-pro3300108.mjs` verifies the rebuilt artifact against its source and
+live provider manifest rather than assuming the historical library providers.
+Full composition and activation are separate from the passed fake-object smoke.
+The first 3.30 native startup safely returned to base because the adapter
+inserted `onShowableToolsCountChanged` without removing stock's existing handler.
+The adapter now replaces it explicitly; both composition gates require exactly
+one handler. A new inventory/stage is required; the failed stage stays immutable.
+
 ## Pro 3.29.1.0 completed activation
 
 The prepared native stage7a9b60ec3894 is now active under owner
@@ -1904,3 +1919,42 @@ fresh Ferrari stock binary and independently captured resource table. Historical
 controllers remain historical; maintenance seals a new combined controller from
 current files and settings before activation. Move and shared servers are unchanged.
 Static/build results are not installation or physical interaction acceptance.
+# Pro 3.30 toolbar adapter
+
+`ops/port-pro330-toolbar.mjs` migrates only the 3.30 target to ToolbarItem and
+its attached pen, selection, eraser and history groups. Outer press handlers
+still park native input before changing tools. Toolbar ownership resolves from
+the local geometry container, never a global singleton; only the primary view
+publishes shared tool visibility/capacity. Native admission binaries are rebuilt
+against the actual 3.30 providers. These changes require whole-stack composition
+and guarded runtime qualification before being called installed.
+`tests/pro330-composition.mjs` binds the new runtime table and composes Companion
+before/after the complete eleven-QMD base plus AppLoad. It verifies attached
+handler forwarding, explicit keyboard imports, and the rendering/input gates
+that moved into ViewportBindings and StrokeInput in 3.30.
+`ops/stage-smoke-pro330.mjs` seals rebuilt native artifacts and their provider
+hashes into a temporary capsule. `smoke-pro330.sh` runs only fake Qt objects in
+a bounded transient service with no device access, and proves the running UI
+PID/restart count is unchanged. This does not qualify real pen interaction.
+
+The adapter also passes the same stock `NavigationManager` into each dynamic
+secondary `DocumentView`. In 3.30 this is required during object construction,
+not only when the primary view starts. `verifyPro330SecondaryRequirements`
+compares every required stock property with the composed secondary bindings;
+both standalone and combined preparation run this regression before staging.
+The failed second activation recovered to the base; no historical stage is reused.
+
+After the owner confirmed Companion and Quick Pad work, extra open/close flashes
+were reported on 3.30. The adapter extends the existing animation-waveform scope
+from divider dragging to the parked loading/settling/publishing phases only.
+The final stock cleanup, cached pad geometry, native admission and save lifecycle
+remain unchanged. Cold start, input draining, dialogs, suspension and failures
+cannot hold this refresh mode. Composition tests exercise all phase predicates.
+This is a targeted rendering mitigation; physical flash reduction is a separate
+acceptance check, not implied by parsing or successful startup.
+Final owner 20261105T193233Z-65885 passed the thirteen-QMD/four-host runtime
+gate with preserved settings and no automatic UI restarts. The owner's later
+photo shows an upper line aligned to the notebook content edge and our lower
+full-width divider. No second Companion divider is generated. That visual
+join remains unresolved; do not infer that it is a saved notebook stroke or
+remove a stock page boundary speculatively.

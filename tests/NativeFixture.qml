@@ -5,6 +5,9 @@ Item {
     id: fixture
     width: 600; height: 900
     property url storeLocation
+    // Opt-in flat pages isolate generated host chrome from real document edges.
+    // This synthetic fixture does not model native rendering or e-ink remanence.
+    property bool paintSyntheticPages: false
     property var host: null
     property Component hostFactory: regularHostFactory
     property alias bridge: mockBridge
@@ -22,6 +25,11 @@ Item {
     Item {
         id: primaryView
         anchors.fill: parent
+        Rectangle {
+            anchors.fill: parent
+            visible: fixture.paintSyntheticPages
+            color: "#e8e8e8"
+        }
         property var document: ({id: "11111111-1111-4111-8111-111111111111"})
         property string currentPageId: "66666666-6666-4666-8666-666666666666"
         property bool cnGestureBusy: false
@@ -52,6 +60,11 @@ Item {
         Item {
             id: secondaryView
             anchors.fill: parent
+            Rectangle {
+                anchors.fill: parent
+                visible: fixture.paintSyntheticPages
+                color: "#fafafa"
+            }
             property var cnHost
             property var document: null
             property string currentPageId: "33333333-3333-4333-8333-333333333333"

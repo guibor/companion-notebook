@@ -24,6 +24,98 @@ Item {
             verify(f.host.quickPadChoosing); verify(f.host.pick(pad)); settle()
             verify(f.host.quickPadActive)
         }
+        function syntheticSnapshot() {
+            // grabImage also renders synchronously; do not wait five seconds
+            // for an additional frame when the host is already fully settled.
+            waitForRendering(f,100)
+            var image=grabImage(f)
+            verify(image.width > 0 && image.height > 0)
+            return image
+        }
+        function syntheticPixel(image, localX, localY) {
+            return image.pixel(Math.floor(localX*image.width/f.width),Math.floor(localY*image.height/f.height))
+        }
+        function darkRunsAt(image, localX) {
+            var x=Math.min(image.width-1,Math.max(0,Math.floor(localX*image.width/f.width)))
+            var runs=[], start=-1
+            for (var y=0;y<image.height;++y) {
+                var dark=image.red(x,y)<160 && image.green(x,y)<160 && image.blue(x,y)<160
+                if (dark && start<0) start=y
+                if (!dark && start>=0) { runs.push({start:start,end:y}); start=-1 }
+            }
+            if (start>=0) runs.push({start:start,end:image.height})
+            return runs
+        }
+        function verifySingleSyntheticDivider(image, sheet, localX) {
+            var runs=darkRunsAt(image,localX), scale=image.height/f.height
+            compare(runs.length,1,"Flat synthetic pages must expose exactly one host divider")
+            verify(Math.abs(runs[0].start-sheet.y*scale)<=1,"Divider starts at the sheet join")
+            verify(Math.abs(runs[0].end-(sheet.y+f.host.barHeight)*scale)<=1,
+                   "Divider ends where the secondary content begins")
+        }
+        function test_synthetic_split_uses_unruled_seam_data() {
+            var rows=[]
+            for (var width of [600,809,810]) {
+                for (var ratio of [.25,.375,.5]) {
+                    rows.push({tag:width+"-"+ratio,width:width,ratio:ratio})
+                }
+            }
+            return rows
+        }
+        function test_synthetic_split_uses_unruled_seam(data) {
+            // No grid, PDF page border or saved notebook is used. This checks
+            // generated QML chrome only, not physical e-ink refresh behavior.
+            f.width=data.width; f.height=901; f.paintSyntheticPages=true
+            verify(f.host.layoutChoice(data.ratio)); tryCompare(f.host,"transitionPhase","choosing")
+            verify(f.host.pick(pad)); settle()
+            var sheet=findChild(f.host,"quickPadSheet")
+            verify(sheet); compare(sheet.x,0); compare(sheet.width,f.width)
+            fuzzyCompare(sheet.y,f.height*(1-data.ratio),.001)
+            compare(f.host.mainInputHeight,sheet.y)
+            compare(f.host.secondaryInputHeight,f.host.revealHeight-f.host.barHeight)
+            compare(f.host.barHeight,2*f.host.unit)
+            compare(f.host.secondary.parent.y,f.host.barHeight)
+            var image=syntheticSnapshot()
+            for (var fraction of [.125,.5,.875]) {
+                var x=f.width*fraction
+                compare(darkRunsAt(image,x).length,0,"Full-width split must not draw an extra dark rule")
+                compare(syntheticPixel(image,x,sheet.y-3),Qt.rgba(232/255,232/255,232/255,1))
+                compare(syntheticPixel(image,x,sheet.y+f.host.barHeight+3),Qt.rgba(250/255,250/255,250/255,1))
+            }
+            var oldJoin=sheet.y
+            verify(f.host.toggleCompanion()); settle(); verify(!f.host.paired)
+            image=syntheticSnapshot()
+            for (var fraction of [.125,.5,.875]) {
+                compare(darkRunsAt(image,f.width*fraction).length,0)
+                compare(syntheticPixel(image,f.width*fraction,oldJoin),Qt.rgba(232/255,232/255,232/255,1))
+            }
+        }
+        function test_synthetic_corner_keeps_boundary_local_data() {
+            return [{tag:"left",corner:"left"},{tag:"right",corner:"right"}]
+        }
+        function test_synthetic_corner_keeps_boundary_local(data) {
+            f.width=810; f.height=1080; f.paintSyntheticPages=true
+            verify(f.host.saveQuickPad(pad,data.corner,"compact"))
+            verify(f.host.layoutChoice(2)); tryCompare(f.host,"transitionPhase","choosing")
+            verify(f.host.pick(pad)); settle()
+            var sheet=findChild(f.host,"quickPadSheet")
+            verify(sheet); compare(sheet.width,f.host.quickPadWidth); compare(sheet.height,f.host.quickPadHeight)
+            compare(sheet.x,data.corner === "left" ? 0 : f.width-sheet.width)
+            compare(sheet.y,f.height-sheet.height); compare(f.host.mainInputHeight,f.height)
+            compare(f.host.secondaryInputHeight,sheet.height-f.host.barHeight)
+            var image=syntheticSnapshot()
+            verifySingleSyntheticDivider(image,sheet,sheet.x+sheet.width/2)
+            var sideX=sheet.x+(data.corner === "left" ? sheet.width-.5 : .5)
+            var sideRuns=darkRunsAt(image,sideX), scale=image.height/f.height
+            compare(sideRuns.length,1,"Keep the corner's thin side boundary")
+            verify(Math.abs(sideRuns[0].start-sheet.y*scale)<=1)
+            compare(sideRuns[0].end,image.height)
+            var outsideX=data.corner === "left" ? (sheet.width+f.width)/2 : sheet.x/2
+            compare(darkRunsAt(image,outsideX).length,0,"Corner boundary must not extend across the primary page")
+            verify(f.host.toggleCompanion()); settle(); verify(!f.host.paired)
+            image=syntheticSnapshot()
+            compare(darkRunsAt(image,sheet.x+sheet.width/2).length,0)
+        }
         function test_first_use_settings_last_page_fit_and_toggle() {
             openPad()
             compare(f.bridge.padOpenCount,1); compare(f.bridge.lastPageOpened,6)

@@ -57,6 +57,11 @@ export function quickPadHost(host) {
     host = once(host, 'quickPadActive ? quickPadHeight : revealHeight', 'cornerPaneGeometry ? quickPadHeight : revealHeight');
     host = once(host, 'host.quickPadActive ? (p.position.y', 'host.cornerPaneActive ? (p.position.y');
     host = once(host, 'host.quickPadActive ? 2 * host.unit', 'host.cornerPaneActive ? 2 * host.unit');
+    // A full-width split needs no extra rule beneath the document's own edge.
+    // Keep the two-pixel seam and every native/input coordinate unchanged;
+    // only a corner pane retains its enclosing top and side rules.
+    host = once(host, 'height: host.cornerPaneActive ? 2 * host.unit : host.barHeight; color: "#555"',
+        'height: host.cornerPaneActive ? 2 * host.unit : host.barHeight; color: host.cornerPaneActive ? "#555" : "transparent"');
     host = once(host, '(host.restoring && !host.quickPadActive)', '(host.restoring && !host.cornerPaneActive)');
     host = once(host, 'String(secondary.currentPageId || ""))', 'String(secondary.currentPageId || ""), companionLayout)');
     host = once(host, 'var p = pairs.pairs[id]', 'var p = pairs.pairs[id]\n        companionLayout = p && p.layout === "corner" ? "corner" : "split"');

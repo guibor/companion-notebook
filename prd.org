@@ -381,7 +381,8 @@ Read and write without losing context or compromising native handwriting.
   One writing-tool selection (pen, color, thickness, eraser) applies to both panes;
   no manual pane selection is required to share the tool. Document operations
   remain scoped to one notebook; their target behavior is specified separately.
-- The middle separator is a hairline only, with no controls or labels at all.
+- The full-width middle seam is unruled, with no controls or labels at all;
+  corner panes retain their thin top and side borders.
   Layout pictures and close live in the existing document toolbar menu, following
   the RMHacks split-document pattern. No floating reopen button on the page.
 - Pairings belong to the primary notebook or PDF; no same-document pair in v1.
@@ -846,6 +847,15 @@ Read and write without losing context or compromising native handwriting.
 ** Changed requirements
 - Successful open/close is not sufficient: preserve the reduced-flash behavior
   of the previous firmware. The reported regression is in opening/closing, not ink.
-- [ ] Resolve the two horizontal lines at a split-view join seen in the owner's
-  photo. Only one divider is generated; distinguish a content edge from a
-  compositor remnant before changing page geometry. Quick Pad is unaffected.
+- Full-width Companion uses a clean whitespace seam instead of adding another
+  horizontal rule beneath the document's own edge. Keep the existing two-pixel
+  spacing, native geometry and input boundaries. Quick Pad and corner Companion
+  retain their thin top/side borders; never mask document content to hide a line.
+- This replaces the earlier requirement that every middle separator be a visible
+  hairline. The upper line in the owner's photo is not yet attributed to a
+  particular content/stock-renderer source; removing our added rule does not
+  imply that source has been diagnosed.
+** Immediate next steps
+- [X] Verify flat synthetic split/corner rendering and unchanged input geometry.
+- [X] Install the visual-only seam correction with a fresh guarded transaction.
+- [ ] Keep actual e-ink appearance separate from offline/runtime acceptance.

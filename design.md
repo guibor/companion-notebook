@@ -746,7 +746,8 @@ separation rather than importing its older firmware patches. In the pilot build,
 the Companion loader is a visual child of the primary DocumentView, beneath its
 raised native uiContainer. The full-size primary toolbar stays visible regardless
 of which pane last received ink, so left/right rails and foldouts remain above
-the lower canvas. The sheet begins with a two-pixel separator; its title/actions,
+the lower canvas. The sheet begins with a two-pixel seam (the full-width rule
+is transparent since the November 5 correction); its title/actions,
 fraction ruler and floating reopen banner are removed from the visible UI.
 
 `shared-tools.qml.inc::cnToolState()` snapshots only pen/style/eraser settings.
@@ -1958,3 +1959,21 @@ photo shows an upper line aligned to the notebook content edge and our lower
 full-width divider. No second Companion divider is generated. That visual
 join remains unresolved; do not infer that it is a saved notebook stroke or
 remove a stock page boundary speculatively.
+
+## Full-width split seam correction (2026-11-05)
+
+`ops/quick-pad-build.mjs::quickPadHost` now makes the existing `grip` rectangle
+transparent for a standard full-width split. The sheet's white backing provides
+a clean two-pixel seam; its y coordinate, `barHeight`, native-container offset,
+input heights and all parked-transition logic are unchanged. Corner Companion
+and Quick Pad still render the same thin top and side rules. No document pixels
+are covered beyond the existing sheet, and no stock PDF/page-edge overlay is
+disabled. This removes the known added lower rule from the reported double-line
+join without claiming that the upper line's renderer has been identified.
+
+`tests/tst_quickpad.qml` uses opt-in flat-color visuals in `NativeFixture.qml`
+to inspect generated-host pixels at split presets and scaled widths. Its seam
+and corner checks isolate our chrome from arbitrary notebook/template content;
+they do not establish physical e-ink cleanup or saved-ink correctness.
+The installed r5 owner `20261105T214518Z-11402` passed the complete runtime
+gate with current settings preserved. Physical seam appearance remains separate.
